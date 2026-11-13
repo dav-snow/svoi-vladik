@@ -61,6 +61,35 @@ def test_place_by_existing_id(client: TestClient) -> None:
     assert body["id"] == place_id
 
 
+def test_place_route_url_is_ready_2gis_link(client: TestClient) -> None:
+    # Each place carries a ready-to-use 2GIS pedestrian route URL built from its
+    # coordinates, with a literal '|' separator (not %7C). The frontend uses it
+    # as-is, so the destination must be prefilled.
+    resp = client.get("/api/v1/places")
+    items = resp.json()["items"]
+    assert items
+    for place in items:
+        url = place["route_url"]
+        coords = place["coordinates"]
+        assert url is not None
+        assert "%7C" not in url
+        assert "points/|" in url
+        expected = (
+            "https://2gis.ru/directions/tab/pedestrian/points/"
+            f"|{coords['lng']},{coords['lat']}"
+        )
+        assert url == expected
+
+
+def test_place_card_has_route_url(client: TestClient) -> None:
+    place_id = PLACES[0].id
+    resp = client.get(f"/api/v1/places/{place_id}")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert "route_url" in body
+    assert "points/|" in body["route_url"]
+
+
 def test_place_unknown_id_is_not_found(client: TestClient) -> None:
     resp = client.get("/api/v1/places/osm-node-000000")
     assert resp.status_code == 404
