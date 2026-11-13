@@ -260,6 +260,8 @@ $("avatar-open")?.addEventListener("click",showAvatar);
 $("mobile-sheet-toggle")?.addEventListener("click",()=>{ const sheet=document.querySelector('.sidebar');sheet.classList.toggle('is-collapsed');$('mobile-sheet-toggle').setAttribute('aria-expanded',String(!sheet.classList.contains('is-collapsed'))); });
 document.querySelectorAll("[data-close-dialog]").forEach(b=>b.addEventListener("click",()=>b.closest('dialog').close()));
 document.querySelectorAll("dialog").forEach(d=>d.addEventListener("click",e=>{if(e.target===d)d.close();}));
+let mobileViewport=innerWidth<780;
+window.addEventListener('resize',()=>{const mobile=innerWidth<780;if(state.map&&mobile!==mobileViewport){state.map.resize();state.map.setPadding(mobile?{top:10,bottom:Math.min(innerHeight*0.46,430),left:10,right:10}:{top:0,bottom:0,left:0,right:0});}mobileViewport=mobile;});
 Promise.all([getJSON('data/leninsky-boundary.geojson'),getJSON('data/leninsky-poi-candidates.geojson')]).then(([boundary,pois])=>{
   state.boundary=boundary;state.places=preparePlaces(pois);const avatar=readStorage();if($('avatar-open'))$('avatar-open').dataset.avatar=avatar;
   renderPlaces();initialiseMap();
