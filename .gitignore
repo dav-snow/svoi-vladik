@@ -1,0 +1,29 @@
+# Local secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Frontend
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Local editor / OS artifacts
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
+tmp/
+.local/
