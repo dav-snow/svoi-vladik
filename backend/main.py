@@ -6,6 +6,7 @@ import hmac
 import json
 import logging
 import os
+import re
 import secrets
 import sqlite3
 import time
@@ -34,6 +35,8 @@ ANSWERS_FILE = REPO_ROOT / "data/private/quest-answers.json"
 GUIDES_FILE = REPO_ROOT / "data/guides.json"
 FRONTEND_DIR = REPO_ROOT / "frontend-design/dist"
 DATA_DIR = FRONTEND_DIR / "data"
+# Editorial place photos, referenced in data as /media/...
+MEDIA_DIR = REPO_ROOT / "data" / "media"
 # Kept for callers of the old loader; public endpoints no longer substitute mocks.
 ROUTES_MOCK_FILE = REPO_ROOT / "data/examples/route_mock.json"
 QUESTS_MOCK_FILE = REPO_ROOT / "data/examples/quest_mock.json"
@@ -67,6 +70,34 @@ class SourceRef(BaseModel):
             raise ValueError("Expected a public HTTPS source")
         return value
 
+# Safe image reference: public HTTPS URL, or a same-origin path under
+# /media or /assets. No protocol-relative URLs, no traversal, no encoding tricks.
+_IMAGE_PATH_RE = re.compile(r"^/(?:media|assets)/[A-Za-z0-9._/-]+$")
+
+def _valid_image_url(value: str) -> str:
+    if value.startswith("https://"):
+        return SourceRef.https_url(value)
+    if ".." in value or "//" in value or not _IMAGE_PATH_RE.match(value):
+        raise ValueError("Expected a public HTTPS URL or /media|/assets path")
+    return value
+
+class PlaceImage(BaseModel):
+    """One gallery photo for a place (same origin or public HTTPS)."""
+    url: str = Field(min_length=1, max_length=500)
+    alt: str = Field(default="", max_length=300)
+    caption: str = Field(default="", max_length=500)
+    source_url: str | None = None
+
+    @field_validator("url")
+    @classmethod
+    def valid_url(cls, value):
+        return _valid_image_url(value)
+
+    @field_validator("source_url")
+    @classmethod
+    def https_source(cls, value):
+        return SourceRef.https_url(value) if value else value
+
 class Editorial(BaseModel):
     # An explicit response model drops unrecognised editorial/private fields.
     model_config = ConfigDict(extra="ignore")
@@ -89,7 +120,8 @@ class Place(Editorial):
     price_rub: int | None = Field(default=None, ge=0, strict=True)
     description: str = ""
     address: str | None = None
-    image: str | None = None
+    image: str | None = None  # legacy single cover; keep for backward compat
+    images: list[PlaceImage] = Field(default_factory=list)
     district_verified: bool = Field(default=False, strict=True)
     active: bool = Field(default=True, strict=True)
     osm_tags: dict[str, Any] = Field(default_factory=dict)
@@ -940,5 +972,8 @@ async def data_pois():
 
 if DATA_DIR.is_dir():
     app.mount("/data", StaticFiles(directory=DATA_DIR), name="data")
+# Place photos live in the repo (not gitignored); served read-only at /media.
+if MEDIA_DIR.is_dir():
+    app.mount("/media", StaticFiles(directory=MEDIA_DIR), name="media")
 if FRONTEND_DIR.is_dir():
     app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")

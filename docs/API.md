@@ -75,7 +75,15 @@
 
 `id`, `name`, `description`, `category`, `coordinates`, `status`,
 `district_verified`, `active`, `price_rub`, `checked_at`, `source_url`,
-`sources[]`, `verification_note`; необязательные `address`, `image`, `osm_tags`.
+`sources[]`, `verification_note`; необязательные `address`, `image`, `images[]`,
+`osm_tags`.
+
+`images` — галерея места (порядок = порядок показа, первый элемент — обложка):
+`[{ "url", "alt", "caption", "source_url" }]`. `url` — путь `/media/...` (или
+`/assets/...`) либо публичный `https://`; `alt` для доступности, `caption` и
+`source_url` необязательны. Старое одиночное поле `image` сохранено для
+совместимости; фото кладутся в `data/media/places/<place_id>/` и раздаются по
+`/media/...` (см. `data/media/README.md`).
 
 Дополнительно каждая карточка несёт четыре вычисляемых социальных поля:
 `visits: int`, `likes: int`, `visited_by_me: bool`, `liked_by_me: bool`.
