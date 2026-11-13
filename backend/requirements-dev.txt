@@ -1,0 +1,6 @@
+# Dev-only dependencies for running the backend test suite.
+# Install alongside backend/requirements.txt in a venv; do NOT ship in the
+# production image.
+-r requirements.txt
+pytest>=8,<9
+httpx>=0.27,<1

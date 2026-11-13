@@ -2,28 +2,36 @@
 
 Serves real data found in the repo: data/geo/leninsky-poi-candidates.geojson.
 Walks/quest content is not in the repo yet (U3 delivers it later). Until real
-files appear, the /api/routes and /api/quest endpoints fall back to editorial
-mock fixtures in data/examples/ so the frontend can integrate end-to-end.
+files appear, the /api/v1/walks and /api/v1/quest endpoints fall back to
+editorial mock fixtures in data/examples/ so the frontend can integrate
+end-to-end.
 """
 
 import json
 import logging
+import re
 from pathlib import Path
 from typing import Any, Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 logger = logging.getLogger("svoi-vladik")
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 POI_FILE = REPO_ROOT / "data" / "geo" / "leninsky-poi-candidates.geojson"
-FRONTEND_DIR = REPO_ROOT / "prototypes" / "leninsky-map"
+# New design frontend; the legacy prototypes/leninsky-map/ is kept in the repo
+# but no longer mounted at /.
+FRONTEND_DIR = REPO_ROOT / "frontend-design" / "dist"
 DATA_DIR = REPO_ROOT / "data"
+
+# Stable place_id shape, matches docs/API.md.
+PLACE_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 
 # Real content from U3 (not in repo yet).
 ROUTES_FILE = REPO_ROOT / "data" / "routes.json"
@@ -194,31 +202,61 @@ def load_collection(real_path: Path, mock_path: Path, model: type[BaseModel]) ->
 PLACES = load_places()
 
 
-# --- Unified error format: {"error": {"code": ..., "message": ...}} ---
+# --- Unified error format: {"error": {"code": "<SYMBOLIC>", "message": "..."}} ---
 
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request, exc: HTTPException):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"error": {"code": str(exc.status_code), "message": exc.detail}},
+# Default symbolic codes and messages per HTTP status; used when a handler does
+# not provide its own.
+_DEFAULT_ERRORS: dict[int, tuple[str, str]] = {
+    400: ("BAD_REQUEST", "Неверный запрос"),
+    404: ("NOT_FOUND", "Ресурс не найден"),
+    405: ("METHOD_NOT_ALLOWED", "Метод не поддерживается"),
+    415: ("UNSUPPORTED_MEDIA_TYPE", "Неподдерживаемый тип содержимого"),
+    422: ("VALIDATION_ERROR", "Неверные параметры запроса"),
+    500: ("INTERNAL_ERROR", "Внутренняя ошибка сервера"),
+}
+
+
+def _error_response(status_code: int, code: Optional[str] = None,
+                    message: Optional[str] = None) -> JSONResponse:
+    default_code, default_message = _DEFAULT_ERRORS.get(
+        status_code, ("ERROR", "Ошибка")
     )
+    return JSONResponse(
+        status_code=status_code,
+        content={"error": {
+            "code": code or default_code,
+            "message": message or default_message,
+        }},
+    )
+
+
+def _raise_api_error(status_code: int, code: str, message: str) -> None:
+    """Raise HTTPException carrying our symbolic code via `detail`."""
+    raise HTTPException(status_code=status_code, detail={"code": code, "message": message})
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    # If a route raised HTTPException(detail={"code":..., "message":...}),
+    # honour those symbolic values. Otherwise fall back to defaults by status.
+    detail = exc.detail
+    if isinstance(detail, dict) and "code" in detail and "message" in detail:
+        return _error_response(exc.status_code, detail["code"], detail["message"])
+    if isinstance(detail, str) and detail:
+        return _error_response(exc.status_code, message=detail)
+    return _error_response(exc.status_code)
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request, exc: RequestValidationError):
-    return JSONResponse(
-        status_code=422,
-        content={"error": {"code": "422", "message": "Неверные параметры запроса"}},
-    )
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return _error_response(422)
 
 
 @app.exception_handler(Exception)
-async def unhandled_exception_handler(request, exc: Exception):
+async def unhandled_exception_handler(request: Request, exc: Exception):
     logger.exception("Unhandled error on %s: %s", request.url.path, exc)
-    return JSONResponse(
-        status_code=500,
-        content={"error": {"code": "500", "message": "Внутренняя ошибка сервера"}},
-    )
+    # Do not leak exception text or traceback into the response.
+    return _error_response(500)
 
 
 # --- Endpoints ---
@@ -228,26 +266,29 @@ async def health():
     return {"status": "ok"}
 
 
-@app.get("/api/places")
+@app.get("/api/v1/places")
 async def get_places():
     return {"items": [p.model_dump() for p in PLACES], "total": len(PLACES)}
 
 
-@app.get("/api/places/{place_id}")
+@app.get("/api/v1/places/{place_id}")
 async def get_place(place_id: str):
+    # Validate shape first: malformed id -> 422 VALIDATION_ERROR.
+    if not PLACE_ID_RE.match(place_id):
+        _raise_api_error(422, "VALIDATION_ERROR", "Неверный формат place_id")
     for p in PLACES:
         if p.id == place_id:
             return p.model_dump()
-    raise HTTPException(status_code=404, detail="Место не найдено")
+    _raise_api_error(404, "NOT_FOUND", "Место не найдено")
 
 
-@app.get("/api/routes", response_model=dict[str, Any])
-async def get_routes():
-    """Return U3 routes if available, otherwise the editorial mock fixture."""
+@app.get("/api/v1/walks", response_model=dict[str, Any])
+async def get_walks():
+    """Return U3 walks if available, otherwise the editorial mock fixture."""
     return load_collection(ROUTES_FILE, ROUTES_MOCK_FILE, Route)
 
 
-@app.get("/api/quest", response_model=dict[str, Any])
+@app.get("/api/v1/quest", response_model=dict[str, Any])
 async def get_quest():
     """Return U3 quest if available, otherwise the editorial mock fixture."""
     return load_collection(QUESTS_FILE, QUESTS_MOCK_FILE, Quest)
@@ -255,21 +296,22 @@ async def get_quest():
 
 # --- Test endpoints for U1 (frontend edge cases) ---
 
-@app.get("/api/test-empty")
+@app.get("/api/v1/test-empty")
 async def test_empty():
     return []
 
 
-@app.get("/api/test-error")
+@app.get("/api/v1/test-error")
 async def test_error():
-    raise HTTPException(status_code=404, detail="Место не найдено")
+    _raise_api_error(404, "NOT_FOUND", "Место не найдено")
 
 
 # --- Static files ---
-# Frontend (prototypes/leninsky-map) reads GeoJSON via relative paths like
-# "../../data/geo/*.geojson". Mount /data so those requests resolve, and mount
-# the prototype itself at root so the whole app is served from one origin.
-# Declared last so /api/* and /health are matched first.
+# Serve the new design frontend (frontend-design/dist) at "/" with html=True.
+# The legacy prototype under prototypes/leninsky-map/ is kept in the repo but
+# no longer mounted. Mount /data so the frontend can fetch bundled GeoJSON.
+# Mounts are declared last so /api/v1/*, /health, /docs, /openapi.json match
+# first.
 
 if DATA_DIR.is_dir():
     app.mount("/data", StaticFiles(directory=DATA_DIR), name="data")

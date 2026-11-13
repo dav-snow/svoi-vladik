@@ -9,6 +9,8 @@ COPY backend/ ./backend/
 COPY data/ ./data/
 COPY prototypes/ ./prototypes/
 COPY scripts/ ./scripts/
+# New design frontend served at "/"; built-less static bundle.
+COPY frontend-design/dist/ ./frontend-design/dist/
 
 WORKDIR /app/backend
 
