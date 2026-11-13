@@ -411,3 +411,35 @@ button svg, .search-field svg { width: 20px; height: 20px; stroke: currentColor;
 .manual-coord { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 700; color: #6f786b; }
 .manual-coord input { min-height: 40px; padding: 8px 11px; border: 1px solid #e6eae2; border-radius: 10px; background: #fafbf8; font-size: 14px; color: var(--graphite); }
 .manual-coord input:focus { border-color: #c7cfbd; background: #fff; }
+
+/* Practical guide: address-only candidates stay separate from map places. */
+.practical-guides-view { display: grid; gap: 14px; min-width: 0; }
+.practical-guides-view .practical-guides-back { justify-self: start; min-height: 36px; margin: 0; padding: 7px 11px; font-size: 12px; }
+.practical-guides-view .practical-guides-head { min-width: 0; }
+.practical-guides-view .practical-guides-notice { margin: 0; padding: 12px 14px; border: 1px solid #f0dfc5; border-radius: 13px; background: #fff6e8; color: #86643c; font-size: 12px; line-height: 1.65; }
+.practical-guides-view .practical-guides-status { margin: 0; color: #747d74; font-size: 12px; line-height: 1.5; }
+.practical-guides-view .practical-guides-results { min-width: 0; }
+.practical-guides-view .practical-guides-list { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.practical-guides-view .practical-guides-card { min-width: 0; padding: 16px; border: 1px solid #e7ebe3; border-radius: 16px; background: #ffffffd9; box-shadow: inset 0 1px 0 #fff; }
+.practical-guides-view .practical-guides-title { margin: 0 0 8px; font-size: 16px; line-height: 1.4; letter-spacing: -.2px; color: var(--graphite); }
+.practical-guides-view .practical-guides-address { margin: 0; color: #536157; font-size: 14px; line-height: 1.6; }
+.practical-guides-view .practical-guides-price { margin: 9px 0 0; color: #8c611c; font-size: 13px; line-height: 1.6; }
+.practical-guides-view .practical-guides-note { margin: 9px 0 0; color: #657061; font-size: 13px; line-height: 1.65; }
+.practical-guides-view .practical-guides-verification { margin: 10px 0 0; color: #78816f; font-size: 12px; line-height: 1.65; }
+.practical-guides-view .practical-guides-source { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; margin: 9px 0 0; font-size: 13px; line-height: 1.5; color: #9b5918; }
+.practical-guides-view .practical-guides-source svg { width: 16px; height: 16px; }
+.practical-guides-view .practical-guides-loading { display: flex; align-items: center; gap: 11px; min-height: 90px; padding: 16px; border: 1px solid #edf0e8; border-radius: 14px; background: #fbfcf7; }
+.practical-guides-view .practical-guides-loading p, .practical-guides-view .practical-guides-error p { margin: 0; font-size: 14px; line-height: 1.6; }
+.practical-guides-view .practical-guides-spinner { width: 21px; height: 21px; flex-shrink: 0; border: 2px solid #e8e2d7; border-top-color: var(--orange); border-radius: 50%; animation: practical-guides-spin 850ms linear infinite; }
+.practical-guides-view .practical-guides-empty, .practical-guides-view .practical-guides-error { margin: 0; padding: 17px; border: 1px solid #e8ebe3; border-radius: 14px; background: #fafbf7; color: #65705e; font-size: 14px; line-height: 1.75; }
+.practical-guides-view .practical-guides-retry { margin-top: 12px; }
+@keyframes practical-guides-spin { to { transform: rotate(360deg); } }
+@media (max-width: 600px) {
+  .practical-guides-view { gap: 12px; }
+  .practical-guides-view .practical-guides-card { padding: 14px; border-radius: 14px; }
+  .practical-guides-view .practical-guides-title { font-size: 15px; }
+  .practical-guides-view .practical-guides-notice { padding: 11px 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .practical-guides-view .practical-guides-spinner { animation: none; }
+}

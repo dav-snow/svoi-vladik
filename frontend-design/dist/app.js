@@ -239,11 +239,71 @@ function showGuide() {
   const choices = el("div", "intent-grid");
   choices.append(button('Что рядом со мной', 'intent-button', () => { closeDialog('guide-dialog'); revealPlaces(); $('nearby-options').open = true; requestNearby(false); }, 'pin'), button('Старт вручную', 'intent-button', showManualOrigin, 'compass'), button('Прогулки', 'intent-button', showWalk, 'walk'), button('Квесты', 'intent-button', showQuest, 'book'));
   const categories = el('div', 'helper-category-row');
-  for (const [label, category] of [['Поесть', 'food'], ['Туалет', 'toilet'], ['Досуг', 'culture']]) categories.append(button(label, 'secondary-button', () => { closeDialog('guide-dialog'); chooseCategory(category); }));
+  for (const [label, need] of [['Поесть', 'eat'], ['Туалет', 'toilet'], ['Досуг', 'fun']]) categories.append(button(label, 'secondary-button', () => showPracticalGuides(need)));
   const session = auth.user
     ? button(`Выйти (${auth.user.login})`, 'text-button', () => { closeDialog('guide-dialog'); logoutUser(); })
     : button('Войти в демо-аккаунт', 'text-button', () => showAuthDialog('login'));
   openDialog("guide-dialog", [head, choices, categories, session]);
+}
+const PRACTICAL_GUIDE_NEEDS = Object.freeze({ eat: 'Где поесть', toilet: 'Туалеты', fun: 'Досуг' });
+const PRACTICAL_GUIDE_NOTICE = 'Кандидаты из справочников. Работу, вход и цены не подтверждали';
+function practicalGuideText(value, fallback = '') { return typeof value === 'string' && value.trim() ? value.trim() : fallback; }
+function practicalGuideCard(item) {
+  const card = el('li', 'practical-guides-card');
+  card.append(el('h3', 'practical-guides-title', practicalGuideText(item.title, 'Место из справочника')));
+  card.append(el('p', 'practical-guides-address', practicalGuideText(item.address, 'Адрес в справочнике не указан')));
+  const price = practicalGuideText(item.price_note), note = practicalGuideText(item.note), verification = practicalGuideText(item.verification_note);
+  if (price) card.append(el('p', 'practical-guides-price', 'Цена по справочнику: ' + price));
+  if (note) card.append(el('p', 'practical-guides-note', note));
+  if (verification) card.append(el('p', 'practical-guides-verification', verification));
+  const source = external('Источник', practicalGuideText(item.source_url), 'source-link practical-guides-source');
+  card.append(source.tagName === 'A' ? source : el('p', 'practical-guides-verification', 'Ссылка на источник не указана'));
+  return card;
+}
+async function showPracticalGuides(need) {
+  if (!Object.hasOwn(PRACTICAL_GUIDE_NEEDS, need)) return;
+  const title = PRACTICAL_GUIDE_NEEDS[need], dialog = $('guide-dialog');
+  const view = el('section', 'practical-guides-view'); view.dataset.need = need;
+  const back = button('← К подсказкам', 'secondary-button practical-guides-back', showGuide);
+  const head = el('div', 'practical-guides-head');
+  head.append(guideCard('talking', title, 'Сейчас загружу адреса и источники.'));
+  const notice = el('p', 'practical-guides-notice', PRACTICAL_GUIDE_NOTICE);
+  const status = el('p', 'practical-guides-status', 'Загружаем карточки…');
+  status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite'); status.setAttribute('aria-atomic', 'true');
+  const results = el('div', 'practical-guides-results'); results.setAttribute('aria-busy', 'true');
+  const loading = el('div', 'practical-guides-loading');
+  const spinner = el('span', 'practical-guides-spinner'); spinner.setAttribute('aria-hidden', 'true');
+  loading.append(spinner, el('p', '', 'Получаем список из справочников.')); results.append(loading);
+  view.append(back, head, notice, status, results);
+  const opening = openDialog('guide-dialog', [view]), revision = dialogRevision;
+  const isCurrent = () => revision === dialogRevision && dialog.open && view.isConnected && dialog.contains(view);
+  try {
+    const opened = await opening;
+    if (opened === false || !isCurrent()) return;
+    const data = await getJSON('/api/v1/guides?need=' + need);
+    if (!isCurrent()) return;
+    if (!data || !Array.isArray(data.items) || data.items.some(item => !item || typeof item !== 'object' || Array.isArray(item))) throw new Error('Invalid guides response');
+    results.replaceChildren();
+    if (!data.items.length) {
+      head.replaceChildren(guideCard('location-unknown', title, 'В этой подборке пока пусто.'));
+      const copy = need === 'toilet' ? 'Рядом есть несколько санитарных точек из справочников, но их работу сейчас мы не подтвердили. Не хочу отправить тебя к закрытой двери.' : 'В этой категории пока нет карточек из справочников. Можно вернуться к подсказкам и выбрать другую потребность.';
+      status.textContent = 'Пока нет карточек.';
+      results.append(el('p', 'practical-guides-empty', copy));
+    } else {
+      head.replaceChildren(guideCard('directions', title, 'Вот адреса из справочников. Перед посещением проверь условия у самого места.'));
+      const list = el('ul', 'practical-guides-list'); list.append(...data.items.map(practicalGuideCard)); results.append(list);
+      status.textContent = 'Карточек в подборке: ' + data.items.length + '.';
+    }
+  } catch {
+    if (!isCurrent()) return;
+    head.replaceChildren(guideCard('surprised', title, 'Не удалось получить список. Попробуем ещё раз?'));
+    status.textContent = 'Список пока недоступен.';
+    const error = el('div', 'practical-guides-error');
+    error.append(el('p', '', 'Проверьте соединение и повторите загрузку.'), button('Повторить', 'primary-button practical-guides-retry', () => showPracticalGuides(need)));
+    results.replaceChildren(error);
+  } finally {
+    if (isCurrent()) results.setAttribute('aria-busy', 'false');
+  }
 }
 // Аватары и кастомизация исключены из продукта (b88a6d4): вместо локального
 // аватара в шапке живёт демо-вход, профиль открывается через showProfile.
