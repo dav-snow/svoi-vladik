@@ -8,6 +8,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/ ./backend/
 COPY data/ ./data/
 COPY prototypes/ ./prototypes/
+COPY scripts/ ./scripts/
 
 WORKDIR /app/backend
 

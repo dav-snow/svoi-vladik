@@ -7,6 +7,7 @@ mock fixtures in data/examples/ so the frontend can integrate end-to-end.
 """
 
 import json
+import logging
 from pathlib import Path
 from typing import Any, Optional
 
@@ -15,7 +16,9 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
+
+logger = logging.getLogger("svoi-vladik")
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 POI_FILE = REPO_ROOT / "data" / "geo" / "leninsky-poi-candidates.geojson"
@@ -115,32 +118,77 @@ class Quest(BaseModel):
 
 # --- Loaders ---
 
+def _read_json_safely(path: Path) -> Optional[Any]:
+    """Return parsed JSON or None if file is missing, empty or malformed."""
+    try:
+        text = path.read_text(encoding="utf-8").strip()
+    except FileNotFoundError:
+        return None
+    except OSError as exc:
+        logger.warning("Cannot read %s: %s", path, exc)
+        return None
+    if not text:
+        logger.info("%s is empty; treating as no data", path)
+        return None
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as exc:
+        logger.warning("Malformed JSON in %s: %s", path, exc)
+        return None
+
+
 def load_places() -> list[Place]:
-    """Convert GeoJSON features to flat Place records (lng/lat -> lat/lng)."""
-    raw = json.loads(POI_FILE.read_text(encoding="utf-8"))
-    places = []
-    for f in raw.get("features", []):
-        p = f["properties"]
-        lng, lat = f["geometry"]["coordinates"]
-        places.append(Place(
-            id=f["id"],
-            name=p["name"],
-            category=p.get("category", "other"),
-            coordinates=Coordinates(lat=lat, lng=lng),
-            status=p.get("status", "draft"),
-            price_rub=p.get("price_rub"),
-            checked_at=p.get("checked_at"),
-            source_url=p.get("osm_url"),
-            verification_note=p.get("verification_note"),
-            osm_tags=p.get("osm_tags", {}),
-        ))
+    """Convert GeoJSON features to flat Place records (lng/lat -> lat/lng).
+
+    Never raises: on missing/empty/invalid source returns an empty list.
+    """
+    raw = _read_json_safely(POI_FILE)
+    if not isinstance(raw, dict):
+        return []
+    places: list[Place] = []
+    for f in raw.get("features", []) or []:
+        try:
+            p = f["properties"]
+            lng, lat = f["geometry"]["coordinates"]
+            places.append(Place(
+                id=f["id"],
+                name=p["name"],
+                category=p.get("category", "other"),
+                coordinates=Coordinates(lat=lat, lng=lng),
+                status=p.get("status", "draft"),
+                price_rub=p.get("price_rub"),
+                checked_at=p.get("checked_at"),
+                source_url=p.get("osm_url"),
+                verification_note=p.get("verification_note"),
+                osm_tags=p.get("osm_tags", {}),
+            ))
+        except (KeyError, TypeError, ValueError, ValidationError) as exc:
+            logger.warning("Skipping invalid POI feature: %s", exc)
     return places
 
 
-def load_json_collection(real_path: Path, mock_path: Path) -> dict[str, Any]:
-    """Return real file if present, otherwise editorial mock fixture."""
-    source = real_path if real_path.exists() else mock_path
-    return json.loads(source.read_text(encoding="utf-8"))
+def load_collection(real_path: Path, mock_path: Path, model: type[BaseModel]) -> dict[str, Any]:
+    """Load items from the real file if present, otherwise from the mock fixture.
+
+    Safe against missing, empty, malformed and schema-invalid files: on any
+    problem returns {"items": [], "total": 0} rather than raising. Individual
+    bad items are skipped; valid items still render.
+    """
+    data = _read_json_safely(real_path)
+    if data is None:
+        data = _read_json_safely(mock_path)
+    if not isinstance(data, dict):
+        return {"items": [], "total": 0}
+    raw_items = data.get("items") or []
+    if not isinstance(raw_items, list):
+        return {"items": [], "total": 0}
+    items: list[dict[str, Any]] = []
+    for raw in raw_items:
+        try:
+            items.append(model(**raw).model_dump())
+        except (TypeError, ValidationError) as exc:
+            logger.warning("Dropping invalid %s item: %s", model.__name__, exc)
+    return {"items": items, "total": len(items)}
 
 
 PLACES = load_places()
@@ -161,6 +209,15 @@ async def validation_exception_handler(request, exc: RequestValidationError):
     return JSONResponse(
         status_code=422,
         content={"error": {"code": "422", "message": "Неверные параметры запроса"}},
+    )
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request, exc: Exception):
+    logger.exception("Unhandled error on %s: %s", request.url.path, exc)
+    return JSONResponse(
+        status_code=500,
+        content={"error": {"code": "500", "message": "Внутренняя ошибка сервера"}},
     )
 
 
@@ -187,18 +244,13 @@ async def get_place(place_id: str):
 @app.get("/api/routes", response_model=dict[str, Any])
 async def get_routes():
     """Return U3 routes if available, otherwise the editorial mock fixture."""
-    data = load_json_collection(ROUTES_FILE, ROUTES_MOCK_FILE)
-    # Validate against the Pydantic model so /docs schema and payload stay honest.
-    items = [Route(**item).model_dump() for item in data.get("items", [])]
-    return {"items": items, "total": data.get("total", len(items))}
+    return load_collection(ROUTES_FILE, ROUTES_MOCK_FILE, Route)
 
 
 @app.get("/api/quest", response_model=dict[str, Any])
 async def get_quest():
     """Return U3 quest if available, otherwise the editorial mock fixture."""
-    data = load_json_collection(QUESTS_FILE, QUESTS_MOCK_FILE)
-    items = [Quest(**item).model_dump() for item in data.get("items", [])]
-    return {"items": items, "total": data.get("total", len(items))}
+    return load_collection(QUESTS_FILE, QUESTS_MOCK_FILE, Quest)
 
 
 # --- Test endpoints for U1 (frontend edge cases) ---
