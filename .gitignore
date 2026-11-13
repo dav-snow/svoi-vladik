@@ -27,3 +27,11 @@ Thumbs.db
 *.log
 tmp/
 .local/
+
+# Private configuration backups and credentials
+*.env
+*.env.bak
+*.backup
+*.bak
+credentials.json
+service-account*.json
