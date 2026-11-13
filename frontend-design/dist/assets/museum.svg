@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="90" viewBox="0 0 120 90" role="img" aria-labelledby="museum-title">
+  <title id="museum-title">Условная авторская виньетка музея</title>
+  <rect width="120" height="90" rx="12" fill="#fff8ed"/>
+  <circle cx="37" cy="34" r="24" fill="#cbe9eb"/>
+  <path d="M5 78c22-7 42-6 60-2s34 4 50-1v15H5Z" fill="#d5e3ce"/>
+  <g stroke="#272727" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 34 51 15l33 19Z" fill="#ff8500"/>
+    <path d="M22 37h58v36H22Z" fill="#fff8ed"/>
+    <path d="M18 35.5h66M20 39h62" fill="none"/>
+    <path d="M30 42v26M38 42v26M47 42v26M55 42v26M64 42v26M72 42v26" fill="none"/>
+    <path d="M27 42h14M44 42h14M61 42h14M27 68h14M44 68h14M61 68h14" fill="none"/>
+    <path d="M19 73h64v4H19ZM15 77h72v4H15Z" fill="#fff8ed"/>
+    <circle cx="51" cy="27.5" r="3" fill="#fff8ed" stroke="none"/>
+    <circle cx="98" cy="48" r="13" fill="#d5e3ce"/>
+    <path d="M98 50v28M98 60l-5-5M98 56l4-4M91 80h14" fill="none"/>
+  </g>
+</svg>

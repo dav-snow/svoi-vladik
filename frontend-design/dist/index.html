@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FF8500">
+  <meta name="description" content="Свой Владик — карта мест Ленинского района Владивостока. Знакомьтесь с городом в своём темпе.">
+  <title>Свой Владик — Ленинский район</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;650;700;750;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#map" aria-label="Свой Владик — карта Ленинского района">
+      <img class="brand-symbol" src="assets/lighthouse.svg" alt="" width="43" height="43">
+      <span class="brand-copy"><strong>Свой Владик<span class="brand-dot">.</span></strong><span>Ленинский район</span></span>
+    </a>
+    <nav id="nav-controls" class="main-nav" aria-label="Разделы приложения">
+      <button type="button" class="nav-button is-active" data-view="map" aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2V5Zm6-2v16M15 5v16"/></svg><span>Карта</span>
+      </button>
+      <button type="button" class="nav-button" data-view="walks" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 18a2 2 0 1 0 0 .01M19 6a2 2 0 1 0 0 .01M7 18h7a4 4 0 0 0 0-8h-4a4 4 0 0 1 0-8h5"/></svg><span>Прогулки</span>
+      </button>
+      <button type="button" class="nav-button" data-view="quests" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m12 3 2.8 5.7L21 9.6l-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg><span>Квесты</span>
+      </button>
+    </nav>
+    <div class="header-actions">
+      <button id="bookmarks-open" class="icon-button bookmark-button" type="button" aria-label="Сохранённые места" title="Сохранённые места">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4V4Z"/></svg>
+      </button>
+      <button id="avatar-open" class="avatar-button" type="button" aria-label="Мой локальный аватар" title="Мой аватар"><span aria-hidden="true">:)</span></button>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <aside class="sidebar" aria-label="Места и прогулки Ленинского района">
+      <button id="mobile-sheet-toggle" class="sheet-toggle" type="button" aria-expanded="true" aria-controls="sidebar-scroll">
+        <span class="sheet-handle" aria-hidden="true"></span><span class="sheet-toggle-label">Исследовать район</span><span class="sheet-chevron" aria-hidden="true">⌄</span>
+      </button>
+      <div id="sidebar-scroll" class="sidebar-scroll">
+        <section class="intro-section" aria-labelledby="intro-title">
+          <p class="eyebrow">ВЛАДИВОСТОК · ЛЕНИНСКИЙ РАЙОН</p>
+          <h1 id="intro-title">Город ближе,<br>чем кажется.</h1>
+          <p class="intro-copy">Знакомые улицы, новые открытия.<br>Найдите своё место в городе.</p>
+          <button id="first-time" class="primary-button first-time-button" type="button">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m12 3 2.3 6.7L21 12l-6.7 2.3L12 21l-2.3-6.7L3 12l6.7-2.3L12 3Z"/></svg>
+            <span>Я тут впервые</span><span class="button-arrow" aria-hidden="true">↗</span>
+          </button>
+        </section>
+
+        <section class="search-section" aria-label="Поиск мест">
+          <label class="search-field" for="search">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+            <span class="visually-hidden">Найти место по названию</span>
+            <input id="search" type="search" placeholder="Найти место по названию" autocomplete="off">
+          </label>
+          <div id="category-controls" class="category-controls" role="group" aria-label="Категория мест">
+            <button type="button" data-category="all" class="category-button is-active" aria-pressed="true">Все</button>
+            <button type="button" data-category="culture" class="category-button" aria-pressed="false">Культура</button>
+            <button type="button" data-category="other" class="category-button" aria-pressed="false">Прогулки</button>
+          </div>
+        </section>
+
+        <section class="places-section" aria-labelledby="places-title">
+          <div class="section-heading"><h2 id="places-title">Места с характером</h2><span id="place-count" class="place-count" aria-live="polite"></span></div>
+          <div id="place-list" class="place-list" aria-label="Места района"></div>
+        </section>
+
+        <section class="quest-promo" aria-label="Истории района">
+          <div class="quest-promo-copy"><p class="eyebrow">НЕ ПРОСТО ПРОГУЛКА</p><h2>У каждой улицы<br>своя история</h2><button class="promo-link" type="button" data-view="walks">Посмотреть прогулку <span aria-hidden="true">→</span></button></div>
+          <img src="assets/guide.svg" alt="Маяк — проводник по району" class="quest-guide" width="112" height="112">
+        </section>
+        <p class="catalog-note">Точки-кандидаты из OpenStreetMap.<br>Перед посещением проверьте условия по источнику.</p>
+      </div>
+    </aside>
+
+    <section class="map-stage" aria-label="Карта Ленинского района">
+      <div id="map" class="map-canvas" aria-label="Интерактивная карта мест района"></div>
+      <div id="map-fallback" class="map-fallback" role="img" aria-label="Обзор границы района и точек из OpenStreetMap" hidden></div>
+      <div class="district-badge"><span class="district-dot" aria-hidden="true"></span><span>Только Ленинский</span></div>
+      <p class="map-caption">Исследуй в своём темпе <span aria-hidden="true">↗</span></p>
+      <p id="map-status" class="map-status" role="status" hidden></p>
+      <div class="map-controls" role="group" aria-label="Управление картой">
+        <button id="zoom-in" type="button" aria-label="Приблизить карту" title="Приблизить">+</button>
+        <button id="zoom-out" type="button" aria-label="Отдалить карту" title="Отдалить">−</button>
+        <span class="control-divider" aria-hidden="true"></span>
+        <button id="fit-district" type="button" aria-label="Показать весь Ленинский район" title="Показать весь район"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <div id="selected-place" class="selected-place" role="region" aria-label="Выбранное место" hidden></div>
+      <button id="guide-open" class="guide-button" type="button" aria-label="Спросить гида"><img src="assets/lighthouse.svg" alt="" width="28" height="28"><span>Спросить гида</span><span aria-hidden="true">↗</span></button>
+    </section>
+  </main>
+
+  <dialog id="detail-dialog" class="content-dialog" aria-label="Подробности о месте"><button class="dialog-close" type="button" data-close-dialog aria-label="Закрыть">×</button><div id="detail-content"></div></dialog>
+  <dialog id="firsttime-dialog" class="content-dialog" aria-label="Знакомство с районом"><button class="dialog-close" type="button" data-close-dialog aria-label="Закрыть">×</button><div id="firsttime-content"></div></dialog>
+  <dialog id="guide-dialog" class="content-dialog" aria-label="Подсказки гида"><button class="dialog-close" type="button" data-close-dialog aria-label="Закрыть">×</button><div id="guide-content"></div></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

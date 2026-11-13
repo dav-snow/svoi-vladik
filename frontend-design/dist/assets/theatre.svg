@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="90" viewBox="0 0 120 90" role="img" aria-labelledby="theatre-title">
+  <title id="theatre-title">Условная авторская виньетка театра</title>
+  <rect width="120" height="90" rx="12" fill="#fff8ed"/>
+  <circle cx="82" cy="33" r="25" fill="#d5e3ce"/>
+  <path d="M5 78c19-5 37-5 52 0s34 5 58-1v13H5Z" fill="#cbe9eb"/>
+  <g stroke="#272727" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M19 31h71v45H19Z" fill="#fff8ed"/>
+    <path d="M24 24h61v7H24Z" fill="#ff8500"/>
+    <path d="M16 32h77M16 77h77" fill="none"/>
+    <path d="M36 72V50a18.5 18.5 0 0 1 37 0v22Z" fill="#272727"/>
+    <path d="M38 48c6 2 10 1 16.5-6C61 49 66 50 71 48c-2-7-8-12-16.5-12S40 41 38 48Z" fill="#ff8500"/>
+    <path d="M38 48c6 2 8 6 3 16l-3 7ZM71 48c-6 2-8 6-3 16l3 7Z" fill="#ff8500"/>
+    <path d="M27 43v26M82 43v13" fill="none"/>
+    <path d="M29 81h51" fill="none"/>
+    <g transform="rotate(-13 91 68)">
+      <path d="M78 58h28v6a4 4 0 0 0 0 8v6H78v-6a4 4 0 0 0 0-8Z" fill="#ff8500"/>
+      <path d="M97 61v2M97 67v2M97 73v2M85 65h6M85 70h4" fill="none"/>
+    </g>
+  </g>
+</svg>

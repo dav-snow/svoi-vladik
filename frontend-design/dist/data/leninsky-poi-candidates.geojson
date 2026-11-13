@@ -1,0 +1,92 @@
+{
+  "type": "FeatureCollection",
+  "name": "leninsky-poi-candidates",
+  "attribution": "© OpenStreetMap contributors",
+  "license": "https://opendatacommons.org/licenses/odbl/1-0/",
+  "osm_base_timestamp": null,
+  "note": "OSM candidates for editorial review, not the verified production catalog; not exhaustive.",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "osm-node-676375880",
+      "properties": {
+        "name": "Военно-исторический музей Тихоокеанского флота",
+        "category": "culture",
+        "osm_type": "node",
+        "osm_id": 676375880,
+        "osm_url": "https://www.openstreetmap.org/node/676375880",
+        "status": "draft",
+        "verification_note": "OSM candidate; access, current status and prices not checked",
+        "coordinate_kind": "nominatim_representative_point",
+        "district_membership": "representative_point_inside_osm_boundary",
+        "price_rub": null,
+        "checked_at": null,
+        "imported_at": "2026-11-13T03:26:05+00:00",
+        "osm_tags": {
+          "tourism": "museum"
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          131.9009151,
+          43.1144566
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "osm-way-26537156",
+      "properties": {
+        "name": "Приморский драматический театр имени Максима Горького",
+        "category": "culture",
+        "osm_type": "way",
+        "osm_id": 26537156,
+        "osm_url": "https://www.openstreetmap.org/way/26537156",
+        "status": "draft",
+        "verification_note": "OSM candidate; access, current status and prices not checked",
+        "coordinate_kind": "nominatim_representative_point",
+        "district_membership": "representative_point_inside_osm_boundary",
+        "price_rub": null,
+        "checked_at": null,
+        "imported_at": "2026-11-13T03:26:05+00:00",
+        "osm_tags": {
+          "amenity": "theatre"
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          131.8934864,
+          43.1159611
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "osm-way-133436813",
+      "properties": {
+        "name": "Фуникулёр",
+        "category": "other",
+        "osm_type": "way",
+        "osm_id": 133436813,
+        "osm_url": "https://www.openstreetmap.org/way/133436813",
+        "status": "draft",
+        "verification_note": "OSM candidate; access, current status and prices not checked",
+        "coordinate_kind": "nominatim_representative_point",
+        "district_membership": "representative_point_inside_osm_boundary",
+        "price_rub": null,
+        "checked_at": null,
+        "imported_at": "2026-11-13T03:26:05+00:00",
+        "osm_tags": {}
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          131.9000136,
+          43.1174378
+        ]
+      }
+    }
+  ]
+}
