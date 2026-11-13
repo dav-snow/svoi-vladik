@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "type": "static-mascot-states",
+  "defaultState": "talking",
+  "states": [
+    {"id": "location-unknown", "src": "location-unknown.png", "sourceFile": "1.png", "width": 1375, "height": 1144, "label": "Не знает местоположение или место"},
+    {"id": "interesting-places", "src": "interesting-places.png", "sourceFile": "2.png", "width": 1375, "height": 1144, "label": "Рассказывает об интересных местах"},
+    {"id": "talking", "src": "talking.png", "sourceFile": "3.png", "width": 1173, "height": 1341, "label": "Рассказывает или подсказывает"},
+    {"id": "directions", "src": "directions.png", "sourceFile": "4.png", "width": 1199, "height": 1312, "label": "Указывает, куда идти"},
+    {"id": "surprised", "src": "surprised.png", "sourceFile": "5.png", "width": 1173, "height": 1341, "label": "Удивляется или реагирует на проблему"},
+    {"id": "first-visit", "src": "first-visit.png", "sourceFile": "6.png", "width": 1254, "height": 1254, "label": "Я тут впервые"}
+  ]
+}
