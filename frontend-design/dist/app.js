@@ -1214,7 +1214,7 @@ function vladaObRenderCoach() {
     actions.append(button('С приключением разобрались', 'primary-button', () => vladaObCompletePart()));
   }
   card.append(guideCard(pose, title, copy), actions, button('Эту часть позже', 'text-button', () => vladaObCompletePart(true)), button('Продолжить обучение позже', 'text-button', vladaObPause));
-  if (vladaOb.attachDetail && $('detail-dialog')?.open) $('detail-content').append(card);
+  if (vladaOb.attachDetail && $('detail-dialog')?.open) $('detail-content').prepend(card);
   else if (coach) { coach.hidden = false; coach.append(card); }
   if (hadFocus) card.querySelector('button')?.focus({ preventScroll: true });
 }

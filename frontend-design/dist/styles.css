@@ -380,7 +380,7 @@ button svg, .search-field svg { width: 20px; height: 20px; stroke: currentColor;
 .vlada-ob-footer { padding-top: 8px; border-top: 1px solid #eceff1; }
 .vlada-ob-footer .text-button { min-height: 34px; font-size: 12px; }
 .vlada-ob-dialog button, .vlada-ob-dialog p, .vlada-ob-inline button { overflow-wrap: anywhere; }
-#detail-content > .vlada-ob-inline { margin-top: 18px; }
+#detail-content > .vlada-ob-inline { margin-top: 0; margin-bottom: 18px; }
 @media (max-width: 760px) {
   .vlada-ob-inline { padding: 11px; }
   .content-dialog.vlada-ob-dialog .svoi-mascot-panel { grid-template-columns: 85px minmax(0, 1fr); gap: 12px; }
