@@ -64,6 +64,96 @@ function button(text, cls, action, iconName) {
   return b;
 }
 function image(file, cls) { const img = el("img", cls); img.src = "assets/" + file; img.alt = ""; return img; }
+// Place gallery owns only its current image and controls; no global listeners or timers.
+function placeGalleryUrl(value, allowLocal = true) {
+  if (typeof value !== 'string' || !value || value.length > 500 || /[\u0000-\u0020\u007f\\]/.test(value)) return null;
+  try {
+    if (value.startsWith('/')) {
+      if (!allowLocal || !/^\/(?:media|assets)\/[A-Za-z0-9._/-]+$/.test(value) || value.includes('..') || value.includes('//')) return null;
+      const local = new URL(value, location.href);
+      return local.origin === location.origin ? value : null;
+    }
+    if (!value.startsWith('https://')) return null;
+    const url = new URL(value);
+    return url.protocol === 'https:' && url.hostname && !url.username && !url.password ? url.href : null;
+  } catch { return null; }
+}
+function placeGalleryImages(images, legacyImage) {
+  const result = [], seen = new Set();
+  const add = item => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) return;
+    const url = placeGalleryUrl(item.url);
+    if (!url) return;
+    const key = new URL(url, location.href).href;
+    if (seen.has(key)) return;
+    seen.add(key);
+    result.push({ url, alt: typeof item.alt === 'string' ? item.alt.trim().slice(0, 300) : '', caption: typeof item.caption === 'string' ? item.caption.trim().slice(0, 500) : '', source_url: placeGalleryUrl(item.source_url, false) });
+  };
+  if (Array.isArray(images)) images.forEach(add);
+  if (!result.length) add({ url: legacyImage });
+  return result;
+}
+function placeGalleryArt(place) {
+  const photos = placeGalleryImages(place.images, place.placeGalleryLegacyImage);
+  const title = typeof place.title === 'string' ? place.title : typeof place.name === 'string' ? place.name : 'Место';
+  const figure = el('figure', 'place-gallery');
+  figure.setAttribute('role', 'group'); figure.setAttribute('aria-roledescription', 'галерея');
+  figure.setAttribute('aria-label', 'Изображения места: ' + title);
+  const stage = el('div', 'place-gallery-stage');
+  const caption = el('figcaption', 'place-gallery-caption');
+  const copy = el('span', 'place-gallery-copy');
+  const credit = el('span', 'place-gallery-credit');
+  caption.append(copy, credit); figure.append(stage, caption);
+  const controls = el('div', 'place-gallery-controls');
+  const position = el('span', 'place-gallery-position');
+  position.setAttribute('aria-live', 'polite'); position.setAttribute('aria-atomic', 'true');
+  let index = 0, revision = 0;
+  const failed = new Set();
+  const fallback = ['museum.svg', 'theatre.svg', 'funicular.svg', 'lighthouse.svg', 'guide.svg'].includes(place.image) ? place.image : 'lighthouse.svg';
+  const showFallback = message => {
+    stage.setAttribute('aria-busy', 'false');
+    const illustration = image(fallback, 'place-gallery-fallback');
+    illustration.addEventListener('error', () => illustration.remove(), { once: true });
+    stage.replaceChildren(illustration, el('span', 'place-gallery-badge', 'Иллюстрация'));
+    copy.textContent = message; copy.hidden = false;
+  };
+  const render = next => {
+    index = next; const ticket = ++revision;
+    const photo = photos[index];
+    position.textContent = `${index + 1} из ${photos.length}`;
+    copy.textContent = photo.caption; copy.hidden = !photo.caption;
+    credit.replaceChildren(); credit.hidden = !photo.source_url;
+    if (photo.source_url) credit.append(external('Источник изображения', photo.source_url, 'source-link place-gallery-source'));
+    if (failed.has(index)) { showFallback('Изображение не загрузилось.'); return; }
+    const img = el('img', 'place-gallery-image');
+    img.alt = photo.alt || 'Изображение места: ' + title;
+    img.width = 960; img.height = 640; img.decoding = 'async'; img.referrerPolicy = 'no-referrer';
+    const loading = el('span', 'place-gallery-loading', 'Загрузка изображения…');
+    stage.setAttribute('aria-busy', 'true'); stage.replaceChildren(img, loading);
+    img.addEventListener('load', () => {
+      if (ticket !== revision || stage.firstElementChild !== img) return;
+      stage.setAttribute('aria-busy', 'false'); loading.remove();
+    }, { once: true });
+    img.addEventListener('error', () => {
+      if (ticket !== revision || stage.firstElementChild !== img) return;
+      failed.add(index); showFallback('Изображение не загрузилось.');
+    }, { once: true });
+    img.src = photo.url;
+  };
+  if (!photos.length) {
+    credit.hidden = true; showFallback('Фотографии пока не добавлены.');
+  } else {
+    if (photos.length > 1) {
+      const previous = button('', 'place-gallery-control place-gallery-previous', () => render((index + photos.length - 1) % photos.length));
+      previous.setAttribute('aria-label', 'Предыдущее изображение'); previous.append(icon('chevron'), el('span', '', 'Назад'));
+      const next = button('', 'place-gallery-control', () => render((index + 1) % photos.length));
+      next.setAttribute('aria-label', 'Следующее изображение'); next.append(el('span', '', 'Вперёд'), icon('chevron'));
+      controls.append(previous, position, next); figure.append(controls);
+    }
+    render(0);
+  }
+  return figure;
+}
 function notify(text) {
   ui.toast.textContent = text; ui.toast.hidden = false; ui.toast.classList.add("is-visible");
   clearTimeout(notify.timer); notify.timer = setTimeout(() => {ui.toast.classList.remove("is-visible");ui.toast.hidden=true;}, 3000);
@@ -190,7 +280,7 @@ function selectPlace(place, keepSidebar = false) {
   if (isMobileLayout() && !keepSidebar) {document.querySelector(".sidebar")?.classList.add("is-collapsed");$('mobile-sheet-toggle')?.setAttribute('aria-expanded','false');}
 }
 function showPlace(place) {
-  const art = image(place.image, "detail-art");
+  const art = placeGalleryArt(place);
   const head = dialogHeading(place.kind, place.title, place.description);
   const note = el("p", "info-note", "Условия посещения ещё уточняем. Перед выходом проверьте режим работы и доступность входа. Геометка может не совпадать со входом.");
   const actions = el("div", "dialog-actions");
@@ -273,7 +363,7 @@ function prepareAPIPlaces(items) {
   const kinds = { culture: 'Культура', park: 'Парк и отдых', viewpoint: 'Вид на город', food: 'Еда', toilet: 'Полезное', other: 'Место города' };
   return items.filter(p => p.active !== false && p.district_verified !== false && Number.isFinite(p.coordinates?.lat) && Number.isFinite(p.coordinates?.lng)).map(p => {
     const meta = META[p.id];
-    return { ...p, lat: p.coordinates.lat, lng: p.coordinates.lng, title: meta?.short || p.name, originalName: p.name, label: p.short_name || meta?.label || p.name, image: meta?.image || (p.category === 'culture' ? 'museum.svg' : 'lighthouse.svg'), kind: meta?.kind || kinds[p.category] || kinds.other, description: p.description || meta?.description || 'Условия посещения пока уточняются.' };
+    return { ...p, placeGalleryLegacyImage: p.image, lat: p.coordinates.lat, lng: p.coordinates.lng, title: meta?.short || p.name, originalName: p.name, label: p.short_name || meta?.label || p.name, image: meta?.image || (p.category === 'culture' ? 'museum.svg' : 'lighthouse.svg'), kind: meta?.kind || kinds[p.category] || kinds.other, description: p.description || meta?.description || 'Условия посещения пока уточняются.' };
   });
 }
 function renderSources(sources = []) {
