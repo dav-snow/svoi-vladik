@@ -201,6 +201,10 @@ class Credentials(BaseModel):
 # queries. The file path comes from DB_PATH; a broken database must degrade
 # (zero counters on GET, 503 on writes), never crash the API.
 
+# Bump when the schema below changes; open_db runs the idempotent DDL for older
+# files (FK/indices are only created for new tables, not retrofitted).
+_SCHEMA_VERSION = 1
+
 _DB_SCHEMA = """
 CREATE TABLE IF NOT EXISTS users(
     id TEXT PRIMARY KEY,
@@ -210,22 +214,26 @@ CREATE TABLE IF NOT EXISTS users(
 );
 CREATE TABLE IF NOT EXISTS sessions(
     token_hash TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TEXT NOT NULL,
     expires_at TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS visits(
-    user_id TEXT NOT NULL,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     place_id TEXT NOT NULL,
     created_at TEXT NOT NULL,
     PRIMARY KEY (user_id, place_id)
 );
 CREATE TABLE IF NOT EXISTS likes(
-    user_id TEXT NOT NULL,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     place_id TEXT NOT NULL,
     created_at TEXT NOT NULL,
     PRIMARY KEY (user_id, place_id)
 );
+CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
+CREATE INDEX IF NOT EXISTS idx_visits_place ON visits(place_id);
+CREATE INDEX IF NOT EXISTS idx_likes_place ON likes(place_id);
 """
 
 def db_path() -> Path:
@@ -241,8 +249,12 @@ def open_db() -> sqlite3.Connection:
     try:
         conn.execute("PRAGMA busy_timeout = 5000")
         conn.execute("PRAGMA journal_mode = WAL")
-        conn.executescript(_DB_SCHEMA)
-        conn.commit()
+        # Per-connection: enables ON DELETE CASCADE enforcement for this handle.
+        conn.execute("PRAGMA foreign_keys = ON")
+        if conn.execute("PRAGMA user_version").fetchone()[0] < _SCHEMA_VERSION:
+            conn.executescript(_DB_SCHEMA)
+            conn.execute(f"PRAGMA user_version = {_SCHEMA_VERSION}")
+            conn.commit()
     except sqlite3.Error:
         conn.close()
         raise
@@ -287,6 +299,9 @@ def _token_hash(token: str) -> str:
 def create_session(conn: sqlite3.Connection, user_id: str) -> str:
     token = secrets.token_urlsafe(32)
     now = _utc_now()
+    # Opportunistically drop expired sessions so they do not accumulate; this
+    # runs on login only, not on every request.
+    conn.execute("DELETE FROM sessions WHERE expires_at < ?", (_iso(now),))
     conn.execute(
         "INSERT INTO sessions(token_hash, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)",
         (_token_hash(token), user_id, _iso(now), _iso(now + timedelta(seconds=SESSION_TTL_SECONDS))),
