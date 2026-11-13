@@ -5,6 +5,7 @@ const ui = { map: $("map"), fallback: $("map-fallback"), status: $("map-status")
 const state = { places: [], boundary: null, map: null, markers: new Map(), filter: "all", query: "", selected: null, savedOnly: false, saved: new Set(), view: "map" };
 const storageKey = "svoi-vladik-design-v1";
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const isMobileLayout = () => matchMedia("(max-width: 760px)").matches;
 const META = {
   "osm-node-676375880": { short: "Музей Тихоокеанского флота", label: "Музей ТОФ", image: "museum.svg", kind: "Культура · Музей", description: "Место для знакомства с морской стороной города. Сохраните его для своей прогулки и уточните условия посещения перед выходом." },
   "osm-way-26537156": { short: "Театр имени Горького", label: "Театр Горького", image: "theatre.svg", kind: "Культура · Театр", description: "Повод выбраться на спектакль или включить знакомство с театром в прогулку по району. Афишу и условия посещения уточняйте отдельно." },
@@ -87,7 +88,7 @@ function placeCard(place) {
   main.setAttribute("aria-label", "Показать на карте: " + place.title);
   main.append(image(place.image, "place-thumb"));
   const body = el("span", "place-body");
-  body.append(el("span", "place-kind", place.kind), el("span", "place-title", place.title), el("span", "place-tag", "Ленинский район"));
+  body.append(el("span", "place-kind", place.kind), el("span", "place-title", place.title));
   main.append(body);
   const save = button("", "save-place" + (state.saved.has(place.id) ? " is-saved" : ""), () => setSaved(place), "bookmark");
   save.setAttribute("aria-label", state.saved.has(place.id) ? "Убрать из сохранённого" : "Сохранить место");
@@ -130,8 +131,8 @@ function updateSelectedMarkers() {
 }
 function selectPlace(place) {
   state.selected = place; renderPlaces(); renderSelected(place); updateSelectedMarkers();
-  if (state.map) state.map.flyTo({ center: [place.lng, place.lat], zoom: Math.max(state.map.getZoom(), 15.7), duration: reducedMotion ? 0 : 650, padding: { bottom: innerWidth < 780 ? 220 : 100, top: 60, left: 40, right: 40 } });
-  if (innerWidth < 780) {document.querySelector(".sidebar")?.classList.add("is-collapsed");$('mobile-sheet-toggle')?.setAttribute('aria-expanded','false');}
+  if (state.map) state.map.flyTo({ center: [place.lng, place.lat], zoom: Math.max(state.map.getZoom(), 15.7), duration: reducedMotion ? 0 : 650, padding: { bottom: isMobileLayout() ? Math.min(innerHeight * .26, 180) : 100, top: 60, left: 40, right: 40 } });
+  if (isMobileLayout()) {document.querySelector(".sidebar")?.classList.add("is-collapsed");$('mobile-sheet-toggle')?.setAttribute('aria-expanded','false');}
 }
 function showPlace(place) {
   const art = image(place.image, "detail-art");
@@ -196,6 +197,17 @@ function preparePlaces(geo) {
   });
 }
 function mapStatus(text) { ui.status.textContent = text; ui.status.hidden = false; }
+function frameMobilePlaces() {
+  if (!state.map || !state.places.length || !isMobileLayout()) return;
+  const stage = document.querySelector('.map-stage');
+  const sheetHeight = document.querySelector('.sidebar').getBoundingClientRect().height;
+  const visibleHeight = Math.max(1, stage.clientHeight - sheetHeight);
+  const lngs = state.places.map(p => p.lng), lats = state.places.map(p => p.lat);
+  state.map.fitBounds([[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]], {
+    padding: { top: Math.min(112, visibleHeight * .48), bottom: sheetHeight + Math.min(50, visibleHeight * .22), left: 64, right: 76 },
+    maxZoom: 14.1, duration: 0
+  });
+}
 function showFallback() {
   if (!state.boundary || !ui.fallback.hidden) return;
   ui.fallback.hidden = false; ui.map.hidden = true;
@@ -240,7 +252,7 @@ function initialiseMap() {
         state.markers.set(place.id, marker);
       }
       renderPlaces(); updateSelectedMarkers();
-      if(innerWidth<780)map.jumpTo({center:[131.899,43.1165],zoom:14.7,padding:{top:10,bottom:Math.min(innerHeight*0.46,430),left:10,right:10}});
+      frameMobilePlaces();
     });
     map.on("error", () => { if (!loaded) mapStatus("Подложка временно недоступна. Выберите место в списке."); });
     map.on("webglcontextlost", showFallback);
@@ -251,17 +263,17 @@ $("zoom-out").addEventListener("click", () => state.map ? state.map.zoomOut({dur
 $("fit-district").addEventListener("click", () => state.map ? state.map.fitBounds([[131.8843306,43.0974826],[132.0481927,43.1499040]],{padding:55,duration:reducedMotion?0:700}) : notify("На схеме показан весь район"));
 ui.search.addEventListener("input", () => { state.query = ui.search.value.trim(); renderPlaces(); });
 document.querySelectorAll("[data-category]").forEach(b=>b.addEventListener("click",()=>chooseCategory(b.dataset.category)));
-document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>{ if(b.dataset.view==='walks')showWalk();else if(b.dataset.view==='quests')showQuest();else{resetFilters();state.map?.flyTo({center:[131.901,43.119],zoom:14.6,duration:reducedMotion?0:650});} }));
+document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>{ if(b.dataset.view==='walks')showWalk();else if(b.dataset.view==='quests')showQuest();else{resetFilters();if(isMobileLayout())frameMobilePlaces();else state.map?.flyTo({center:[131.901,43.119],zoom:14.6,duration:reducedMotion?0:650});} }));
 $("first-time").addEventListener("click",showFirstTime);
 $("guide-open").addEventListener("click",showGuide);
 $("walk-promo")?.addEventListener("click",showWalk);
-$("bookmarks-open")?.addEventListener("click",()=>{state.savedOnly=!state.savedOnly;renderPlaces();if(innerWidth<780)revealPlaces();});
+$("bookmarks-open")?.addEventListener("click",()=>{state.savedOnly=!state.savedOnly;renderPlaces();if(isMobileLayout())revealPlaces();});
 $("avatar-open")?.addEventListener("click",showAvatar);
 $("mobile-sheet-toggle")?.addEventListener("click",()=>{ const sheet=document.querySelector('.sidebar');sheet.classList.toggle('is-collapsed');$('mobile-sheet-toggle').setAttribute('aria-expanded',String(!sheet.classList.contains('is-collapsed'))); });
 document.querySelectorAll("[data-close-dialog]").forEach(b=>b.addEventListener("click",()=>b.closest('dialog').close()));
 document.querySelectorAll("dialog").forEach(d=>d.addEventListener("click",e=>{if(e.target===d)d.close();}));
-let mobileViewport=innerWidth<780;
-window.addEventListener('resize',()=>{const mobile=innerWidth<780;if(state.map&&mobile!==mobileViewport){state.map.resize();state.map.setPadding(mobile?{top:10,bottom:Math.min(innerHeight*0.46,430),left:10,right:10}:{top:0,bottom:0,left:0,right:0});}mobileViewport=mobile;});
+let mobileViewport=isMobileLayout();
+window.addEventListener('resize',()=>{const mobile=isMobileLayout();if(state.map){state.map.resize();if(mobile&&!state.selected)frameMobilePlaces();else if(mobile!==mobileViewport)state.map.setPadding({top:0,bottom:0,left:0,right:0});}mobileViewport=mobile;});
 Promise.all([getJSON('data/leninsky-boundary.geojson'),getJSON('data/leninsky-poi-candidates.geojson')]).then(([boundary,pois])=>{
   state.boundary=boundary;state.places=preparePlaces(pois);const avatar=readStorage();if($('avatar-open'))$('avatar-open').dataset.avatar=avatar;
   renderPlaces();initialiseMap();
