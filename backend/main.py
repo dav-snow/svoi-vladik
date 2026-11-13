@@ -14,10 +14,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 POI_FILE = REPO_ROOT / "data" / "geo" / "leninsky-poi-candidates.geojson"
+FRONTEND_DIR = REPO_ROOT / "prototypes" / "leninsky-map"
+DATA_DIR = REPO_ROOT / "data"
 
 # Real content from U3 (not in repo yet).
 ROUTES_FILE = REPO_ROOT / "data" / "routes.json"
@@ -208,3 +211,16 @@ async def test_empty():
 @app.get("/api/test-error")
 async def test_error():
     raise HTTPException(status_code=404, detail="Место не найдено")
+
+
+# --- Static files ---
+# Frontend (prototypes/leninsky-map) reads GeoJSON via relative paths like
+# "../../data/geo/*.geojson". Mount /data so those requests resolve, and mount
+# the prototype itself at root so the whole app is served from one origin.
+# Declared last so /api/* and /health are matched first.
+
+if DATA_DIR.is_dir():
+    app.mount("/data", StaticFiles(directory=DATA_DIR), name="data")
+
+if FRONTEND_DIR.is_dir():
+    app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
