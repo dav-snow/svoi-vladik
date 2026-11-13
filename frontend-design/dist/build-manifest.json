@@ -1,12 +1,12 @@
 {
   "project": "svoi-vladik",
   "version": 1,
-  "generatedAt": "2026-11-13T08:16:16.210Z",
+  "generatedAt": "2026-11-13T08:57:56.005Z",
   "files": [
     {
       "path": "app.js",
-      "bytes": 52571,
-      "sha256": "f2fed737ff92783df5651dd34069dd9ee835842a167abf46418c64f1119e1837"
+      "bytes": 54124,
+      "sha256": "05c1076bd6d808260ed3c3a0ea5bfe4d9dc16a2000e99eeb9e7d11fc7c6d00b9"
     },
     {
       "path": "assets/funicular.svg",
@@ -50,8 +50,8 @@
     },
     {
       "path": "assets/mascot/manifest.json",
-      "bytes": 1865,
-      "sha256": "3613e9ddda098632a01918b29d20660bc5c232eca9a93c9b59417e02def6dc22"
+      "bytes": 1795,
+      "sha256": "4999e2f667fac0cc0a1dfaec899750aea793c7c4e1589df5bade04eb6dd9d110"
     },
     {
       "path": "assets/mascot/surprised.webp",
@@ -84,14 +84,19 @@
       "sha256": "38a45cd9a356d7771347ad657eabcb773e5811336ac56367b0ebf701a09b0111"
     },
     {
+      "path": "glass.css",
+      "bytes": 8056,
+      "sha256": "bbab3ef83643b9e0a803f29bf1ae455cfd415ad214bf5ec8957f2d93ceb18805"
+    },
+    {
       "path": "index.html",
-      "bytes": 11799,
-      "sha256": "79fd89a4634b2e6c7fc38767dbe6be387352e19750ad2c004aa0cf75dde86f72"
+      "bytes": 11931,
+      "sha256": "85b2206252329561a9a75488cc8240bbed8387a76754d4086c39044ec7e7c43d"
     },
     {
       "path": "manifest.webmanifest",
-      "bytes": 510,
-      "sha256": "fdb8be54e59ea07c91fcf36bd8d50a872d9e6ea7d2ece0380ecd5be183b39148"
+      "bytes": 523,
+      "sha256": "74e23738a9a0a55d799ed15b2bb244fe9c3ea05d74182c2f6fc2798f09934c5b"
     },
     {
       "path": "map-style.json",
@@ -100,18 +105,28 @@
     },
     {
       "path": "mascot.css",
-      "bytes": 4053,
-      "sha256": "aa343ede2c743e565c36980d302973037e3676a1cc6a4c9fb8e890180206b057"
+      "bytes": 4193,
+      "sha256": "b52cd04e8aadcc34322e987c9a94dbaec98d3d21ee30d18790b3a940b805757f"
     },
     {
       "path": "mascot.js",
-      "bytes": 3387,
-      "sha256": "d1cfca6d4b98103785c47c6ede470c17b35ebcbe9bff4edb0aef36b44b27d82d"
+      "bytes": 3487,
+      "sha256": "dae4f6b9b3970edac6dbb056cb8bfc8042fba77efd88b89e8a740666d48f4b40"
+    },
+    {
+      "path": "motion.css",
+      "bytes": 795,
+      "sha256": "db3f830b42ab3b43b1925cb67aa1f7ece768f5b4a67b81817c82ebfa8dc2b379"
+    },
+    {
+      "path": "motion.js",
+      "bytes": 8081,
+      "sha256": "93f8b8bcac3111ba33c2f49eb7cc64bf92873a457f516e6a626b330de3f85de5"
     },
     {
       "path": "polish.css",
-      "bytes": 10406,
-      "sha256": "3373a160a9a1faf9fac54cd23f005c30a1ea1f8f581afac0e1e8dea570bf2ba2"
+      "bytes": 10539,
+      "sha256": "df2226924665a1a39051997f511b90664b696a356ee7742ac3e3297a90fa3bd1"
     },
     {
       "path": "styles.css",
@@ -120,8 +135,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 1274,
-      "sha256": "9027485f14d9d7c0edd12f77d17f82bcf5fbaefd6103bae67d8454385bfadd38"
+      "bytes": 1330,
+      "sha256": "c6f83786158cce7b5b3037fe6577853855df1af12dff703ed8fc118801e9ce14"
     }
   ]
 }

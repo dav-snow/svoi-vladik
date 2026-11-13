@@ -1,0 +1,149 @@
+/* Стекло остаётся достаточно плотным для чтения поверх настоящей карты. */
+:root {
+  --glass-fill: rgba(255, 255, 255, .72);
+  --glass-line: rgba(255, 255, 255, .82);
+  --glass-shadow: 0 12px 34px #3347550d, 0 2px 6px #33475505, inset 0 1px 0 #fff;
+  --surface-ease: cubic-bezier(.22, 1, .36, 1);
+}
+.app-shell {
+  background: radial-gradient(ellipse at 5% 4%, #ffe4c355, transparent 38%), radial-gradient(ellipse at 90% 92%, #d4e9f255, transparent 45%), #f3f6f8;
+}
+.site-header {
+  background: #ffffffba;
+  -webkit-backdrop-filter: blur(24px) saturate(1.35);
+  backdrop-filter: blur(24px) saturate(1.35);
+  border-bottom: 1px solid #ffffffc9;
+  box-shadow: 0 1px 0 #34485705;
+}
+.sidebar {
+  background: linear-gradient(145deg, #ffffffcf, #ffffff9c);
+  -webkit-backdrop-filter: blur(28px) saturate(1.35);
+  backdrop-filter: blur(28px) saturate(1.35);
+  border-color: var(--glass-line);
+  box-shadow: var(--glass-shadow);
+}
+.sheet-toggle { background: transparent; }
+.sheet-handle { width: 34px; height: 4px; background: #75899530; }
+.place-card, .adventure-card, .walk-stop, .quest-option, .intent-button, .avatar-option {
+  background: #ffffff73;
+  border: 1px solid #ffffffc4;
+  box-shadow: inset 0 1px 0 #ffffffd9, 0 2px 8px #263d4d03;
+}
+.place-open, .place-open:hover { background: transparent; }
+.place-card, .walk-stop, .intent-button, .quest-option, .avatar-option {
+  transition: background .22s ease, border-color .22s ease, box-shadow .28s ease, transform .32s var(--surface-ease);
+}
+.place-card:hover, .walk-stop:hover, .intent-button:hover, .quest-option:hover, .avatar-option:hover {
+  background: #ffffffb3;
+  border-color: #fff;
+  box-shadow: 0 6px 18px #3347550a, inset 0 1px 0 #fff;
+  transform: translateY(-1px);
+}
+.place-card.is-selected, .place-card[aria-current="true"] {
+  background: linear-gradient(125deg, #fff5e6da, #fffaf4b8);
+  border-color: #ffdab0c9;
+}
+.search-field, .nearby-section {
+  background: #ffffff57;
+  border-color: #ffffffb3;
+  box-shadow: inset 0 1px 0 #ffffffc4, 0 1px 3px #34485703;
+}
+.search-field:focus-within { background: #ffffffbf; border-color: #f8c792; }
+.nearby-section[open] summary { border-color: #ffffffbd; }
+.category-controls { background: #e9edf268; border: 1px solid #ffffff70; }
+.category-button { border-radius: 11px; }
+.category-button.is-active, .category-button[aria-pressed="true"] {
+  background: #ffffffe0; border-color: #fff;
+  box-shadow: 0 2px 7px #3b526712, inset 0 1px 0 white;
+}
+.primary-button, .svoi-mascot-action.is-primary {
+  background: linear-gradient(160deg, #ffab36 0%, #ff8a08 65%, #ff8500 100%);
+  border-color: #ffbf666e;
+  box-shadow: inset 0 1px 0 #ffe7c6b3, 0 3px 9px #e679001a;
+}
+.primary-button:hover, .svoi-mascot-action.is-primary:hover {
+  background: linear-gradient(160deg, #ffb247, #ff8800 80%);
+  box-shadow: inset 0 1px 0 #ffe7c6cc, 0 6px 16px #e6790024;
+}
+.secondary-button, .dialog-close, .svoi-mascot-action:not(.is-primary) {
+  background: #ffffff85; border-color: #ffffffd9;
+  box-shadow: inset 0 1px 0 #ffffffd9, 0 2px 7px #263d4d05;
+}
+.primary-button, .secondary-button, .icon-button, .avatar-button, .svoi-mascot-action {
+  transition: transform .28s var(--surface-ease), background .2s, box-shadow .2s;
+}
+.primary-button:active, .secondary-button:active, .icon-button:active, .avatar-button:active, .svoi-mascot-action:active { transform: scale(.97); }
+.quest-promo, .journey-card, .reward-card {
+  background: linear-gradient(135deg, #fff1d9cf, #fff8ee91);
+  border: 1px solid #fff7e9e0;
+  box-shadow: inset 0 1px 0 #fff, 0 4px 18px #c68a4006;
+}
+.district-badge, .map-controls, .guide-button, .selected-place, .map-status {
+  background: linear-gradient(135deg, #ffffffe0, #ffffffa6);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  backdrop-filter: blur(22px) saturate(1.4);
+  border-color: #ffffffe0;
+  box-shadow: var(--glass-shadow);
+}
+.map-controls button, .map-controls button:hover { background: transparent; }
+.map-controls button:hover { box-shadow: inset 0 0 0 30px #ffffff85; }
+.guide-button:hover { background: #fff6e7e3; transform: translateY(-2px); }
+.map-marker-bubble { background: #fff2d8d9; border-color: #fffffff2; box-shadow: 0 3px 13px #3c536521, inset 0 1px 0 #fff; }
+.map-marker-label { background: #ffffffe8; border-color: #fff; }
+.content-dialog {
+  background: linear-gradient(145deg, #ffffffbd 0%, #ffffffd9 45%, #ffffffb3 100%);
+  -webkit-backdrop-filter: blur(30px) saturate(1.45);
+  backdrop-filter: blur(30px) saturate(1.45);
+  border: 1px solid #fffffff2;
+  border-radius: 30px;
+  box-shadow: 0 32px 100px #14293824, 0 5px 22px #1429380a, inset 0 1px 0 #fff;
+  transform-origin: center;
+  scrollbar-color: #8194a333 transparent;
+  scrollbar-width: thin;
+}
+.content-dialog::backdrop { background: #20374b29; -webkit-backdrop-filter: blur(5px) saturate(.9); backdrop-filter: blur(5px) saturate(.9); }
+.content-dialog .dialog-close { background: #ffffff9e; color: #647680; border: 1px solid #ffffffed; }
+.content-dialog .dialog-close:hover { background: #fff; }
+.content-dialog .intent-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.content-dialog p, .content-dialog .dialog-copy { color: #5e6c71; }
+.fact-card, .info-note, .quest-feedback {
+  background: #f5f8fa8c;
+  border-color: #ffffffde;
+  box-shadow: inset 0 1px 0 #fff;
+}
+.quest-feedback.is-correct, .quest-option.is-correct { background: #ecf7eede; border-color: #d7ebd7; }
+.quest-feedback.is-wrong { background: #fff1dfde; }
+.manual-select { background: #ffffffb8; border-color: #fff; border-radius: 15px; }
+.toast {
+  background: #293c46e8; border: 1px solid #ffffff40;
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  border-radius: 17px; box-shadow: 0 10px 30px #152f4121;
+}
+.selected-place:not([hidden]) { animation: glass-card-enter .36s var(--surface-ease) both; }
+.quest-meter > span { transition: background-color .28s ease; }
+@keyframes glass-card-enter {
+  from { opacity: 0; transform: translateY(9px) scale(.97); filter: blur(3px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+@media (max-width: 760px) {
+  /* A filtered header would become the containing block of the fixed bottom nav. */
+  .site-header { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .sidebar { background: linear-gradient(145deg, #ffffffd4, #ffffffad); border-radius: 29px 29px 0 0; box-shadow: 0 -8px 35px #263f4f0c, inset 0 1px 0 #fff; }
+  .sidebar { transition: height .42s var(--surface-ease); }
+  .main-nav { background: #ffffffe0; -webkit-backdrop-filter: blur(25px) saturate(1.4); backdrop-filter: blur(25px) saturate(1.4); border-color: #fff; }
+  .nav-button.is-active, .nav-button[aria-pressed="true"] { background: linear-gradient(145deg, #fff1dfed, #fff7ece0); box-shadow: inset 0 1px 0 #fff; }
+  .content-dialog { border-radius: 28px; }
+  .content-dialog .intent-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sidebar, .content-dialog, .district-badge, .map-controls, .selected-place, .guide-button, .map-status, .site-header, .main-nav { background: #fafcfbf7; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .sidebar, .content-dialog, .district-badge, .map-controls, .selected-place, .guide-button, .map-status, .site-header, .main-nav { background: #fcfdfc; -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .selected-place:not([hidden]) { animation: none; }
+  .sidebar, .quest-meter > span { transition: none; }
+  .place-card, .walk-stop, .intent-button, .quest-option, .avatar-option, .primary-button, .secondary-button, .icon-button, .avatar-button, .svoi-mascot-action { transition: none; }
+  .place-card:hover, .walk-stop:hover, .intent-button:hover, .quest-option:hover, .avatar-option:hover, .primary-button:active, .secondary-button:active, .icon-button:active, .avatar-button:active, .svoi-mascot-action:active, .guide-button:hover { transform: none; }
+}
