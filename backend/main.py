@@ -16,7 +16,7 @@ from fastapi import FastAPI, HTTPException, Path as ApiPath, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints, ValidationError, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, ValidationError, computed_field, field_validator, model_validator
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 logger = logging.getLogger("svoi-vladik")
@@ -89,6 +89,23 @@ class Place(Editorial):
         if self.active and self.coordinates is None:
             raise ValueError("Active place needs coordinates")
         return self
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def route_url(self) -> str | None:
+        """Ready-to-use 2GIS pedestrian route to this place.
+
+        Official format: https://2gis.ru/directions/tab/pedestrian/points/|<lon>,<lat>
+        The pipe is a literal separator (empty start = user's location, end =
+        this point). Keep it unencoded: 2GIS reads the raw path, and %7C makes it
+        drop the destination. The frontend should use this value as-is.
+        """
+        if self.coordinates is None:
+            return None
+        return (
+            "https://2gis.ru/directions/tab/pedestrian/points/"
+            f"|{self.coordinates.lng},{self.coordinates.lat}"
+        )
 
 class Guide(Editorial):
     """Practical city card: address and source only, no coordinates yet."""

@@ -53,7 +53,11 @@ python -m venv .venv
 - `status`, `district_verified`, `active`;
 - `price_rub: integer | null`, `checked_at: string | null`;
 - `source_url`, `sources: [{title,url}]`, `verification_note`;
-- `description` (по умолчанию пустая строка), необязательные `address`, `image`, `osm_tags`.
+- `description` (по умолчанию пустая строка), необязательные `address`, `image`, `osm_tags`;
+- `route_url` — готовая ссылка пешеходного маршрута в 2ГИС с подставленным
+  финишем: `https://2gis.ru/directions/tab/pedestrian/points/|<lng>,<lat>`
+  (разделитель `|` — литеральный, **не** `%7C`; для мест без координат `null`).
+  Фронт использует значение как есть, не пересобирая и не кодируя.
 
 ID — 1–64 символа `[A-Za-z0-9_-]`. Координаты конечные, широта −90…90, долгота −180…180. Неактивная редакционная запись может иметь `coordinates: null`, активная — нет. Допустимые категории: `culture`, `viewpoint`, `park`, `food`, `toilet`, `other`. Источники — HTTPS; API их не загружает.
 
