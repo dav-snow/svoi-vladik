@@ -1,0 +1,58 @@
+# Публичный стенд: Caddy терминирует HTTPS, API наружу портов не публикует.
+# Домен и email берутся из .env (см. .env.example); секретов в этом файле нет.
+# Запуск: docker compose -f docker-compose.prod.yml up -d --build
+services:
+  api:
+    build: .
+    # Нет ports: к API ходит только Caddy по внутренней сети compose.
+    # --proxy-headers + --forwarded-allow-ips: за прокси приложение видит
+    # реальный IP клиента (иначе in-memory лимитер считал бы всех посетителей
+    # одним адресом Caddy). 172.16.0.0/12 покрывает внутренние сети Docker.
+    command:
+      [
+        "uvicorn", "main:app",
+        "--host", "0.0.0.0",
+        "--port", "8000",
+        "--no-access-log",
+        "--proxy-headers",
+        "--forwarded-allow-ips", "172.16.0.0/12",
+      ]
+    environment:
+      # Поддержка ветки с SQLite: файл базы живёт на named volume и переживает
+      # пересборку. Пока ветка не влита, лишние переменные безвредны.
+      - DB_PATH=/app/storage/demo.sqlite3
+      - COOKIE_SECURE=1
+    volumes:
+      - demo-data:/app/storage
+      # Серверные ключи ответов квестов: в git и в образе их нет, файл
+      # копируется на сервер отдельно. Без него квесты отдают 503.
+      - "./data/private/quest-answers.json:/app/data/private/quest-answers.json:ro"
+    restart: unless-stopped
+    healthcheck:
+      # В образе нет curl, поэтому проверка через stdlib Python.
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8000/health',timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN}
+      - ACME_EMAIL=${ACME_EMAIL}
+    volumes:
+      - "./Caddyfile:/etc/caddy/Caddyfile:ro"
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  demo-data:
+  caddy-data:
+  caddy-config:

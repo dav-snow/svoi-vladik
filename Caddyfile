@@ -1,0 +1,23 @@
+# HTTPS-прокси перед API. Домен и email приходят из окружения контейнера
+# (.env -> docker-compose.prod.yml); реальных доменов в репозитории нет.
+# Сертификат Let's Encrypt Caddy получает и продлевает сам: для этого
+# A-запись домена должна указывать на сервер, а порт 80 быть открыт.
+{
+	email {$ACME_EMAIL}
+	servers {
+		timeouts {
+			read_header 10s
+			read_body 30s
+			write 60s
+			idle 2m
+		}
+	}
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	# Заголовки безопасности (X-Content-Type-Options, Referrer-Policy,
+	# Permissions-Policy) уже отдаёт приложение — здесь их не дублируем.
+	reverse_proxy api:8000
+}
