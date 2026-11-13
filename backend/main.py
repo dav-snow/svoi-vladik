@@ -27,6 +27,7 @@ BOUNDARY_FILE = REPO_ROOT / "data/geo/leninsky-boundary.geojson"
 ROUTES_FILE = REPO_ROOT / "data/routes.json"
 QUESTS_FILE = REPO_ROOT / "data/quests.json"
 ANSWERS_FILE = REPO_ROOT / "data/private/quest-answers.json"
+GUIDES_FILE = REPO_ROOT / "data/guides.json"
 FRONTEND_DIR = REPO_ROOT / "frontend-design/dist"
 DATA_DIR = FRONTEND_DIR / "data"
 # Kept for callers of the old loader; public endpoints no longer substitute mocks.
@@ -37,6 +38,7 @@ ID_PATTERN = r"^[A-Za-z0-9_-]{1,64}$"
 Id = Annotated[str, StringConstraints(strict=True, min_length=1, max_length=64, pattern=ID_PATTERN)]
 Status = Literal["draft", "verified", "needs_review", "expired", "archived", "demo"]
 Category = Literal["culture", "viewpoint", "park", "food", "toilet", "other"]
+Need = Literal["eat", "toilet", "fun", "lodging"]
 SECURITY_HEADERS = {"X-Content-Type-Options": "nosniff", "Referrer-Policy": "strict-origin-when-cross-origin", "Permissions-Policy": "geolocation=(self)"}
 
 class Coordinates(BaseModel):
@@ -87,6 +89,15 @@ class Place(Editorial):
         if self.active and self.coordinates is None:
             raise ValueError("Active place needs coordinates")
         return self
+
+class Guide(Editorial):
+    """Practical city card: address and source only, no coordinates yet."""
+    id: Id
+    title: str = Field(min_length=1, max_length=300)
+    need: Need
+    address: str = Field(min_length=1, max_length=300)
+    price_note: str = ""
+    note: str = ""
 
 class Route(Editorial):
     id: Id
@@ -214,6 +225,18 @@ def load_places() -> list[Place]:
                 result.append(place)
         except ValidationError:
             continue
+    return result
+
+def load_guides() -> list[Guide]:
+    """Fail closed: only draft/verified cards from data/guides.json."""
+    result = []
+    for raw in load_collection(GUIDES_FILE, None, Guide)["items"]:
+        try:
+            guide = Guide.model_validate(raw)
+        except ValidationError:
+            continue
+        if guide.status in {"draft", "verified"}:
+            result.append(guide)
     return result
 
 # Retained as an import-compatible snapshot; requests read current files.
@@ -351,6 +374,19 @@ async def get_place(place_id: Annotated[str, ApiPath(pattern=ID_PATTERN, min_len
         if p.id == place_id:
             return p.model_dump()
     _raise_api_error(404, message="Место не найдено")
+
+@app.get("/api/v1/guides")
+async def get_guides(request: Request, need: Need | None = None):
+    """Practical cards by need; no map coordinates, no booking."""
+    params = list(request.query_params.multi_items())
+    if any(k != "need" for k, _ in params) or len({k for k, _ in params}) != len(params):
+        _raise_api_error(422)
+    guides = [
+        guide.model_dump()
+        for guide in load_guides()
+        if need is None or guide.need == need
+    ]
+    return {"items": guides, "total": len(guides)}
 
 def public_collection(path, model):
     data = load_collection(path, None, model)

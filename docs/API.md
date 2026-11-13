@@ -36,6 +36,7 @@
 | GET | `/health` | `{ "status": "ok" }`, без окружения и секретов |
 | GET | `/api/v1/places` | `{ "items": Place[], "total": N }`; query `category?`, `max_price_rub?` |
 | GET | `/api/v1/places/{place_id}` | `Place` либо 404 |
+| GET | `/api/v1/guides` | `{ "items": Guide[], "total": N }`; query `need?` (`eat`, `toilet`, `fun`, `lodging`) |
 | GET | `/api/v1/walks` | `{ "items": Walk[], "total": N }` |
 | GET | `/api/v1/quest` | `{ "items": Quest[], "total": N }` |
 | POST | `/api/v1/quest/{quest_id}/answer` | `{ "correct": boolean, "explanation": "…" }` |
@@ -61,6 +62,22 @@
 `id`, `name`, `description`, `category`, `coordinates`, `status`,
 `district_verified`, `active`, `price_rub`, `checked_at`, `source_url`,
 `sources[]`, `verification_note`; необязательные `address`, `image`, `osm_tags`.
+
+## Guide — практический гид
+
+`data/guides.json`: карточки для бытовых нужд — поесть, туалет, досуг, ночлег.
+Сейчас это **только адрес, ориентир цены и источник**: координат входа нет, поэтому
+такие точки не показываются на карте и по ним не строится маршрут. Так сделано
+намеренно: адрес из справочника не равен проверенному входу.
+
+Поля: `id`, `title`, `need` (`eat`, `toilet`, `fun`, `lodging`), `address`,
+`price_note`, `note`, `source_url`, `sources[]`, `checked_at`, `status`,
+`verification_note`. У всех записей статус `draft`: работа, часы и цена не
+подтверждены, поэтому интерфейс подписывает их как кандидатов.
+
+`GET /api/v1/guides?need=toilet` фильтрует по потребности; неизвестное значение или
+лишний параметр дают 422. Пустой результат — 200 с пустым `items`. Маскот показывает
+карточки текстом, с источником и честной оговоркой, а не как проверенную услугу.
 
 ## Walk
 

@@ -30,6 +30,7 @@ python -m venv .venv
 | `GET /health` | `{ "status": "ok" }` |
 | `GET /api/v1/places` | `{ "items": Place[], "total": N }` |
 | `GET /api/v1/places/{place_id}` | Один Place либо 404 |
+| `GET /api/v1/guides` | `{ "items": Guide[], "total": N }`; query `need?` (`eat`, `toilet`, `fun`, `lodging`); адрес и источник, без координат |
 | `GET /api/v1/walks` | `{ "items": Walk[], "total": N }` |
 | `GET /api/v1/quest` | `{ "items": Quest[], "total": N }` |
 | `POST /api/v1/quest/{quest_id}/answer` | `{ "correct": boolean, "explanation": "…" }` |
