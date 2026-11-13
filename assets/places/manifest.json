@@ -1,0 +1,1773 @@
+{
+  "research_date": "2026-11-14",
+  "base_commit": "c75c235",
+  "note": "Additive editorial media pack. Does not change live API data, activate candidates, or wire photos into UI. Keep author, source and license when displaying images.",
+  "items": [
+    {
+      "id": "sukhanov-house",
+      "kind": "place",
+      "name": "Дом-музей семьи Сухановых",
+      "active": true,
+      "address": "Владивосток, улица Суханова, 9",
+      "summary": "Деревянный особняк XIX века на улице Суханова, где сохранилась история семьи чиновника Александра Суханова. Музей помогает представить домашний быт старого Владивостока и судьбы его жителей.",
+      "description_sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/dom-muzej-semi-suhanovyh"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/106483748"
+        }
+      ],
+      "source_url": "https://visit-primorye.ru/what-to-do/dom-muzej-semi-suhanovyh",
+      "research_date": "2026-11-14",
+      "description_review": "editorial_summary_online_sources; not_field_verified",
+      "visit_note": "Часы, билеты, доступ и проходы уточняйте перед визитом. Фотографии могут быть сняты несколько лет назад.",
+      "photos": [
+        {
+          "path": "assets/places/sukhanov-house--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D0%B0_9.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/8/8e/%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D0%B0_9.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "LoreMasterTes",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Дом Сухановых: улица Суханова, 9,  Владивосток, Приморский край",
+          "date_taken": "2017-09-10",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "LoreMasterTes — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D0%B0_9.jpg"
+        },
+        {
+          "path": "assets/places/sukhanov-house--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D0%B0_9_%D0%94%D0%BE%D0%BC_%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D1%8B%D1%85%2B.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/b/b7/%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D0%B0_9_%D0%94%D0%BE%D0%BC_%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D1%8B%D1%85%2B.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Кабанкова Валерия",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Дом Сухановых: улица Суханова, 9, Владивосток, Приморский край",
+          "date_taken": "2023-09-22",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Кабанкова Валерия — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D0%B0_9_%D0%94%D0%BE%D0%BC_%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D1%8B%D1%85%2B.jpg"
+        }
+      ]
+    },
+    {
+      "id": "sukhanov-square",
+      "kind": "place",
+      "name": "Сквер имени Суханова",
+      "active": true,
+      "address": "Владивосток, сквер имени Суханова",
+      "summary": "Городской сквер имени Константина Суханова — небольшая зелёная остановка между прогулками по центру. Подходит для короткой паузы; сквер и дом-музей Сухановых — разные объекты.",
+      "description_sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/dom-muzej-semi-suhanovyh"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/25617751"
+        }
+      ],
+      "source_url": "https://visit-primorye.ru/what-to-do/dom-muzej-semi-suhanovyh",
+      "research_date": "2026-11-14",
+      "description_review": "editorial_summary_online_sources; not_field_verified",
+      "visit_note": "Часы, билеты, доступ и проходы уточняйте перед визитом. Фотографии могут быть сняты несколько лет назад.",
+      "photos": [
+        {
+          "path": "assets/places/sukhanov-square--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Streets_in_Vladivostok_(October_2024)-0_2.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/4/48/Streets_in_Vladivostok_%28October_2024%29-0_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Vyacheslav Bukharov",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Владивосток, переулок между улицами Лазо и Суханова, вид на сквер им. Муравьёва-Амурского",
+          "date_taken": "2024-10-07 16:26:05",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Vyacheslav Bukharov — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Streets_in_Vladivostok_(October_2024)-0_2.jpg"
+        },
+        {
+          "path": "assets/places/sukhanov-square--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:%D0%9F%D0%B0%D0%BC%D1%8F%D1%82%D0%BD%D0%B8%D0%BA_%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D1%832.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/4/41/%D0%9F%D0%B0%D0%BC%D1%8F%D1%82%D0%BD%D0%B8%D0%BA_%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D1%832.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Кабанкова Валерия",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Памятник К.А. Суханову: улица Суханова, сквер, Владивосток, Приморский край",
+          "date_taken": "2023-09-22",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Кабанкова Валерия — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:%D0%9F%D0%B0%D0%BC%D1%8F%D1%82%D0%BD%D0%B8%D0%BA_%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D1%832.jpg"
+        }
+      ]
+    },
+    {
+      "id": "st-paul",
+      "kind": "place",
+      "name": "Кирха Святого Павла",
+      "active": true,
+      "address": "Владивосток, Пушкинская улица, 14",
+      "summary": "Лютеранская кирха на Пушкинской улице, узнаваемая по кирпичным фасадам и готическому силуэту. Здесь можно познакомиться с архитектурой и религиозной историей многонационального Владивостока.",
+      "description_sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://vladivostok-city.com/ru/places/all/all/934"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/35333479"
+        }
+      ],
+      "source_url": "https://vladivostok-city.com/ru/places/all/all/934",
+      "research_date": "2026-11-14",
+      "description_review": "editorial_summary_online_sources; not_field_verified",
+      "visit_note": "Часы, билеты, доступ и проходы уточняйте перед визитом. Фотографии могут быть сняты несколько лет назад.",
+      "photos": [
+        {
+          "path": "assets/places/st-paul--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Church_of_St._Paul_(Vladivostok)_%D1%841.JPG",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Church_of_St._Paul_%28Vladivostok%29_%D1%841.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Andshel",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Church of St. Paul (Vladivostok)",
+          "date_taken": "2014-07-21 06:57:11",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Andshel — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Church_of_St._Paul_(Vladivostok)_%D1%841.JPG"
+        },
+        {
+          "path": "assets/places/st-paul--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Church_of_St._Paul_(Vladivostok)%D1%842.JPG",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/e/e2/Church_of_St._Paul_%28Vladivostok%29%D1%842.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Andshel",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Church of St. Paul (Vladivostok)",
+          "date_taken": "2014-07-21 06:57:05",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Andshel — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Church_of_St._Paul_(Vladivostok)%D1%842.JPG"
+        }
+      ]
+    },
+    {
+      "id": "pushkin-theatre",
+      "kind": "place",
+      "name": "Пушкинский театр ДВФУ",
+      "active": true,
+      "address": "Владивосток, Пушкинская улица, 27",
+      "summary": "Историческое здание на Пушкинской, 27, построенное в 1908 году для городского Собрания приказчиков. Сегодня театр ДВФУ объединяет спектакли, концерты, лекции и другие культурные события.",
+      "description_sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://www.culture.ru/institutes/85002/pushkinskii-teatr-dalnevostochnogo-federalnogo-universiteta"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/35333854"
+        }
+      ],
+      "source_url": "https://www.culture.ru/institutes/85002/pushkinskii-teatr-dalnevostochnogo-federalnogo-universiteta",
+      "research_date": "2026-11-14",
+      "description_review": "editorial_summary_online_sources; not_field_verified",
+      "visit_note": "Часы, билеты, доступ и проходы уточняйте перед визитом. Фотографии могут быть сняты несколько лет назад.",
+      "photos": [
+        {
+          "path": "assets/places/pushkin-theatre--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:%D0%9F%D1%83%D1%88%D0%BA%D0%B8%D0%BD%D1%81%D0%BA%D0%B0%D1%8F_27_(8).JPG",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/0/00/%D0%9F%D1%83%D1%88%D0%BA%D0%B8%D0%BD%D1%81%D0%BA%D0%B0%D1%8F_27_%288%29.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Tatiana Baloban",
+          "credit": "Own work",
+          "license": "CC BY-SA 3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+          "description": "Собрание приказчиков (Приморский край, Владивосток, Пушкинская улица, 27)",
+          "date_taken": "2014-10-10 15:28:22",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Tatiana Baloban — CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:%D0%9F%D1%83%D1%88%D0%BA%D0%B8%D0%BD%D1%81%D0%BA%D0%B0%D1%8F_27_(8).JPG"
+        },
+        {
+          "path": "assets/places/pushkin-theatre--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:%D0%A1%D0%BE%D0%B1%D1%80%D0%B0%D0%BD%D0%B8%D0%B5_%D0%BF%D1%80%D0%B8%D0%BA%D0%B0%D0%B7%D1%87%D0%B8%D0%BA%D0%BE%D0%B2,_%D0%9F%D1%80%D0%B8%D0%BC%D0%BE%D1%80%D1%81%D0%BA%D0%B8%D0%B9_%D0%BA%D1%80%D0%B0%D0%B9,_%D0%B3._%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA,_%D0%9F%D1%83%D1%88%D0%BA%D0%B8%D0%BD%D1%81%D0%BA%D0%B0%D1%8F_%D1%83%D0%BB%D0%B8%D1%86%D0%B0,_27.JPG",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/1/1b/%D0%A1%D0%BE%D0%B1%D1%80%D0%B0%D0%BD%D0%B8%D0%B5_%D0%BF%D1%80%D0%B8%D0%BA%D0%B0%D0%B7%D1%87%D0%B8%D0%BA%D0%BE%D0%B2%2C_%D0%9F%D1%80%D0%B8%D0%BC%D0%BE%D1%80%D1%81%D0%BA%D0%B8%D0%B9_%D0%BA%D1%80%D0%B0%D0%B9%2C_%D0%B3._%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA%2C_%D0%9F%D1%83%D1%88%D0%BA%D0%B8%D0%BD%D1%81%D0%BA%D0%B0%D1%8F_%D1%83%D0%BB%D0%B8%D1%86%D0%B0%2C_27.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Tatiana Baloban",
+          "credit": "Own work",
+          "license": "CC BY-SA 3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+          "description": "Собрание приказчиков (Приморский край, Владивосток, Пушкинская улица, 27)",
+          "date_taken": "2014-10-10 15:39:15",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Tatiana Baloban — CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:%D0%A1%D0%BE%D0%B1%D1%80%D0%B0%D0%BD%D0%B8%D0%B5_%D0%BF%D1%80%D0%B8%D0%BA%D0%B0%D0%B7%D1%87%D0%B8%D0%BA%D0%BE%D0%B2,_%D0%9F%D1%80%D0%B8%D0%BC%D0%BE%D1%80%D1%81%D0%BA%D0%B8%D0%B9_%D0%BA%D1%80%D0%B0%D0%B9,_%D0%B3._%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA,_%D0%9F%D1%83%D1%88%D0%BA%D0%B8%D0%BD%D1%81%D0%BA%D0%B0%D1%8F_%D1%83%D0%BB%D0%B8%D1%86%D0%B0,_27.JPG"
+        }
+      ]
+    },
+    {
+      "id": "osm-way-133436813",
+      "kind": "place",
+      "name": "Владивостокский фуникулёр",
+      "active": true,
+      "address": "Владивосток, улица Суханова, 29 — адрес OSM-метки станции",
+      "summary": "Два вагончика на склоне сопки Орлиной соединяют Пушкинскую и Суханова с 1962 года. Короткая поездка позволяет почувствовать рельеф города; перед визитом нужно проверить работу линии.",
+      "description_sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/funikulyor"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/133436813"
+        }
+      ],
+      "source_url": "https://visit-primorye.ru/what-to-do/funikulyor",
+      "research_date": "2026-11-14",
+      "description_review": "editorial_summary_online_sources; not_field_verified",
+      "visit_note": "Часы, билеты, доступ и проходы уточняйте перед визитом. Фотографии могут быть сняты несколько лет назад.",
+      "photos": [
+        {
+          "path": "assets/places/osm-way-133436813--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Vladivostok_Funicular_(October_2024)-0_5.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/5/56/Vladivostok_Funicular_%28October_2024%29-0_5.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Vyacheslav Bukharov",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Владивостокский фуникулёр: вид от нижней станции",
+          "date_taken": "2024-10-11 09:44:27",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Vyacheslav Bukharov — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Vladivostok_Funicular_(October_2024)-0_5.jpg"
+        }
+      ]
+    },
+    {
+      "id": "eagle-view",
+      "kind": "place",
+      "name": "Площадка у Орлиного гнезда — кандидат",
+      "active": false,
+      "address": "Владивосток, сопка Орлиное Гнездо",
+      "summary": "Видовой район сопки Орлиной известен панорамами Владивостока и бухты Золотой Рог. Конкретная площадка и безопасный подход в проекте ещё не подтверждены: точка остаётся неактивным кандидатом.",
+      "description_sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/sopka-orlinoe-gnezdo"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/node/414170281"
+        }
+      ],
+      "source_url": "https://visit-primorye.ru/what-to-do/sopka-orlinoe-gnezdo",
+      "research_date": "2026-11-14",
+      "description_review": "editorial_summary_online_sources; not_field_verified",
+      "visit_note": "Часы, билеты, доступ и проходы уточняйте перед визитом. Фотографии могут быть сняты несколько лет назад.",
+      "photos": [
+        {
+          "path": "assets/places/eagle-view--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:2025-09-18-vdk-eagle-nest-night-201203.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/a/a2/2025-09-18-vdk-eagle-nest-night-201203.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "I13Robin",
+          "credit": "Own work",
+          "license": "CC BY 4.0",
+          "license_url": "https://creativecommons.org/licenses/by/4.0",
+          "description": "Vladivostok, park, eagle nest, bridge, bay, night",
+          "date_taken": "2025-09-18 20:12:03",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "I13Robin — CC BY 4.0 — https://commons.wikimedia.org/wiki/File:2025-09-18-vdk-eagle-nest-night-201203.jpg"
+        },
+        {
+          "path": "assets/places/eagle-view--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:2025-09-18-vdk-eagle-nest-night-201532.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/4/46/2025-09-18-vdk-eagle-nest-night-201532.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "I13Robin",
+          "credit": "Own work",
+          "license": "CC BY 4.0",
+          "license_url": "https://creativecommons.org/licenses/by/4.0",
+          "description": "Vladivostok, park, eagle nest, bridge, bay, night",
+          "date_taken": "2025-09-18 20:15:36",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "I13Robin — CC BY 4.0 — https://commons.wikimedia.org/wiki/File:2025-09-18-vdk-eagle-nest-night-201532.jpg"
+        }
+      ]
+    },
+    {
+      "id": "nagorny",
+      "kind": "place",
+      "name": "Нагорный парк",
+      "active": true,
+      "address": "Владивосток, сопка Тюменская",
+      "summary": "Парк на Тюменской сопке с прогулочными дорожками и видовыми площадками над городом. Открыт в 2021 году; интересен сочетанием озеленённых пространств, рельефа и панорам Золотого Рога.",
+      "description_sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/nagornyj-park"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/492719949"
+        }
+      ],
+      "source_url": "https://visit-primorye.ru/what-to-do/nagornyj-park",
+      "research_date": "2026-11-14",
+      "description_review": "editorial_summary_online_sources; not_field_verified",
+      "visit_note": "Часы, билеты, доступ и проходы уточняйте перед визитом. Фотографии могут быть сняты несколько лет назад.",
+      "photos": [
+        {
+          "path": "assets/places/nagorny--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Vladivostok_Nagorny_park_2024-09_033.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/0/01/Vladivostok_Nagorny_park_2024-09_033.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Artyom Svetlov",
+          "credit": "Own work",
+          "license": "CC BY 4.0",
+          "license_url": "https://creativecommons.org/licenses/by/4.0",
+          "description": "Nagorny park",
+          "date_taken": "Taken on 3 September 2024, 14:00:04 (according to   Exif   data)",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Artyom Svetlov — CC BY 4.0 — https://commons.wikimedia.org/wiki/File:Vladivostok_Nagorny_park_2024-09_033.jpg"
+        },
+        {
+          "path": "assets/places/nagorny--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:%D0%9D%D0%B0%D0%B3%D0%BE%D1%80%D0%BD%D1%8B%D0%B9_%D0%BF%D0%B0%D1%80%D0%BA._%D0%A1%D0%BE%D0%BF%D0%BA%D0%B0_%D0%91%D1%83%D1%81%D1%81%D0%B5_2.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/e/ea/%D0%9D%D0%B0%D0%B3%D0%BE%D1%80%D0%BD%D1%8B%D0%B9_%D0%BF%D0%B0%D1%80%D0%BA._%D0%A1%D0%BE%D0%BF%D0%BA%D0%B0_%D0%91%D1%83%D1%81%D1%81%D0%B5_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "A. C. Tatarinov",
+          "credit": "Own work",
+          "license": "CC0",
+          "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+          "description": "Нагорный парк в верхней части сопки Буссе. Вдоль улиц Всеволода Сибирцева, Тюменской и Шилкинской",
+          "date_taken": "2021-08-18 19:35:29",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "A. C. Tatarinov — CC0 — https://commons.wikimedia.org/wiki/File:%D0%9D%D0%B0%D0%B3%D0%BE%D1%80%D0%BD%D1%8B%D0%B9_%D0%BF%D0%B0%D1%80%D0%BA._%D0%A1%D0%BE%D0%BF%D0%BA%D0%B0_%D0%91%D1%83%D1%81%D1%81%D0%B5_2.jpg"
+        }
+      ]
+    },
+    {
+      "id": "stone-lions",
+      "kind": "place",
+      "name": "Каменные львы у Восточного института — кандидат",
+      "active": false,
+      "address": "Владивосток, Пушкинская улица, 10",
+      "summary": "Каменные фигуры львов у исторического здания Восточного института на Пушкинской улице. Это повод обратить внимание на восточные связи города и детали входа; доступ к конкретной точке требует проверки.",
+      "description_sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://cnbdvo.ru/item/2291576"
+        }
+      ],
+      "source_url": "https://cnbdvo.ru/item/2291576",
+      "research_date": "2026-11-14",
+      "description_review": "editorial_summary_online_sources; not_field_verified",
+      "visit_note": "Часы, билеты, доступ и проходы уточняйте перед визитом. Фотографии могут быть сняты несколько лет назад.",
+      "photos": [
+        {
+          "path": "assets/places/stone-lions--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Guardian_lions_FESTU_Vladivostok.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/6/61/Guardian_lions_FESTU_Vladivostok.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Yury Kirienko",
+          "credit": "Far-Eastern State Technical University main building, Vladivostok, Russia",
+          "license": "CC BY-SA 3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+          "description": "Chinese guardian lions near entrance of Far-Eastern State Technical University",
+          "date_taken": "Taken on 22 September 2007",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Yury Kirienko — CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:Guardian_lions_FESTU_Vladivostok.jpg"
+        },
+        {
+          "path": "assets/places/stone-lions--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:%D0%97%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5_%D0%92%D0%BE%D1%81%D1%82%D0%BE%D1%87%D0%BD%D0%BE%D0%B3%D0%BE_%D0%B8%D0%BD%D1%81%D1%82%D0%B8%D1%82%D1%83%D1%82%D0%B0.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/f/f4/%D0%97%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5_%D0%92%D0%BE%D1%81%D1%82%D0%BE%D1%87%D0%BD%D0%BE%D0%B3%D0%BE_%D0%B8%D0%BD%D1%81%D1%82%D0%B8%D1%82%D1%83%D1%82%D0%B0.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Genkayo",
+          "credit": "Own work",
+          "license": "CC BY-SA 3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+          "description": "Здание Восточного института (Приморский край, Владивосток, Пушкинская улица, 10)",
+          "date_taken": "Taken on 29 September 2013, 09:43:59",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Genkayo — CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:%D0%97%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5_%D0%92%D0%BE%D1%81%D1%82%D0%BE%D1%87%D0%BD%D0%BE%D0%B3%D0%BE_%D0%B8%D0%BD%D1%81%D1%82%D0%B8%D1%82%D1%83%D1%82%D0%B0.jpg"
+        }
+      ]
+    },
+    {
+      "id": "eleanor-pray",
+      "kind": "place",
+      "name": "Памятник Элеоноре Лорд Прей",
+      "active": true,
+      "address": "Владивосток, Светланская улица, район домов 41–43",
+      "summary": "Скульптура на Светланской посвящена Элеоноре Лорд Прей, чьи письма сохранили подробности городской жизни рубежа XIX–XX веков. Памятник установлен в 2014 году у Почтового переулка.",
+      "description_sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/pamyatnik-eleonore-lord-prey"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/node/2953486090"
+        }
+      ],
+      "source_url": "https://visit-primorye.ru/what-to-do/pamyatnik-eleonore-lord-prey",
+      "research_date": "2026-11-14",
+      "description_review": "editorial_summary_online_sources; not_field_verified",
+      "visit_note": "Часы, билеты, доступ и проходы уточняйте перед визитом. Фотографии могут быть сняты несколько лет назад.",
+      "photos": [
+        {
+          "path": "assets/places/eleanor-pray--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA,_%D0%BF%D0%B0%D0%BC%D1%8F%D1%82%D0%BD%D0%B8%D0%BA_%D0%AD%D0%BB%D0%B5%D0%BE%D0%BD%D0%BE%D1%80%D0%B5_%D0%9F%D1%80%D0%B5%D0%B9,_2015-05-22,_%D0%B0.JPG",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/c/c4/%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA%2C_%D0%BF%D0%B0%D0%BC%D1%8F%D1%82%D0%BD%D0%B8%D0%BA_%D0%AD%D0%BB%D0%B5%D0%BE%D0%BD%D0%BE%D1%80%D0%B5_%D0%9F%D1%80%D0%B5%D0%B9%2C_2015-05-22%2C_%D0%B0.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "AdmiralHood",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Владивосток, памятник Элеоноре Прей, 2015-05-22",
+          "date_taken": "2015-05-22",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "AdmiralHood — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA,_%D0%BF%D0%B0%D0%BC%D1%8F%D1%82%D0%BD%D0%B8%D0%BA_%D0%AD%D0%BB%D0%B5%D0%BE%D0%BD%D0%BE%D1%80%D0%B5_%D0%9F%D1%80%D0%B5%D0%B9,_2015-05-22,_%D0%B0.JPG"
+        },
+        {
+          "path": "assets/places/eleanor-pray--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA,_%D0%BF%D0%B0%D0%BC%D1%8F%D1%82%D0%BD%D0%B8%D0%BA_%D0%AD%D0%BB%D0%B5%D0%BE%D0%BD%D0%BE%D1%80%D0%B5_%D0%9F%D1%80%D0%B5%D0%B9,_2015-05-22.JPG",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/d/db/%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA%2C_%D0%BF%D0%B0%D0%BC%D1%8F%D1%82%D0%BD%D0%B8%D0%BA_%D0%AD%D0%BB%D0%B5%D0%BE%D0%BD%D0%BE%D1%80%D0%B5_%D0%9F%D1%80%D0%B5%D0%B9%2C_2015-05-22.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "AdmiralHood",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Владивосток, памятник Элеоноре Прей, 2015-05-22",
+          "date_taken": "2015-05-22",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "AdmiralHood — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA,_%D0%BF%D0%B0%D0%BC%D1%8F%D1%82%D0%BD%D0%B8%D0%BA_%D0%AD%D0%BB%D0%B5%D0%BE%D0%BD%D0%BE%D1%80%D0%B5_%D0%9F%D1%80%D0%B5%D0%B9,_2015-05-22.JPG"
+        }
+      ]
+    },
+    {
+      "id": "nikolaev-gate",
+      "kind": "place",
+      "name": "Николаевские триумфальные ворота",
+      "active": true,
+      "address": "Владивосток, улица Петра Великого, район дома 8",
+      "summary": "Нарядная триумфальная арка связана с посещением Владивостока цесаревичем Николаем в 1891 году. Удобная остановка для разговора о городской памяти и архитектурных символах.",
+      "description_sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/nikolaevskie-triumfalnye-vorota"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/node/296115500"
+        }
+      ],
+      "source_url": "https://visit-primorye.ru/what-to-do/nikolaevskie-triumfalnye-vorota",
+      "research_date": "2026-11-14",
+      "description_review": "editorial_summary_online_sources; not_field_verified",
+      "visit_note": "Часы, билеты, доступ и проходы уточняйте перед визитом. Фотографии могут быть сняты несколько лет назад.",
+      "photos": [
+        {
+          "path": "assets/places/nikolaev-gate--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Triumphal_arch_Cesarevitch_Nikolay.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Triumphal_arch_Cesarevitch_Nikolay.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Russian.dissident",
+          "credit": "Own work",
+          "license": "Public domain",
+          "license_url": "",
+          "description": "Vladivostok: Triumphal arch Cesarevitch Nikolay",
+          "date_taken": "",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Russian.dissident — Public domain — https://commons.wikimedia.org/wiki/File:Triumphal_arch_Cesarevitch_Nikolay.jpg"
+        },
+        {
+          "path": "assets/places/nikolaev-gate--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Triumphal_arch_in_Vladivostok_(October_2024)-0.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Triumphal_arch_in_Vladivostok_%28October_2024%29-0.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Vyacheslav Bukharov",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Триумфальная арка во Владивостоке",
+          "date_taken": "2024-10-07 11:34:59",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Vyacheslav Bukharov — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Triumphal_arch_in_Vladivostok_(October_2024)-0.jpg"
+        }
+      ]
+    },
+    {
+      "id": "s56",
+      "kind": "place",
+      "name": "Подводная лодка-музей С-56",
+      "active": true,
+      "address": "Владивосток, Корабельная набережная",
+      "summary": "Подводная лодка на Корабельной набережной служит музеем и мемориальным объектом. Снаружи можно рассмотреть сам корабль, а для знакомства с внутренней экспозицией нужно отдельно уточнять условия посещения.",
+      "description_sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/gvardejskaya-krasnoznamennaya-podvodnaya-lodka-s-56"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/30281940"
+        }
+      ],
+      "source_url": "https://visit-primorye.ru/what-to-do/gvardejskaya-krasnoznamennaya-podvodnaya-lodka-s-56",
+      "research_date": "2026-11-14",
+      "description_review": "editorial_summary_online_sources; not_field_verified",
+      "visit_note": "Часы, билеты, доступ и проходы уточняйте перед визитом. Фотографии могут быть сняты несколько лет назад.",
+      "photos": [
+        {
+          "path": "assets/places/s56--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:S-56_Submarine_Monument_in_Vladivostok_(October_2024)-0_2.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/9/91/S-56_Submarine_Monument_in_Vladivostok_%28October_2024%29-0_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Vyacheslav Bukharov",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Мемориальный комплекс «Боевая слава Краснознаменного Тихоокеанского флота»: мемориальный корабль – подводная лодка «С-56»",
+          "date_taken": "2024-10-08 10:23:35",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Vyacheslav Bukharov — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:S-56_Submarine_Monument_in_Vladivostok_(October_2024)-0_2.jpg"
+        },
+        {
+          "path": "assets/places/s56--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Vladivostok_Submarine_S-56_P8050502_2200.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/d/d4/Vladivostok_Submarine_S-56_P8050502_2200.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Alexxx1979",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Vladivostok. Submarine S-56",
+          "date_taken": "2015-08-05 12:17:32",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Alexxx1979 — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Vladivostok_Submarine_S-56_P8050502_2200.jpg"
+        }
+      ]
+    },
+    {
+      "id": "red-pennant",
+      "kind": "place",
+      "name": "Мемориальный корабль «Красный вымпел»",
+      "active": true,
+      "address": "Владивосток, Корабельная набережная",
+      "summary": "Исторический корабль у Корабельной набережной был построен в 1911 году и первоначально носил имя «Адмирал Завойко». Его история связывает морские путешествия и становление флота на Дальнем Востоке.",
+      "description_sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://www.culture.ru/institutes/8487/memorialnyi-korabl-krasnyi-vympel"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/170639233"
+        },
+        {
+          "title": "Сезонные ограничения посещения",
+          "url": "https://visit-primorye.ru/en/what-to-do/memorialnyj-korabl-krasnyj-vympel"
+        }
+      ],
+      "source_url": "https://www.culture.ru/institutes/8487/memorialnyi-korabl-krasnyi-vympel",
+      "research_date": "2026-11-14",
+      "description_review": "editorial_summary_online_sources; not_field_verified",
+      "visit_note": "Часы, билеты, доступ и проходы уточняйте перед визитом. Фотографии могут быть сняты несколько лет назад.",
+      "photos": [
+        {
+          "path": "assets/places/red-pennant--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Vladivostok_Patrol_boat_Krasny_vympel_DSC00675_2200.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Vladivostok_Patrol_boat_Krasny_vympel_DSC00675_2200.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Alexxx1979",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Vladivostok. Patrol boat \"Krasny vympel\"",
+          "date_taken": "2015-08-05 11:58:00",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Alexxx1979 — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Vladivostok_Patrol_boat_Krasny_vympel_DSC00675_2200.jpg"
+        },
+        {
+          "path": "assets/places/red-pennant--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Vladivostok_Patrol_boat_Krasny_vympel_P8050470_2200.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/9/99/Vladivostok_Patrol_boat_Krasny_vympel_P8050470_2200.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Alexxx1979",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Vladivostok. Patrol boat \"Krasny vympel\"",
+          "date_taken": "2015-08-05 11:58:27",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Alexxx1979 — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Vladivostok_Patrol_boat_Krasny_vympel_P8050470_2200.jpg"
+        }
+      ]
+    },
+    {
+      "id": "nevelskoy-monument",
+      "kind": "place",
+      "name": "Памятник адмиралу Г. И. Невельскому",
+      "active": true,
+      "address": "Владивосток, Светланская улица, район дома 67",
+      "summary": "Памятник мореплавателю и исследователю Геннадию Невельскому на Светланской улице установлен в 1897 году. Остановка помогает связать историю города с изучением Дальнего Востока.",
+      "description_sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/pamyatnik-admiralu-g-i-nevelskomu"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/node/1316982367"
+        }
+      ],
+      "source_url": "https://visit-primorye.ru/what-to-do/pamyatnik-admiralu-g-i-nevelskomu",
+      "research_date": "2026-11-14",
+      "description_review": "editorial_summary_online_sources; not_field_verified",
+      "visit_note": "Часы, билеты, доступ и проходы уточняйте перед визитом. Фотографии могут быть сняты несколько лет назад.",
+      "photos": [
+        {
+          "path": "assets/places/nevelskoy-monument--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:%D0%9F%D0%B0%D0%BC%D1%8F%D1%82%D0%BD%D0%B8%D0%BA_%D0%93.%D0%98._%D0%9D%D0%B5%D0%B2%D0%B5%D0%BB%D1%8C%D1%81%D0%BA%D0%BE%D0%BC%D1%832.JPG",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/2/2c/%D0%9F%D0%B0%D0%BC%D1%8F%D1%82%D0%BD%D0%B8%D0%BA_%D0%93.%D0%98._%D0%9D%D0%B5%D0%B2%D0%B5%D0%BB%D1%8C%D1%81%D0%BA%D0%BE%D0%BC%D1%832.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Marishka6941 Трезвые грузчики",
+          "credit": "Own work",
+          "license": "Public domain",
+          "license_url": "",
+          "description": "Памятник Г.И. Невельскому",
+          "date_taken": "",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Marishka6941 Трезвые грузчики — Public domain — https://commons.wikimedia.org/wiki/File:%D0%9F%D0%B0%D0%BC%D1%8F%D1%82%D0%BD%D0%B8%D0%BA_%D0%93.%D0%98._%D0%9D%D0%B5%D0%B2%D0%B5%D0%BB%D1%8C%D1%81%D0%BA%D0%BE%D0%BC%D1%832.JPG"
+        }
+      ]
+    },
+    {
+      "id": "tsesarevich-embankment",
+      "kind": "place",
+      "name": "Набережная Цесаревича",
+      "active": true,
+      "address": "Владивосток, набережная Цесаревича",
+      "summary": "Прогулочное пространство у бухты Золотой Рог, открытое в 2012 году. Морские виды, Золотой мост и соседние промышленные здания создают характерный для Владивостока городской пейзаж.",
+      "description_sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/naberezhnaya-cesarevicha"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/relation/2904784"
+        }
+      ],
+      "source_url": "https://visit-primorye.ru/what-to-do/naberezhnaya-cesarevicha",
+      "research_date": "2026-11-14",
+      "description_review": "editorial_summary_online_sources; not_field_verified",
+      "visit_note": "Часы, билеты, доступ и проходы уточняйте перед визитом. Фотографии могут быть сняты несколько лет назад.",
+      "photos": [
+        {
+          "path": "assets/places/tsesarevich-embankment--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Vladivostok_Naberezhnaya_Tsesarevicha_2024-09_32.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/0/0f/Vladivostok_Naberezhnaya_Tsesarevicha_2024-09_32.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Artyom Svetlov",
+          "credit": "Own work",
+          "license": "CC BY 4.0",
+          "license_url": "https://creativecommons.org/licenses/by/4.0",
+          "description": "urban park Naberezhnaya Tsesarevicha",
+          "date_taken": "Taken on 2 September 2024, 16:00:00 (according to   Exif   data)",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Artyom Svetlov — CC BY 4.0 — https://commons.wikimedia.org/wiki/File:Vladivostok_Naberezhnaya_Tsesarevicha_2024-09_32.jpg"
+        },
+        {
+          "path": "assets/places/tsesarevich-embankment--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Vladivostok_Naberezhnaya_Tsesarevicha_2024-09_35.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Vladivostok_Naberezhnaya_Tsesarevicha_2024-09_35.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Artyom Svetlov",
+          "credit": "Own work",
+          "license": "CC BY 4.0",
+          "license_url": "https://creativecommons.org/licenses/by/4.0",
+          "description": "urban park Naberezhnaya Tsesarevicha",
+          "date_taken": "Taken on 2 September 2024, 16:00:00 (according to   Exif   data)",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Artyom Svetlov — CC BY 4.0 — https://commons.wikimedia.org/wiki/File:Vladivostok_Naberezhnaya_Tsesarevicha_2024-09_35.jpg"
+        }
+      ]
+    },
+    {
+      "id": "osm-node-676375880",
+      "kind": "place",
+      "name": "Военно-исторический музей Тихоокеанского флота",
+      "active": true,
+      "address": "Владивосток, Светланская улица, 66",
+      "summary": "Музей на Светланской, 66, посвящён истории Тихоокеанского флота. Экспозиция знакомит с морской службой через документы и предметы; посещение залов планируется отдельно от наружной прогулки.",
+      "description_sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/voenno-istoricheskij-muzej-tihookeanskogo-flota"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/node/676375880"
+        }
+      ],
+      "source_url": "https://visit-primorye.ru/what-to-do/voenno-istoricheskij-muzej-tihookeanskogo-flota",
+      "research_date": "2026-11-14",
+      "description_review": "editorial_summary_online_sources; not_field_verified",
+      "visit_note": "Часы, билеты, доступ и проходы уточняйте перед визитом. Фотографии могут быть сняты несколько лет назад.",
+      "photos": [
+        {
+          "path": "assets/places/osm-node-676375880--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Vladivostok_Military-historical_Museum_of_the_Pacific_fleet_(October_2024)-0.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Vladivostok_Military-historical_Museum_of_the_Pacific_fleet_%28October_2024%29-0.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Vyacheslav Bukharov",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Военно-исторический музей Тихоокеанского флота во Владивостоке. Экспозиция под открытым небом: бомбосбрасыватель (слева) и корабельная гальваноударная мина.",
+          "date_taken": "2024-10-07 17:24:33",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Vyacheslav Bukharov — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Vladivostok_Military-historical_Museum_of_the_Pacific_fleet_(October_2024)-0.jpg"
+        },
+        {
+          "path": "assets/places/osm-node-676375880--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Vladivostok_Military-historical_Museum_of_the_Pacific_fleet_(October_2024)-0_10.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/e/e2/Vladivostok_Military-historical_Museum_of_the_Pacific_fleet_%28October_2024%29-0_10.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Vyacheslav Bukharov",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Военно-исторический музей Тихоокеанского флота во Владивостоке. Экспозиция под открытым небом: во дворе здания торпедный катер ТКА-288 проекта 123К.",
+          "date_taken": "2024-10-07 17:28:38",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Vyacheslav Bukharov — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Vladivostok_Military-historical_Museum_of_the_Pacific_fleet_(October_2024)-0_10.jpg"
+        }
+      ]
+    },
+    {
+      "id": "osm-way-26537156",
+      "kind": "place",
+      "name": "Приморский драматический театр имени Максима Горького",
+      "active": true,
+      "address": "Владивосток, Светланская улица, 49",
+      "summary": "Драматический театр на Светланской, 49, — вариант для вечернего культурного досуга. Можно включить здание в прогулку, а спектакль выбрать отдельно по официальной афише.",
+      "description_sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://gorkytheater.ru/contacts"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/26537156"
+        }
+      ],
+      "source_url": "https://gorkytheater.ru/contacts",
+      "research_date": "2026-11-14",
+      "description_review": "editorial_summary_online_sources; not_field_verified",
+      "visit_note": "Часы, билеты, доступ и проходы уточняйте перед визитом. Фотографии могут быть сняты несколько лет назад.",
+      "photos": [
+        {
+          "path": "assets/places/osm-way-26537156--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Gorky_Theater_in_Vladivostok_(October_2024).jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/5/5d/Gorky_Theater_in_Vladivostok_%28October_2024%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Vyacheslav Bukharov",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Владивосток: Приморский краевой академический драматический театр им. Горького",
+          "date_taken": "2024-10-07 16:18:38",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Vyacheslav Bukharov — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Gorky_Theater_in_Vladivostok_(October_2024).jpg"
+        },
+        {
+          "path": "assets/places/osm-way-26537156--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Vladivostok_Gorky_Drama_Theatre_2010-10_1286866053.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Vladivostok_Gorky_Drama_Theatre_2010-10_1286866053.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Pavel K  F pkalac",
+          "credit": "Own work",
+          "license": "CC BY-SA 3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+          "description": "Maxim Gorky Academic Theater",
+          "date_taken": "Taken on 12 October 2010",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Pavel K  F pkalac — CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:Vladivostok_Gorky_Drama_Theatre_2010-10_1286866053.jpg"
+        }
+      ]
+    },
+    {
+      "id": "minny-park",
+      "kind": "place",
+      "name": "Парк «Минный городок» — отдельная проверка",
+      "active": false,
+      "address": "Владивосток, район улицы Адмирала Юмашева, 14г",
+      "summary": "Парк «Минный городок» на Адмирала Юмашева связан с историей территории и семейным отдыхом. Объект остаётся вне активной демонстрационной подборки: актуальные зоны, доступ и билеты нужно уточнять.",
+      "description_sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/park-minnyj-gorodok"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/relation/1935085"
+        }
+      ],
+      "source_url": "https://visit-primorye.ru/what-to-do/park-minnyj-gorodok",
+      "research_date": "2026-11-14",
+      "description_review": "editorial_summary_online_sources; not_field_verified",
+      "visit_note": "Часы, билеты, доступ и проходы уточняйте перед визитом. Фотографии могут быть сняты несколько лет назад.",
+      "photos": []
+    },
+    {
+      "id": "guide-e01",
+      "kind": "guide",
+      "name": "Полка.Кофе",
+      "address": "Пушкинская, 27, здание Пушкинского театра, первый этаж.",
+      "summary": "кофе и короткая пауза во время прогулки по Пушкинской.",
+      "source_url": "https://totadres.ru/vladivostok/org/polka_kofe/5092298",
+      "description_sources": [
+        {
+          "title": "карточка кофейни",
+          "url": "https://totadres.ru/vladivostok/org/polka_kofe/5092298"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "существует ли сейчас точка, доступен ли вход при закрытом театре, актуальное меню и график. Туалет не подтверждён.",
+      "price_note": "200 ₽. Это опубликованный ориентир кофейни, не обещание полноценного обеда.",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-e02",
+      "kind": "guide",
+      "name": "Столовая №5",
+      "address": "Светланская, 115, первый этаж.",
+      "summary": "кандидат на простой дневной обед: суп, основное блюдо, салат.",
+      "source_url": "https://urbanplaces.su/ru_primorskij-kraj/vladivostokskij-gorodskoj-okrug-vladivostok/card-2217223-stolovaya-5",
+      "description_sources": [
+        {
+          "title": "карточка столовой",
+          "url": "https://urbanplaces.su/ru_primorskij-kraj/vladivostokskij-gorodskoj-okrug-vladivostok/card-2217223-stolovaya-5"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "свободный вход для внешних посетителей, реальную работу, актуальные цены. Источник указывает узкое дневное окно по будням, поэтому не предлагать автоматически вечером и в выходные.",
+      "price_note": "250 ₽; сумма требует особенно внимательной проверки по текущему меню.",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-e03",
+      "kind": "guide",
+      "name": "Helsy",
+      "address": "Светланская, 33, строение 2, первый этаж.",
+      "summary": "кафе с более широким выбором еды, чем у кофейной точки; кандидат для обеда.",
+      "source_url": "https://totadres.ru/vladivostok/org/helsy/3768664",
+      "description_sources": [
+        {
+          "title": "адрес и средний чек",
+          "url": "https://totadres.ru/vladivostok/org/helsy/3768664"
+        },
+        {
+          "title": "дополнительная карточка",
+          "url": "https://rting.ru/vladivostok/co/h_lsy_safe/3339168"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "районную принадлежность, действующий вход, меню и открытие. Санузел для негостей не подтверждён.",
+      "price_note": "700 ₽.",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-e04",
+      "kind": "guide",
+      "name": "Калачная17",
+      "address": "Светланская, 33, строение 2.",
+      "summary": "выпечка, десерт и напиток; остановка для завтрака или перекуса.",
+      "source_url": "https://visit-primorye.ru/where-to-eat/pekarnya-konditerskaya-kalachnaya17",
+      "description_sources": [
+        {
+          "title": "Калачная17 на Visit Primorye",
+          "url": "https://visit-primorye.ru/where-to-eat/pekarnya-konditerskaya-kalachnaya17"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "конкретный вход, район и сегодняшнее меню. Режим филиала на странице есть, но перед показом его нужно перепроверить.",
+      "price_note": "600 ₽.",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-e05",
+      "kind": "guide",
+      "name": "Дамплинг Репаблик",
+      "address": "Светланская, 31.",
+      "summary": "азиатская кухня; кандидат на полноценный приём пищи.",
+      "source_url": "https://visit-primorye.ru/where-to-eat/kafe-dampling-repablik",
+      "description_sources": [
+        {
+          "title": "карточка кафе",
+          "url": "https://visit-primorye.ru/where-to-eat/kafe-dampling-repablik"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "действующий филиал, вход, меню, район и наличие мест. Цена доставки не заменяет средний чек посещения.",
+      "price_note": "1 200 ₽.",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-e06",
+      "kind": "guide",
+      "name": "Сыроварня",
+      "address": "Светланская, 37А.",
+      "summary": "ресторан для более долгого посещения компанией; это не бюджетный перекус.",
+      "source_url": "https://visit-primorye.ru/where-to-eat/restoran-syrovarnya",
+      "description_sources": [
+        {
+          "title": "карточка ресторана",
+          "url": "https://visit-primorye.ru/where-to-eat/restoran-syrovarnya"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "актуальное меню, вход, район и необходимость бронирования. Терраса сезонная; её доступность не обещать.",
+      "price_note": "2 500 ₽.",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-e07",
+      "kind": "guide",
+      "name": "OkiDoki на Луговой",
+      "address": "Луговая, 18.",
+      "summary": "пицца и другие блюда для остановки в районе Луговой, отдельно от центральных прогулок.",
+      "source_url": "https://www.restoclub.ru/vld/place/okidoki",
+      "description_sources": [
+        {
+          "title": "OkiDoki, адрес и чек",
+          "url": "https://www.restoclub.ru/vld/place/okidoki"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "наличие филиала сейчас, точный вход, актуальную стоимость заказа и посадку. До проверки ориентир 1 300 ₽ показывать только с названием источника.",
+      "price_note": "1 300 ₽. В других справочниках встречаются существенно меньшие числа; не объединять их в искусственное «среднее».",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-e08",
+      "kind": "guide",
+      "name": "Nem",
+      "address": "Светланская, 45, шестой этаж.",
+      "summary": "кафе; дополнительный кандидат для центральной части подборки.",
+      "source_url": "https://orgzz.ru/vladivostok/fastfud/adr/86137/svetlanskaya",
+      "description_sources": [
+        {
+          "title": "справочная подборка с карточкой Nem",
+          "url": "https://orgzz.ru/vladivostok/fastfud/adr/86137/svetlanskaya"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "работает ли заведение под этим именем, как попасть на этаж, есть ли лифт и действующее меню. До этого не рекомендовать человеку с срочной потребностью.",
+      "price_note": "500 ₽.",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-e09",
+      "kind": "guide",
+      "name": "Кофемашина",
+      "address": "Светланская, 152, строение 4.",
+      "summary": "автокафе, кандидат на напиток и еду навынос.",
+      "source_url": "https://orgzz.ru/vladivostok/fastfud/adr/86137/svetlanskaya",
+      "description_sources": [
+        {
+          "title": "карточка точки в справочнике",
+          "url": "https://orgzz.ru/vladivostok/fastfud/adr/86137/svetlanskaya"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "точный формат обслуживания, возможность безопасно подойти пешком, текущее меню и график. Пометка «круглосуточно» в справочнике не подтверждена звонком; круглосуточность в рекомендациях пока не обещаем.",
+      "price_note": "450 ₽.",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-e10",
+      "kind": "guide",
+      "name": "Хлопок Чайхона",
+      "address": "Светланская, 83.",
+      "summary": "кафе восточной кухни; потенциально подходит для спокойного обеда после прогулки. Статус: резерв с повышенным риском устаревания. На том же адресе найдено заведение «Практика» с другим чеком. Это может означать смену заведения, разные помещения или старые сведения; причина не установлена.",
+      "source_url": "https://vladivostok-city.com/ru/restaraunts/all/all/847",
+      "description_sources": [
+        {
+          "title": "Хлопок Чайхона",
+          "url": "https://vladivostok-city.com/ru/restaraunts/all/all/847"
+        },
+        {
+          "title": "конфликтующая карточка Практики",
+          "url": "https://www.restoclub.ru/vld/place/praktika-1"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "",
+      "price_note": "1 250 ₽.",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-f01",
+      "kind": "guide",
+      "name": "Кинотеатр Уссури",
+      "address": "Светланская, 31.",
+      "summary": "Что делать: выбрать сеанс, удобно сочетать с отдельной остановкой на еду. Стоимость: по фильму, залу, месту и времени; универсальной цены билета нет. Не сохранять минимальную стоимость случайного сеанса как постоянную.",
+      "source_url": "https://www.illuzion.ru/cinema/ussuri",
+      "description_sources": [
+        {
+          "title": "страница сети кинотеатров",
+          "url": "https://www.illuzion.ru/cinema/ussuri"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "район, выбранный сеанс, возраст и время окончания; санузел для случайных прохожих не подтверждён.",
+      "price_note": "",
+      "photo_place_id": null,
+      "photos": [
+        {
+          "path": "assets/places/guide-f01--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA,_%D0%A1%D0%B2%D0%B5%D1%82%D0%BB%D0%B0%D0%BD%D1%81%D0%BA%D0%B0%D1%8F,_31,_%D0%BA%D0%B8%D0%BD%D0%BE%D1%82%D0%B5%D0%B0%D1%82%D1%80_%C2%AB%D0%A3%D1%81%D1%81%D1%83%D1%80%D0%B8%C2%BB,_2012-06-22.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/6/6c/%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA%2C_%D0%A1%D0%B2%D0%B5%D1%82%D0%BB%D0%B0%D0%BD%D1%81%D0%BA%D0%B0%D1%8F%2C_31%2C_%D0%BA%D0%B8%D0%BD%D0%BE%D1%82%D0%B5%D0%B0%D1%82%D1%80_%C2%AB%D0%A3%D1%81%D1%81%D1%83%D1%80%D0%B8%C2%BB%2C_2012-06-22.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "AdmiralHood",
+          "credit": "Own work",
+          "license": "CC BY-SA 3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+          "description": "Владивосток, Светланская, 31, кинотеатр «Уссури», 2012-06-22",
+          "date_taken": "2012-06-22",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "AdmiralHood — CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA,_%D0%A1%D0%B2%D0%B5%D1%82%D0%BB%D0%B0%D0%BD%D1%81%D0%BA%D0%B0%D1%8F,_31,_%D0%BA%D0%B8%D0%BD%D0%BE%D1%82%D0%B5%D0%B0%D1%82%D1%80_%C2%AB%D0%A3%D1%81%D1%81%D1%83%D1%80%D0%B8%C2%BB,_2012-06-22.jpg"
+        },
+        {
+          "path": "assets/places/guide-f01--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:%D0%97%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5_%D0%BA%D0%B8%D0%BD%D0%BE%D1%82%D0%B5%D0%B0%D1%82%D1%80%D0%B0_%22%D0%A3%D1%81%D1%81%D1%83%D1%80%D0%B8%22,_%D0%BE%D0%B1%D1%80%D0%B0%D0%B7%D0%B5%D1%86_%D0%B7%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8_%D1%83%D0%BB%D0%B8%D1%86%D1%8B,_%D0%B3._%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA,_%D1%83%D0%BB._%D0%A1%D0%B2%D0%B5%D1%82%D0%BB%D0%B0%D0%BD%D1%81%D0%BA%D0%B0%D1%8F,_31.JPG",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/c/c2/%D0%97%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5_%D0%BA%D0%B8%D0%BD%D0%BE%D1%82%D0%B5%D0%B0%D1%82%D1%80%D0%B0_%22%D0%A3%D1%81%D1%81%D1%83%D1%80%D0%B8%22%2C_%D0%BE%D0%B1%D1%80%D0%B0%D0%B7%D0%B5%D1%86_%D0%B7%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8_%D1%83%D0%BB%D0%B8%D1%86%D1%8B%2C_%D0%B3._%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA%2C_%D1%83%D0%BB._%D0%A1%D0%B2%D0%B5%D1%82%D0%BB%D0%B0%D0%BD%D1%81%D0%BA%D0%B0%D1%8F%2C_31.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Tatiana Baloban",
+          "credit": "Own work",
+          "license": "CC BY-SA 3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+          "description": "Здание кинотеатра 'Уссури'. Образец застройки улицы. (Приморский край, Владивосток, Светланская улица, 31)",
+          "date_taken": "2014-10-10 12:59:36",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Tatiana Baloban — CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:%D0%97%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5_%D0%BA%D0%B8%D0%BD%D0%BE%D1%82%D0%B5%D0%B0%D1%82%D1%80%D0%B0_%22%D0%A3%D1%81%D1%81%D1%83%D1%80%D0%B8%22,_%D0%BE%D0%B1%D1%80%D0%B0%D0%B7%D0%B5%D1%86_%D0%B7%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8_%D1%83%D0%BB%D0%B8%D1%86%D1%8B,_%D0%B3._%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA,_%D1%83%D0%BB._%D0%A1%D0%B2%D0%B5%D1%82%D0%BB%D0%B0%D0%BD%D1%81%D0%BA%D0%B0%D1%8F,_31.JPG"
+        }
+      ]
+    },
+    {
+      "id": "guide-f02",
+      "kind": "guide",
+      "name": "Театр имени Горького",
+      "address": "Светланская, 49.",
+      "summary": "Драматический театр на Светланской, 49, — вариант для вечернего культурного досуга. Можно включить здание в прогулку, а спектакль выбрать отдельно по официальной афише.",
+      "source_url": "https://gorkytheater.ru/events/",
+      "description_sources": [
+        {
+          "title": "официальная афиша",
+          "url": "https://gorkytheater.ru/events/"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "дату, возраст, продолжительность и билет. Часы кассы не являются временем спектакля.",
+      "price_note": "",
+      "photo_place_id": "osm-way-26537156",
+      "photos": [
+        {
+          "path": "assets/places/osm-way-26537156--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Gorky_Theater_in_Vladivostok_(October_2024).jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/5/5d/Gorky_Theater_in_Vladivostok_%28October_2024%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Vyacheslav Bukharov",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Владивосток: Приморский краевой академический драматический театр им. Горького",
+          "date_taken": "2024-10-07 16:18:38",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Vyacheslav Bukharov — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Gorky_Theater_in_Vladivostok_(October_2024).jpg"
+        },
+        {
+          "path": "assets/places/osm-way-26537156--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Vladivostok_Gorky_Drama_Theatre_2010-10_1286866053.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Vladivostok_Gorky_Drama_Theatre_2010-10_1286866053.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Pavel K  F pkalac",
+          "credit": "Own work",
+          "license": "CC BY-SA 3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+          "description": "Maxim Gorky Academic Theater",
+          "date_taken": "Taken on 12 October 2010",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Pavel K  F pkalac — CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:Vladivostok_Gorky_Drama_Theatre_2010-10_1286866053.jpg"
+        }
+      ]
+    },
+    {
+      "id": "guide-f03",
+      "kind": "guide",
+      "name": "Пушкинский театр",
+      "address": "Пушкинская, 27.",
+      "summary": "Историческое здание на Пушкинской, 27, построенное в 1908 году для городского Собрания приказчиков. Сегодня театр ДВФУ объединяет спектакли, концерты, лекции и другие культурные события.",
+      "source_url": "https://www.culture.ru/institutes/85002/pushkinskii-teatr-dalnevostochnogo-federalnogo-universiteta",
+      "description_sources": [
+        {
+          "title": "Культура.РФ",
+          "url": "https://www.culture.ru/institutes/85002/pushkinskii-teatr-dalnevostochnogo-federalnogo-universiteta"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "текущую работу здания и событие; старое описание учреждения не гарантирует вход сегодня.",
+      "price_note": "",
+      "photo_place_id": "pushkin-theatre",
+      "photos": [
+        {
+          "path": "assets/places/pushkin-theatre--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:%D0%9F%D1%83%D1%88%D0%BA%D0%B8%D0%BD%D1%81%D0%BA%D0%B0%D1%8F_27_(8).JPG",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/0/00/%D0%9F%D1%83%D1%88%D0%BA%D0%B8%D0%BD%D1%81%D0%BA%D0%B0%D1%8F_27_%288%29.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Tatiana Baloban",
+          "credit": "Own work",
+          "license": "CC BY-SA 3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+          "description": "Собрание приказчиков (Приморский край, Владивосток, Пушкинская улица, 27)",
+          "date_taken": "2014-10-10 15:28:22",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Tatiana Baloban — CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:%D0%9F%D1%83%D1%88%D0%BA%D0%B8%D0%BD%D1%81%D0%BA%D0%B0%D1%8F_27_(8).JPG"
+        },
+        {
+          "path": "assets/places/pushkin-theatre--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:%D0%A1%D0%BE%D0%B1%D1%80%D0%B0%D0%BD%D0%B8%D0%B5_%D0%BF%D1%80%D0%B8%D0%BA%D0%B0%D0%B7%D1%87%D0%B8%D0%BA%D0%BE%D0%B2,_%D0%9F%D1%80%D0%B8%D0%BC%D0%BE%D1%80%D1%81%D0%BA%D0%B8%D0%B9_%D0%BA%D1%80%D0%B0%D0%B9,_%D0%B3._%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA,_%D0%9F%D1%83%D1%88%D0%BA%D0%B8%D0%BD%D1%81%D0%BA%D0%B0%D1%8F_%D1%83%D0%BB%D0%B8%D1%86%D0%B0,_27.JPG",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/1/1b/%D0%A1%D0%BE%D0%B1%D1%80%D0%B0%D0%BD%D0%B8%D0%B5_%D0%BF%D1%80%D0%B8%D0%BA%D0%B0%D0%B7%D1%87%D0%B8%D0%BA%D0%BE%D0%B2%2C_%D0%9F%D1%80%D0%B8%D0%BC%D0%BE%D1%80%D1%81%D0%BA%D0%B8%D0%B9_%D0%BA%D1%80%D0%B0%D0%B9%2C_%D0%B3._%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA%2C_%D0%9F%D1%83%D1%88%D0%BA%D0%B8%D0%BD%D1%81%D0%BA%D0%B0%D1%8F_%D1%83%D0%BB%D0%B8%D1%86%D0%B0%2C_27.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Tatiana Baloban",
+          "credit": "Own work",
+          "license": "CC BY-SA 3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+          "description": "Собрание приказчиков (Приморский край, Владивосток, Пушкинская улица, 27)",
+          "date_taken": "2014-10-10 15:39:15",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Tatiana Baloban — CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:%D0%A1%D0%BE%D0%B1%D1%80%D0%B0%D0%BD%D0%B8%D0%B5_%D0%BF%D1%80%D0%B8%D0%BA%D0%B0%D0%B7%D1%87%D0%B8%D0%BA%D0%BE%D0%B2,_%D0%9F%D1%80%D0%B8%D0%BC%D0%BE%D1%80%D1%81%D0%BA%D0%B8%D0%B9_%D0%BA%D1%80%D0%B0%D0%B9,_%D0%B3._%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA,_%D0%9F%D1%83%D1%88%D0%BA%D0%B8%D0%BD%D1%81%D0%BA%D0%B0%D1%8F_%D1%83%D0%BB%D0%B8%D1%86%D0%B0,_27.JPG"
+        }
+      ]
+    },
+    {
+      "id": "guide-f04",
+      "kind": "guide",
+      "name": "Владивостокский цирк",
+      "address": "Светланская, 103.",
+      "summary": "Что делать: представление по действующей афише. Стоимость: по шоу и месту; не уточнена для даты пользователя.",
+      "source_url": "https://www.circus-vladivostok.ru/index.html",
+      "description_sources": [
+        {
+          "title": "страница цирка и контакты",
+          "url": "https://www.circus-vladivostok.ru/index.html"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "актуальное представление. Найденная страница содержит летний анонс 2026 года, завершившийся в сентябре, — не выдавать его за текущую ноябрьскую программу.",
+      "price_note": "",
+      "photo_place_id": null,
+      "photos": [
+        {
+          "path": "assets/places/guide-f04--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Vladivostok_circus.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/e/ed/Vladivostok_circus.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "AdmiralHood",
+          "credit": "http://vladfotki.narod.ru",
+          "license": "CC BY-SA 3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+          "description": "Владивостокский цирк, 24.08.2005",
+          "date_taken": "Taken on 24 August 2005",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "AdmiralHood — CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:Vladivostok_circus.jpg"
+        }
+      ]
+    },
+    {
+      "id": "guide-f05",
+      "kind": "guide",
+      "name": "Дом-музей семьи Сухановых",
+      "address": "Суханова, 9.",
+      "summary": "Деревянный особняк XIX века на улице Суханова, где сохранилась история семьи чиновника Александра Суханова. Музей помогает представить домашний быт старого Владивостока и судьбы его жителей.",
+      "source_url": "https://old.arseniev.org/officials-house/?special_version=Y",
+      "description_sources": [
+        {
+          "title": "музейная страница",
+          "url": "https://old.arseniev.org/officials-house/?special_version=Y"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "часы, билет и вход. Внешний этап квеста и музейный визит — разные действия.",
+      "price_note": "",
+      "photo_place_id": "sukhanov-house",
+      "photos": [
+        {
+          "path": "assets/places/sukhanov-house--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D0%B0_9.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/8/8e/%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D0%B0_9.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "LoreMasterTes",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Дом Сухановых: улица Суханова, 9,  Владивосток, Приморский край",
+          "date_taken": "2017-09-10",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "LoreMasterTes — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D0%B0_9.jpg"
+        },
+        {
+          "path": "assets/places/sukhanov-house--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D0%B0_9_%D0%94%D0%BE%D0%BC_%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D1%8B%D1%85%2B.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/b/b7/%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D0%B0_9_%D0%94%D0%BE%D0%BC_%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D1%8B%D1%85%2B.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Кабанкова Валерия",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Дом Сухановых: улица Суханова, 9, Владивосток, Приморский край",
+          "date_taken": "2023-09-22",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Кабанкова Валерия — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D0%B0_9_%D0%94%D0%BE%D0%BC_%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D1%8B%D1%85%2B.jpg"
+        }
+      ]
+    },
+    {
+      "id": "guide-f06",
+      "kind": "guide",
+      "name": "Музей Тихоокеанского флота",
+      "address": "Светланская, 66.",
+      "summary": "Музей на Светланской, 66, посвящён истории Тихоокеанского флота. Экспозиция знакомит с морской службой через документы и предметы; посещение залов планируется отдельно от наружной прогулки.",
+      "source_url": "https://visit-primorye.ru/what-to-do/voenno-istoricheskij-muzej-tihookeanskogo-flota",
+      "description_sources": [
+        {
+          "title": "карточка на региональном портале",
+          "url": "https://visit-primorye.ru/what-to-do/voenno-istoricheskij-muzej-tihookeanskogo-flota"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "текущий режим, день посещения, билет и доступные экспозиции.",
+      "price_note": "",
+      "photo_place_id": "osm-node-676375880",
+      "photos": [
+        {
+          "path": "assets/places/osm-node-676375880--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Vladivostok_Military-historical_Museum_of_the_Pacific_fleet_(October_2024)-0.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Vladivostok_Military-historical_Museum_of_the_Pacific_fleet_%28October_2024%29-0.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Vyacheslav Bukharov",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Военно-исторический музей Тихоокеанского флота во Владивостоке. Экспозиция под открытым небом: бомбосбрасыватель (слева) и корабельная гальваноударная мина.",
+          "date_taken": "2024-10-07 17:24:33",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Vyacheslav Bukharov — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Vladivostok_Military-historical_Museum_of_the_Pacific_fleet_(October_2024)-0.jpg"
+        },
+        {
+          "path": "assets/places/osm-node-676375880--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Vladivostok_Military-historical_Museum_of_the_Pacific_fleet_(October_2024)-0_10.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/e/e2/Vladivostok_Military-historical_Museum_of_the_Pacific_fleet_%28October_2024%29-0_10.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Vyacheslav Bukharov",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Военно-исторический музей Тихоокеанского флота во Владивостоке. Экспозиция под открытым небом: во дворе здания торпедный катер ТКА-288 проекта 123К.",
+          "date_taken": "2024-10-07 17:28:38",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Vyacheslav Bukharov — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Vladivostok_Military-historical_Museum_of_the_Pacific_fleet_(October_2024)-0_10.jpg"
+        }
+      ]
+    },
+    {
+      "id": "guide-f07",
+      "kind": "guide",
+      "name": "С-56",
+      "address": "Корабельная набережная, подводная лодка-музей.",
+      "summary": "Подводная лодка на Корабельной набережной служит музеем и мемориальным объектом. Снаружи можно рассмотреть сам корабль, а для знакомства с внутренней экспозицией нужно отдельно уточнять условия посещения.",
+      "source_url": "https://visit-primorye.ru/what-to-do/gvardejskaya-krasnoznamennaya-podvodnaya-lodka-s-56",
+      "description_sources": [
+        {
+          "title": "карточка С-56",
+          "url": "https://visit-primorye.ru/what-to-do/gvardejskaya-krasnoznamennaya-podvodnaya-lodka-s-56"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "вход, текущую работу и ограничения. Для ребёнка или человека с ограничениями подвижности особенности внутреннего прохода уточняются заранее.",
+      "price_note": "",
+      "photo_place_id": "s56",
+      "photos": [
+        {
+          "path": "assets/places/s56--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:S-56_Submarine_Monument_in_Vladivostok_(October_2024)-0_2.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/9/91/S-56_Submarine_Monument_in_Vladivostok_%28October_2024%29-0_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Vyacheslav Bukharov",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Мемориальный комплекс «Боевая слава Краснознаменного Тихоокеанского флота»: мемориальный корабль – подводная лодка «С-56»",
+          "date_taken": "2024-10-08 10:23:35",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Vyacheslav Bukharov — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:S-56_Submarine_Monument_in_Vladivostok_(October_2024)-0_2.jpg"
+        },
+        {
+          "path": "assets/places/s56--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Vladivostok_Submarine_S-56_P8050502_2200.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/d/d4/Vladivostok_Submarine_S-56_P8050502_2200.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Alexxx1979",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Vladivostok. Submarine S-56",
+          "date_taken": "2015-08-05 12:17:32",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Alexxx1979 — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Vladivostok_Submarine_S-56_P8050502_2200.jpg"
+        }
+      ]
+    },
+    {
+      "id": "guide-f08",
+      "kind": "guide",
+      "name": "Набережная Цесаревича",
+      "address": "общественное пространство у Золотого Рога; точный вход выбрать при нанесении на карту.",
+      "summary": "Прогулочное пространство у бухты Золотой Рог, открытое в 2012 году. Морские виды, Золотой мост и соседние промышленные здания создают характерный для Владивостока городской пейзаж.",
+      "source_url": "https://visit-primorye.ru/what-to-do/naberezhnaya-cesarevicha",
+      "description_sources": [
+        {
+          "title": "Visit Primorye",
+          "url": "https://visit-primorye.ru/what-to-do/naberezhnaya-cesarevicha"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "проход, ограничения и погоду; вечернее освещение и туалет отдельно.",
+      "price_note": "",
+      "photo_place_id": "tsesarevich-embankment",
+      "photos": [
+        {
+          "path": "assets/places/tsesarevich-embankment--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Vladivostok_Naberezhnaya_Tsesarevicha_2024-09_32.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/0/0f/Vladivostok_Naberezhnaya_Tsesarevicha_2024-09_32.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Artyom Svetlov",
+          "credit": "Own work",
+          "license": "CC BY 4.0",
+          "license_url": "https://creativecommons.org/licenses/by/4.0",
+          "description": "urban park Naberezhnaya Tsesarevicha",
+          "date_taken": "Taken on 2 September 2024, 16:00:00 (according to   Exif   data)",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Artyom Svetlov — CC BY 4.0 — https://commons.wikimedia.org/wiki/File:Vladivostok_Naberezhnaya_Tsesarevicha_2024-09_32.jpg"
+        },
+        {
+          "path": "assets/places/tsesarevich-embankment--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Vladivostok_Naberezhnaya_Tsesarevicha_2024-09_35.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Vladivostok_Naberezhnaya_Tsesarevicha_2024-09_35.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Artyom Svetlov",
+          "credit": "Own work",
+          "license": "CC BY 4.0",
+          "license_url": "https://creativecommons.org/licenses/by/4.0",
+          "description": "urban park Naberezhnaya Tsesarevicha",
+          "date_taken": "Taken on 2 September 2024, 16:00:00 (according to   Exif   data)",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Artyom Svetlov — CC BY 4.0 — https://commons.wikimedia.org/wiki/File:Vladivostok_Naberezhnaya_Tsesarevicha_2024-09_35.jpg"
+        }
+      ]
+    },
+    {
+      "id": "guide-f09",
+      "kind": "guide",
+      "name": "Нагорный парк",
+      "address": "парк с входами со стороны Шилкинской и прилегающих улиц; не ставить маркер на случайную точку склона.",
+      "summary": "Парк на Тюменской сопке с прогулочными дорожками и видовыми площадками над городом. Открыт в 2021 году; интересен сочетанием озеленённых пространств, рельефа и панорам Золотого Рога.",
+      "source_url": "https://vvo.live/post/novye-dorozhki-i-tualet-s-peniem-ptic-chto-izmenilos-v-nagornom-parke",
+      "description_sources": [
+        {
+          "title": "обзор парка от июня 2026",
+          "url": "https://vvo.live/post/novye-dorozhki-i-tualet-s-peniem-ptic-chto-izmenilos-v-nagornom-parke"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "границу района, актуальные входы, лестницы и отдельный путь до санитарной точки.",
+      "price_note": "",
+      "photo_place_id": "nagorny",
+      "photos": [
+        {
+          "path": "assets/places/nagorny--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Vladivostok_Nagorny_park_2024-09_033.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/0/01/Vladivostok_Nagorny_park_2024-09_033.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Artyom Svetlov",
+          "credit": "Own work",
+          "license": "CC BY 4.0",
+          "license_url": "https://creativecommons.org/licenses/by/4.0",
+          "description": "Nagorny park",
+          "date_taken": "Taken on 3 September 2024, 14:00:04 (according to   Exif   data)",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Artyom Svetlov — CC BY 4.0 — https://commons.wikimedia.org/wiki/File:Vladivostok_Nagorny_park_2024-09_033.jpg"
+        },
+        {
+          "path": "assets/places/nagorny--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:%D0%9D%D0%B0%D0%B3%D0%BE%D1%80%D0%BD%D1%8B%D0%B9_%D0%BF%D0%B0%D1%80%D0%BA._%D0%A1%D0%BE%D0%BF%D0%BA%D0%B0_%D0%91%D1%83%D1%81%D1%81%D0%B5_2.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/e/ea/%D0%9D%D0%B0%D0%B3%D0%BE%D1%80%D0%BD%D1%8B%D0%B9_%D0%BF%D0%B0%D1%80%D0%BA._%D0%A1%D0%BE%D0%BF%D0%BA%D0%B0_%D0%91%D1%83%D1%81%D1%81%D0%B5_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "A. C. Tatarinov",
+          "credit": "Own work",
+          "license": "CC0",
+          "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+          "description": "Нагорный парк в верхней части сопки Буссе. Вдоль улиц Всеволода Сибирцева, Тюменской и Шилкинской",
+          "date_taken": "2021-08-18 19:35:29",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "A. C. Tatarinov — CC0 — https://commons.wikimedia.org/wiki/File:%D0%9D%D0%B0%D0%B3%D0%BE%D1%80%D0%BD%D1%8B%D0%B9_%D0%BF%D0%B0%D1%80%D0%BA._%D0%A1%D0%BE%D0%BF%D0%BA%D0%B0_%D0%91%D1%83%D1%81%D1%81%D0%B5_2.jpg"
+        }
+      ]
+    },
+    {
+      "id": "guide-f10",
+      "kind": "guide",
+      "name": "Кирха Святого Павла",
+      "address": "Пушкинская, 14.",
+      "summary": "Лютеранская кирха на Пушкинской улице, узнаваемая по кирпичным фасадам и готическому силуэту. Здесь можно познакомиться с архитектурой и религиозной историей многонационального Владивостока.",
+      "source_url": "https://vladivostok-city.com/ru/places/all/all/934",
+      "description_sources": [
+        {
+          "title": "описание объекта",
+          "url": "https://vladivostok-city.com/ru/places/all/all/934"
+        },
+        {
+          "title": "афиша площадки",
+          "url": "https://www.vl.ru/afisha/vladivostok/company/lyuteranskaya-kirha-svyatogo-pavla"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "организатора, дату, билет и правила посещения действующего религиозного места.",
+      "price_note": "",
+      "photo_place_id": "st-paul",
+      "photos": [
+        {
+          "path": "assets/places/st-paul--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Church_of_St._Paul_(Vladivostok)_%D1%841.JPG",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Church_of_St._Paul_%28Vladivostok%29_%D1%841.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Andshel",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Church of St. Paul (Vladivostok)",
+          "date_taken": "2014-07-21 06:57:11",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Andshel — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Church_of_St._Paul_(Vladivostok)_%D1%841.JPG"
+        },
+        {
+          "path": "assets/places/st-paul--2.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Church_of_St._Paul_(Vladivostok)%D1%842.JPG",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/e/e2/Church_of_St._Paul_%28Vladivostok%29%D1%842.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Andshel",
+          "credit": "Own work",
+          "license": "CC BY-SA 4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+          "description": "Church of St. Paul (Vladivostok)",
+          "date_taken": "2014-07-21 06:57:05",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Andshel — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Church_of_St._Paul_(Vladivostok)%D1%842.JPG"
+        }
+      ]
+    },
+    {
+      "id": "guide-h01",
+      "kind": "guide",
+      "name": "Глубина",
+      "address": "Уборевича, 5А.",
+      "summary": "Тип: капсульный хостел; общие номера и женский вариант по сайту. Кому подходит: человеку, которому достаточно места в общем номере. Общая кухня указана на сайте, но не означает питание в тарифе.",
+      "source_url": "https://glubina-vl.ru/",
+      "description_sources": [
+        {
+          "title": "официальный сайт Глубины",
+          "url": "https://glubina-vl.ru/"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "район, цену конкретной капсулы, условия заезда и позднего прибытия, актуальное наличие.",
+      "price_note": "от 1 500 ₽ в сутки **за место**, не за отдельный номер. Нужные даты не проверялись.",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-h02",
+      "kind": "guide",
+      "name": "Корона на Адмирала Кузнецова",
+      "address": "Адмирала Кузнецова, 68.",
+      "summary": "Тип: хостел; не путать с одноимённым отелем на Верхнепортовой и гостевым домом на Крыгина. Кому подходит: кандидат для бюджетного ночлега в общей комнате. Комнату, пол гостей и условия заселения нужно выбирать отдельно.",
+      "source_url": "https://www.vl.ru/vldk-korona",
+      "description_sources": [
+        {
+          "title": "карточка конкретного хостела",
+          "url": "https://www.vl.ru/vldk-korona"
+        },
+        {
+          "title": "сайт объекта",
+          "url": "https://xn--80ajpdlcdarfl7a.xn--p1ai/"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "действующий тариф, доступные места, условия кухни и регистрации.",
+      "price_note": "подтверждённой цены на даты нет. VL.ru указывает 600–850 ₽ за койко-место в сутки, а сайт объекта публикует другие нижние тарифы. Несогласованные данные не переносим в поле текущей цены.",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-h03",
+      "kind": "guide",
+      "name": "Феникс",
+      "address": "Адмирала Юмашева, 25.",
+      "summary": "Тип: хостел; разные варианты размещения. Кому подходит: кандидат для ночлега в районе Юмашева, в том числе для двоих при наличии отдельной комнаты.",
+      "source_url": "https://vvo.live/post/ekonomnyj-vladivostok-gde-poluchit-maksimum-vpechatlenij-za-minimum-deneg",
+      "description_sources": [
+        {
+          "title": "летний обзор стоимости",
+          "url": "https://vvo.live/post/ekonomnyj-vladivostok-gde-poluchit-maksimum-vpechatlenij-za-minimum-deneg"
+        },
+        {
+          "title": "адрес и карточка объекта",
+          "url": "https://otello.ru/hotel/70000001066220636/reviews"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "тариф на даты, свободные комнаты и позднее заселение. Не обещать цену из сезонного обзора.",
+      "price_note": "только справочный пример — в летней публикации 2026 года приведены 3 000 ₽ за двухместный номер в сутки без завтрака. Это не цена койко-места и не предложение на сегодняшнюю ночь.",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-h04",
+      "kind": "guide",
+      "name": "Хостел на Ивановской",
+      "address": "Новоивановская, 12. Название объекта не заменяет фактический адрес.",
+      "summary": "Тип: хостел; в карточке есть кровать в общем восьмиместном номере. Кому подходит: кандидат для одного путешественника, готового к общей комнате.",
+      "source_url": "https://travel.yandex.ru/hotels/vladivostok/khostel-na-ivanovskoi/",
+      "description_sources": [
+        {
+          "title": "карточка на Яндекс Путешествиях",
+          "url": "https://travel.yandex.ru/hotels/vladivostok/khostel-na-ivanovskoi/"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "актуальное название, район, наличие нужного типа места, заезд и документы. Рейтинг не используем как доказательство безопасности.",
+      "price_note": "не уточнена — сервис предлагает выбрать даты. Не переносим рекламную минимальную цену из общего списка как гарантированную.",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-h05",
+      "kind": "guide",
+      "name": "Capsule Hotel Group",
+      "address": "Светланская, 197.",
+      "summary": "Тип: капсульный отель. Кому подходит: дополнительный кандидат для восточной части района.",
+      "source_url": "https://vladivostok.jsprav.ru/ekonom-gostinitsyi-i-oteli/capsule-hotel/",
+      "description_sources": [
+        {
+          "title": "адрес и контакты",
+          "url": "https://vladivostok.jsprav.ru/ekonom-gostinitsyi-i-oteli/capsule-hotel/"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "существование объекта сейчас, точный вход и действующие контакты. В карточке указано ограниченное дневное окно работы, поэтому поздний заезд без подтверждения не обещаем.",
+      "price_note": "не найдена в выбранной карточке; уточнить напрямую.",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-h06",
+      "kind": "guide",
+      "name": "ЛОТТЕ Отель Владивосток",
+      "address": "Семёновская, 29.",
+      "summary": "Тип: гостиница с отдельными номерами; вариант более высокого бюджета. Кому подходит: тем, кому нужен отдельный номер и гостиничный сервис, а не бюджетное койко-место.",
+      "source_url": "https://lottehotelvladivostok.ru/",
+      "description_sources": [
+        {
+          "title": "официальный сайт",
+          "url": "https://lottehotelvladivostok.ru/"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "районную границу, итоговую цену, включённое питание и правила выбранного тарифа.",
+      "price_note": "определяется по датам и категории на сайте; фиксированный тариф не найден и не выдумывается.",
+      "photo_place_id": null,
+      "photos": [
+        {
+          "path": "assets/places/guide-h06--1.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Hyundai_hotel.jpg",
+          "original_url": "https://upload.wikimedia.org/wikipedia/commons/e/e8/Hyundai_hotel.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "author": "Jack Shadow  from Vladivostok, Russian Federation",
+          "credit": "Hundai",
+          "license": "CC BY 2.0",
+          "license_url": "https://creativecommons.org/licenses/by/2.0",
+          "description": "Hyundai hotel in Vladivostok",
+          "date_taken": "Taken on 17 April 2008, 12:07",
+          "changes": "Downloaded Wikimedia thumbnail; no further edits.",
+          "attribution": "Jack Shadow  from Vladivostok, Russian Federation — CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Hyundai_hotel.jpg",
+          "display_note": "Архивный вид здания 2008 года с прежней вывеской Hyundai. Не использовать как современное фото LOTTE.",
+          "identity_source": "https://primamedia.ru/news/665503/"
+        }
+      ]
+    },
+    {
+      "id": "guide-h07",
+      "kind": "guide",
+      "name": "Аванта",
+      "address": "Гоголя, 41, строение 3.",
+      "summary": "Тип: гостиница. Кому подходит: отдельный вариант размещения в районе Гоголя; не обозначать как соседнюю остановку морской прогулки.",
+      "source_url": "https://hotel-avanta.ru/",
+      "description_sources": [
+        {
+          "title": "официальный сайт Аванты",
+          "url": "https://hotel-avanta.ru/"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "границу района, путь к входу и ограничения территории. Сайт отдельно описывает проход и автомобильный въезд; не строить путь к произвольному входу университета.",
+      "price_note": "по датам и категории; текущая сумма не подтверждена.",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-h08",
+      "kind": "guide",
+      "name": "Астория",
+      "address": "Партизанский проспект, 44, корпус 6.",
+      "summary": "Тип: гостиница. Кому подходит: кандидат для отдельного номера в другой части подборки, а не рядом с каждой точкой центра.",
+      "source_url": "https://astoria.iprim.ru/",
+      "description_sources": [
+        {
+          "title": "контакты и адрес",
+          "url": "https://astoria.iprim.ru/"
+        },
+        {
+          "title": "сайт отеля, указанный в карточке",
+          "url": "https://astoriavl.ru/"
+        },
+        {
+          "title": "адрес 2",
+          "url": "https://vladivostok.spravka.city/company/port-house"
+        },
+        {
+          "title": "карточка с адресом 4",
+          "url": "https://www.vl.ru/amigo-hostel"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "район, действующий тариф, корпус и доступ к входу, условия позднего заезда.",
+      "price_note": "не уточнена на даты. Старые конференционные тарифы не используются как актуальный прайс.",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-t01",
+      "kind": "guide",
+      "name": "Адмиральский сквер",
+      "address": "Светланская, 48, Адмиральский сквер.",
+      "summary": "Сведения: объект указан в перечне муниципальных общественных туалетов, опубликованном 29 июня 2026 года со ссылкой на МКУ «Зелёный Владивосток». Стоимость и часы конкретно этой точки: из выбранного сообщения не установлены. Указанные там бесплатность и 08:00–20:00 относятся к туалету на набережной Арсеньева, не переносим их на весь список.",
+      "source_url": "https://prim.news/2026/06/29/vo-vladivostoke-na-naberezhnoj-arseneva-zarabotal-obshhestvennyj-tualet/",
+      "description_sources": [
+        {
+          "title": "публикация с перечнем",
+          "url": "https://prim.news/2026/06/29/vo-vladivostoke-na-naberezhnoj-arseneva-zarabotal-obshhestvennyj-tualet/"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "координаты входа, работу сегодня, тариф и график.",
+      "price_note": "",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-t02",
+      "kind": "guide",
+      "name": "Подземный переход у Светланской, 29",
+      "address": "переход около Светланской, 29; точный вход требуется отметить отдельно.",
+      "summary": "Сведения: точка включена в тот же муниципальный перечень.",
+      "source_url": "https://prim.news/2026/06/29/vo-vladivostoke-na-naberezhnoj-arseneva-zarabotal-obshhestvennyj-tualet/",
+      "description_sources": [
+        {
+          "title": "перечень от 29 июня 2026",
+          "url": "https://prim.news/2026/06/29/vo-vladivostoke-na-naberezhnoj-arseneva-zarabotal-obshhestvennyj-tualet/"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "границу района, лестницы, конкретный вход и фактическую работу.",
+      "price_note": "не подтверждены для этой точки. Не обещаем круглосуточность и бесплатность.",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-t03",
+      "kind": "guide",
+      "name": "Набережная Цесаревича",
+      "address": "отдельное здание у детской площадки-корабля и «Кровати примирения».",
+      "summary": "Последние найденные подробные сведения: в обзоре от 20 августа 2026 — 60 ₽, ежедневно 11:00–23:00. Критическая оговорка: обновление того же материала сообщает о повторном закрытии. Сегодняшняя работа не подтверждена; цифры остаются исторической справкой, не текущим обещанием. Как показывать: только со статусом «уточнить работу», не как гарантированно открытый ближайший туалет.",
+      "source_url": "https://www.newsvl.ru/vlad/2026/08/20/239924/",
+      "description_sources": [
+        {
+          "title": "обзор VL.ru и обновление",
+          "url": "https://www.newsvl.ru/vlad/2026/08/20/239924/"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "",
+      "price_note": "",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-t04",
+      "kind": "guide",
+      "name": "Нагорный парк",
+      "address": "туалет возле кёрлинг-центра; не путать с другими санитарными объектами парка.",
+      "summary": "Сведения: публикация от 9 июня 2026 года сообщает о появлении этой точки.",
+      "source_url": "https://vvo.live/post/novye-dorozhki-i-tualet-s-peniem-ptic-chto-izmenilos-v-nagornom-parke",
+      "description_sources": [
+        {
+          "title": "обзор изменений Нагорного парка",
+          "url": "https://vvo.live/post/novye-dorozhki-i-tualet-s-peniem-ptic-chto-izmenilos-v-nagornom-parke"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "конкретное здание, вход, границу района и статус работы; переход от основных прогулок может требовать отдельного пути.",
+      "price_note": "не уточнены в выбранном источнике.",
+      "photo_place_id": null,
+      "photos": []
+    },
+    {
+      "id": "guide-t05",
+      "kind": "guide",
+      "name": "Лазо, 26, строение 2",
+      "address": "Лазо, 26, строение 2.",
+      "summary": "Сведения: в каталоге отмечен бесплатный общественный туалет. Стоимость: «бесплатно» — только характеристика справочника; не подтверждена на месте. Режим неизвестен.",
+      "source_url": "https://totadres.ru/vladivostok/obschestvennye_tualety/p/1",
+      "description_sources": [
+        {
+          "title": "каталог общественных туалетов",
+          "url": "https://totadres.ru/vladivostok/obschestvennye_tualety/p/1"
+        },
+        {
+          "title": "тот же обзор VL.ru",
+          "url": "https://www.newsvl.ru/vlad/2026/08/20/239924/"
+        }
+      ],
+      "research_date": "2026-11-14",
+      "description_review": "existing_guide_editorial_summary; current_operations_not_rechecked",
+      "visit_note": "существование, точное положение, вход, район и стоимость сегодня. Источник вторичный, поэтому это резерв для проверки, не готовая срочная рекомендация.",
+      "price_note": "",
+      "photo_place_id": null,
+      "photos": []
+    }
+  ]
+}
