@@ -330,3 +330,10 @@ button svg, .search-field svg { width: 20px; height: 20px; stroke: currentColor;
 .you-marker { display: flex; flex-direction: column; align-items: center; gap: 5px; }
 .you-dot { width: 18px; height: 18px; border-radius: 50%; background: #2b7fff; border: 3px solid #fff; box-shadow: 0 0 0 4px #2b7fff33, 0 2px 8px #24362b40; }
 .you-label { border: 1px solid #fff; border-radius: 6px; padding: 3px 8px; background: #2b7fff; color: #fff; font-size: 11px; font-weight: 750; white-space: nowrap; box-shadow: 0 2px 8px #2b7fff33; }
+
+/* --- Задача 014: ручной ввод координат старта --- */
+.manual-coords { display: flex; flex-direction: column; gap: 9px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+.manual-coord { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 700; color: #6f786b; }
+.manual-coord input { min-height: 40px; padding: 8px 11px; border: 1px solid #e6eae2; border-radius: 10px; background: #fafbf8; font-size: 14px; color: var(--graphite); }
+.manual-coord input:focus { border-color: #c7cfbd; background: #fff; }
+.auth-error { margin: 0; color: #b4231f; font-size: 12.5px; font-weight: 700; }
