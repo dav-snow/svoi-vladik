@@ -135,6 +135,7 @@ def test_openapi_exposes_exact_path_set(client: TestClient) -> None:
         "/health",
         "/api/v1/places",
         "/api/v1/places/{place_id}",
+        "/api/v1/guides",
         "/api/v1/walks",
         "/api/v1/quest",
         "/api/v1/quest/{quest_id}/answer",

@@ -1,0 +1,635 @@
+{
+  "items": [
+    {
+      "id": "guide-e01",
+      "title": "Полка.Кофе",
+      "need": "eat",
+      "address": "Пушкинская, 27, здание Пушкинского театра, первый этаж.",
+      "price_note": "200 ₽. Это опубликованный ориентир кофейни, не обещание полноценного обеда.",
+      "note": "Формат: кофе и короткая пауза во время прогулки по Пушкинской. Как использовать: дополнительная остановка около театра в «Городе с характером». Не обязательная часть квеста.",
+      "verification_note": "существует ли сейчас точка, доступен ли вход при закрытом театре, актуальное меню и график. Туалет не подтверждён.",
+      "source_url": "https://totadres.ru/vladivostok/org/polka_kofe/5092298",
+      "sources": [
+        {
+          "title": "карточка кофейни",
+          "url": "https://totadres.ru/vladivostok/org/polka_kofe/5092298"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-e02",
+      "title": "Столовая №5",
+      "need": "eat",
+      "address": "Светланская, 115, первый этаж.",
+      "price_note": "250 ₽; сумма требует особенно внимательной проверки по текущему меню.",
+      "note": "Формат: кандидат на простой дневной обед: суп, основное блюдо, салат. Как использовать: вариант для тех, кому нужен обед, а не только напиток. Находится в другой части района относительно стартовой компактной прогулки.",
+      "verification_note": "свободный вход для внешних посетителей, реальную работу, актуальные цены. Источник указывает узкое дневное окно по будням, поэтому не предлагать автоматически вечером и в выходные.",
+      "source_url": "https://urbanplaces.su/ru_primorskij-kraj/vladivostokskij-gorodskoj-okrug-vladivostok/card-2217223-stolovaya-5",
+      "sources": [
+        {
+          "title": "карточка столовой",
+          "url": "https://urbanplaces.su/ru_primorskij-kraj/vladivostokskij-gorodskoj-okrug-vladivostok/card-2217223-stolovaya-5"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-e03",
+      "title": "Helsy",
+      "need": "eat",
+      "address": "Светланская, 33, строение 2, первый этаж.",
+      "price_note": "700 ₽.",
+      "note": "Формат: кафе с более широким выбором еды, чем у кофейной точки; кандидат для обеда. Как использовать: пауза в центральной группе мест; не заявлять близость в пеших минутах без расчёта.",
+      "verification_note": "районную принадлежность, действующий вход, меню и открытие. Санузел для негостей не подтверждён.",
+      "source_url": "https://totadres.ru/vladivostok/org/helsy/3768664",
+      "sources": [
+        {
+          "title": "адрес и средний чек",
+          "url": "https://totadres.ru/vladivostok/org/helsy/3768664"
+        },
+        {
+          "title": "дополнительная карточка",
+          "url": "https://rting.ru/vladivostok/co/h_lsy_safe/3339168"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-e04",
+      "title": "Калачная17",
+      "need": "eat",
+      "address": "Светланская, 33, строение 2.",
+      "price_note": "600 ₽.",
+      "note": "Формат: выпечка, десерт и напиток; остановка для завтрака или перекуса. Как использовать: альтернатива полноценному кафе, если хочется небольшой паузы. Не переносить характеристики других филиалов на этот адрес.",
+      "verification_note": "конкретный вход, район и сегодняшнее меню. Режим филиала на странице есть, но перед показом его нужно перепроверить.",
+      "source_url": "https://visit-primorye.ru/where-to-eat/pekarnya-konditerskaya-kalachnaya17",
+      "sources": [
+        {
+          "title": "Калачная17 на Visit Primorye",
+          "url": "https://visit-primorye.ru/where-to-eat/pekarnya-konditerskaya-kalachnaya17"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-e05",
+      "title": "Дамплинг Репаблик",
+      "need": "eat",
+      "address": "Светланская, 31.",
+      "price_note": "1 200 ₽.",
+      "note": "Формат: азиатская кухня; кандидат на полноценный приём пищи. Как использовать: сочетание «поесть и пойти в кино» при подтверждённой работе обоих объектов на Светланской, 31.",
+      "verification_note": "действующий филиал, вход, меню, район и наличие мест. Цена доставки не заменяет средний чек посещения.",
+      "source_url": "https://visit-primorye.ru/where-to-eat/kafe-dampling-repablik",
+      "sources": [
+        {
+          "title": "карточка кафе",
+          "url": "https://visit-primorye.ru/where-to-eat/kafe-dampling-repablik"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-e06",
+      "title": "Сыроварня",
+      "need": "eat",
+      "address": "Светланская, 37А.",
+      "price_note": "2 500 ₽.",
+      "note": "Формат: ресторан для более долгого посещения компанией; это не бюджетный перекус. Как использовать: отдельная рекомендация по более высокому бюджету, без смешивания с фильтром «дёшево».",
+      "verification_note": "актуальное меню, вход, район и необходимость бронирования. Терраса сезонная; её доступность не обещать.",
+      "source_url": "https://visit-primorye.ru/where-to-eat/restoran-syrovarnya",
+      "sources": [
+        {
+          "title": "карточка ресторана",
+          "url": "https://visit-primorye.ru/where-to-eat/restoran-syrovarnya"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-e07",
+      "title": "OkiDoki на Луговой",
+      "need": "eat",
+      "address": "Луговая, 18.",
+      "price_note": "1 300 ₽. В других справочниках встречаются существенно меньшие числа; не объединять их в искусственное «среднее».",
+      "note": "Формат: пицца и другие блюда для остановки в районе Луговой, отдельно от центральных прогулок. Как использовать: вариант для человека, который уже находится рядом с Луговой. Не предлагать как соседнюю точку Пушкинской.",
+      "verification_note": "наличие филиала сейчас, точный вход, актуальную стоимость заказа и посадку. До проверки ориентир 1 300 ₽ показывать только с названием источника.",
+      "source_url": "https://www.restoclub.ru/vld/place/okidoki",
+      "sources": [
+        {
+          "title": "OkiDoki, адрес и чек",
+          "url": "https://www.restoclub.ru/vld/place/okidoki"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-e08",
+      "title": "Nem",
+      "need": "eat",
+      "address": "Светланская, 45, шестой этаж.",
+      "price_note": "500 ₽.",
+      "note": "Формат: кафе; дополнительный кандидат для центральной части подборки. Как использовать: только после проверки существования и свободного доступа. Этажность особенно важна: вход в здание ещё не означает доступность кафе.",
+      "verification_note": "работает ли заведение под этим именем, как попасть на этаж, есть ли лифт и действующее меню. До этого не рекомендовать человеку с срочной потребностью.",
+      "source_url": "https://orgzz.ru/vladivostok/fastfud/adr/86137/svetlanskaya",
+      "sources": [
+        {
+          "title": "справочная подборка с карточкой Nem",
+          "url": "https://orgzz.ru/vladivostok/fastfud/adr/86137/svetlanskaya"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-e09",
+      "title": "Кофемашина",
+      "need": "eat",
+      "address": "Светланская, 152, строение 4.",
+      "price_note": "450 ₽.",
+      "note": "Формат: автокафе, кандидат на напиток и еду навынос. Как использовать: отдельная точка восточной части подборки, не обязательная остановка прогулки в центре.",
+      "verification_note": "точный формат обслуживания, возможность безопасно подойти пешком, текущее меню и график. Пометка «круглосуточно» в справочнике не подтверждена звонком; круглосуточность в рекомендациях пока не обещаем.",
+      "source_url": "https://orgzz.ru/vladivostok/fastfud/adr/86137/svetlanskaya",
+      "sources": [
+        {
+          "title": "карточка точки в справочнике",
+          "url": "https://orgzz.ru/vladivostok/fastfud/adr/86137/svetlanskaya"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-e10",
+      "title": "Хлопок Чайхона",
+      "need": "eat",
+      "address": "Светланская, 83.",
+      "price_note": "1 250 ₽.",
+      "note": "Формат: кафе восточной кухни; потенциально подходит для спокойного обеда после прогулки. Статус: резерв с повышенным риском устаревания. На том же адресе найдено заведение «Практика» с другим чеком. Это может означать смену заведения, разные помещения или старые сведения; причина не установлена. Как использовать: не выводить в обычные рекомендации до проверки действующего названия и входа. Цену 1 250 ₽ не выдавать за актуальную цену «Практики».",
+      "verification_note": "",
+      "source_url": "https://vladivostok-city.com/ru/restaraunts/all/all/847",
+      "sources": [
+        {
+          "title": "Хлопок Чайхона",
+          "url": "https://vladivostok-city.com/ru/restaraunts/all/all/847"
+        },
+        {
+          "title": "конфликтующая карточка Практики",
+          "url": "https://www.restoclub.ru/vld/place/praktika-1"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-f01",
+      "title": "Кинотеатр Уссури",
+      "need": "fun",
+      "address": "Светланская, 31.",
+      "price_note": "",
+      "note": "Что делать: выбрать сеанс, удобно сочетать с отдельной остановкой на еду. Стоимость: по фильму, залу, месту и времени; универсальной цены билета нет. Не сохранять минимальную стоимость случайного сеанса как постоянную.",
+      "verification_note": "район, выбранный сеанс, возраст и время окончания; санузел для случайных прохожих не подтверждён.",
+      "source_url": "https://www.illuzion.ru/cinema/ussuri",
+      "sources": [
+        {
+          "title": "страница сети кинотеатров",
+          "url": "https://www.illuzion.ru/cinema/ussuri"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-f02",
+      "title": "Театр имени Горького",
+      "need": "fun",
+      "address": "Светланская, 49.",
+      "price_note": "",
+      "note": "Что делать: спектакль по текущей афише, отдельное вечернее событие. Стоимость: по постановке и месту, уточняется при покупке.",
+      "verification_note": "дату, возраст, продолжительность и билет. Часы кассы не являются временем спектакля.",
+      "source_url": "https://gorkytheater.ru/events/",
+      "sources": [
+        {
+          "title": "официальная афиша",
+          "url": "https://gorkytheater.ru/events/"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-f03",
+      "title": "Пушкинский театр",
+      "need": "fun",
+      "address": "Пушкинская, 27.",
+      "price_note": "",
+      "note": "Что делать: архитектурная остановка снаружи; концерт, лекция или другое мероприятие только при подтверждённой афише. Стоимость: для внутреннего события не уточнена. Отдельные мероприятия нельзя считать бесплатными по умолчанию.",
+      "verification_note": "текущую работу здания и событие; старое описание учреждения не гарантирует вход сегодня.",
+      "source_url": "https://www.culture.ru/institutes/85002/pushkinskii-teatr-dalnevostochnogo-federalnogo-universiteta",
+      "sources": [
+        {
+          "title": "Культура.РФ",
+          "url": "https://www.culture.ru/institutes/85002/pushkinskii-teatr-dalnevostochnogo-federalnogo-universiteta"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-f04",
+      "title": "Владивостокский цирк",
+      "need": "fun",
+      "address": "Светланская, 103.",
+      "price_note": "",
+      "note": "Что делать: представление по действующей афише. Стоимость: по шоу и месту; не уточнена для даты пользователя.",
+      "verification_note": "актуальное представление. Найденная страница содержит летний анонс 2026 года, завершившийся в сентябре, — не выдавать его за текущую ноябрьскую программу.",
+      "source_url": "https://www.circus-vladivostok.ru/index.html",
+      "sources": [
+        {
+          "title": "страница цирка и контакты",
+          "url": "https://www.circus-vladivostok.ru/index.html"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-f05",
+      "title": "Дом-музей семьи Сухановых",
+      "need": "fun",
+      "address": "Суханова, 9.",
+      "price_note": "",
+      "note": "Что делать: познакомиться с семейной и повседневной историей города в музее. Стоимость: платное посещение, текущий тариф не подтверждён; льготы и экскурсия считаются отдельно.",
+      "verification_note": "часы, билет и вход. Внешний этап квеста и музейный визит — разные действия.",
+      "source_url": "https://old.arseniev.org/officials-house/?special_version=Y",
+      "sources": [
+        {
+          "title": "музейная страница",
+          "url": "https://old.arseniev.org/officials-house/?special_version=Y"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-f06",
+      "title": "Музей Тихоокеанского флота",
+      "need": "fun",
+      "address": "Светланская, 66.",
+      "price_note": "",
+      "note": "Что делать: посетить музей морской истории. Стоимость: актуальный билет не уточнён. Не считать двор свободной зоной без проверки.",
+      "verification_note": "текущий режим, день посещения, билет и доступные экспозиции.",
+      "source_url": "https://visit-primorye.ru/what-to-do/voenno-istoricheskij-muzej-tihookeanskogo-flota",
+      "sources": [
+        {
+          "title": "карточка на региональном портале",
+          "url": "https://visit-primorye.ru/what-to-do/voenno-istoricheskij-muzej-tihookeanskogo-flota"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-f07",
+      "title": "С-56",
+      "need": "fun",
+      "address": "Корабельная набережная, подводная лодка-музей.",
+      "price_note": "",
+      "note": "Что делать: внешний осмотр или отдельное посещение музея. Стоимость: билет внутрь не уточнён; внешний осмотр не означает права заходить на конструкции.",
+      "verification_note": "вход, текущую работу и ограничения. Для ребёнка или человека с ограничениями подвижности особенности внутреннего прохода уточняются заранее.",
+      "source_url": "https://visit-primorye.ru/what-to-do/gvardejskaya-krasnoznamennaya-podvodnaya-lodka-s-56",
+      "sources": [
+        {
+          "title": "карточка С-56",
+          "url": "https://visit-primorye.ru/what-to-do/gvardejskaya-krasnoznamennaya-podvodnaya-lodka-s-56"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-f08",
+      "title": "Набережная Цесаревича",
+      "need": "fun",
+      "address": "общественное пространство у Золотого Рога; точный вход выбрать при нанесении на карту.",
+      "price_note": "",
+      "note": "Что делать: прогулка, встреча, панорама и отдых без обязательной покупки. Стоимость: прогулка отмечена как бесплатная на региональном портале. Парковка, прокат, еда и санитарные услуги не входят в эту характеристику.",
+      "verification_note": "проход, ограничения и погоду; вечернее освещение и туалет отдельно.",
+      "source_url": "https://visit-primorye.ru/what-to-do/naberezhnaya-cesarevicha",
+      "sources": [
+        {
+          "title": "Visit Primorye",
+          "url": "https://visit-primorye.ru/what-to-do/naberezhnaya-cesarevicha"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-f09",
+      "title": "Нагорный парк",
+      "need": "fun",
+      "address": "парк с входами со стороны Шилкинской и прилегающих улиц; не ставить маркер на случайную точку склона.",
+      "price_note": "",
+      "note": "Что делать: прогулка, виды, отдых; маршрут внутри выбрать после проверки. Стоимость: вход и отдельные услуги в текущей подборке не подтверждены. Не объединять прогулку и платные услуги.",
+      "verification_note": "границу района, актуальные входы, лестницы и отдельный путь до санитарной точки.",
+      "source_url": "https://vvo.live/post/novye-dorozhki-i-tualet-s-peniem-ptic-chto-izmenilos-v-nagornom-parke",
+      "sources": [
+        {
+          "title": "обзор парка от июня 2026",
+          "url": "https://vvo.live/post/novye-dorozhki-i-tualet-s-peniem-ptic-chto-izmenilos-v-nagornom-parke"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-f10",
+      "title": "Кирха Святого Павла",
+      "need": "fun",
+      "address": "Пушкинская, 14.",
+      "price_note": "",
+      "note": "Что делать: архитектурная остановка снаружи; музыкальное событие при наличии актуальной афиши и разрешённого посещения. Стоимость: зависит от конкретного события; бесплатность не предполагается.",
+      "verification_note": "организатора, дату, билет и правила посещения действующего религиозного места.",
+      "source_url": "https://vladivostok-city.com/ru/places/all/all/934",
+      "sources": [
+        {
+          "title": "описание объекта",
+          "url": "https://vladivostok-city.com/ru/places/all/all/934"
+        },
+        {
+          "title": "афиша площадки",
+          "url": "https://www.vl.ru/afisha/vladivostok/company/lyuteranskaya-kirha-svyatogo-pavla"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-h01",
+      "title": "Глубина",
+      "need": "lodging",
+      "address": "Уборевича, 5А.",
+      "price_note": "от 1 500 ₽ в сутки **за место**, не за отдельный номер. Нужные даты не проверялись.",
+      "note": "Тип: капсульный хостел; общие номера и женский вариант по сайту. Кому подходит: человеку, которому достаточно места в общем номере. Общая кухня указана на сайте, но не означает питание в тарифе.",
+      "verification_note": "район, цену конкретной капсулы, условия заезда и позднего прибытия, актуальное наличие.",
+      "source_url": "https://glubina-vl.ru/",
+      "sources": [
+        {
+          "title": "официальный сайт Глубины",
+          "url": "https://glubina-vl.ru/"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-h02",
+      "title": "Корона на Адмирала Кузнецова",
+      "need": "lodging",
+      "address": "Адмирала Кузнецова, 68.",
+      "price_note": "подтверждённой цены на даты нет. VL.ru указывает 600–850 ₽ за койко-место в сутки, а сайт объекта публикует другие нижние тарифы. Несогласованные данные не переносим в поле текущей цены.",
+      "note": "Тип: хостел; не путать с одноимённым отелем на Верхнепортовой и гостевым домом на Крыгина. Кому подходит: кандидат для бюджетного ночлега в общей комнате. Комнату, пол гостей и условия заселения нужно выбирать отдельно.",
+      "verification_note": "действующий тариф, доступные места, условия кухни и регистрации.",
+      "source_url": "https://www.vl.ru/vldk-korona",
+      "sources": [
+        {
+          "title": "карточка конкретного хостела",
+          "url": "https://www.vl.ru/vldk-korona"
+        },
+        {
+          "title": "сайт объекта",
+          "url": "https://xn--80ajpdlcdarfl7a.xn--p1ai/"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-h03",
+      "title": "Феникс",
+      "need": "lodging",
+      "address": "Адмирала Юмашева, 25.",
+      "price_note": "только справочный пример — в летней публикации 2026 года приведены 3 000 ₽ за двухместный номер в сутки без завтрака. Это не цена койко-места и не предложение на сегодняшнюю ночь.",
+      "note": "Тип: хостел; разные варианты размещения. Кому подходит: кандидат для ночлега в районе Юмашева, в том числе для двоих при наличии отдельной комнаты.",
+      "verification_note": "тариф на даты, свободные комнаты и позднее заселение. Не обещать цену из сезонного обзора.",
+      "source_url": "https://vvo.live/post/ekonomnyj-vladivostok-gde-poluchit-maksimum-vpechatlenij-za-minimum-deneg",
+      "sources": [
+        {
+          "title": "летний обзор стоимости",
+          "url": "https://vvo.live/post/ekonomnyj-vladivostok-gde-poluchit-maksimum-vpechatlenij-za-minimum-deneg"
+        },
+        {
+          "title": "адрес и карточка объекта",
+          "url": "https://otello.ru/hotel/70000001066220636/reviews"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-h04",
+      "title": "Хостел на Ивановской",
+      "need": "lodging",
+      "address": "Новоивановская, 12. Название объекта не заменяет фактический адрес.",
+      "price_note": "не уточнена — сервис предлагает выбрать даты. Не переносим рекламную минимальную цену из общего списка как гарантированную.",
+      "note": "Тип: хостел; в карточке есть кровать в общем восьмиместном номере. Кому подходит: кандидат для одного путешественника, готового к общей комнате.",
+      "verification_note": "актуальное название, район, наличие нужного типа места, заезд и документы. Рейтинг не используем как доказательство безопасности.",
+      "source_url": "https://travel.yandex.ru/hotels/vladivostok/khostel-na-ivanovskoi/",
+      "sources": [
+        {
+          "title": "карточка на Яндекс Путешествиях",
+          "url": "https://travel.yandex.ru/hotels/vladivostok/khostel-na-ivanovskoi/"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-h05",
+      "title": "Capsule Hotel Group",
+      "need": "lodging",
+      "address": "Светланская, 197.",
+      "price_note": "не найдена в выбранной карточке; уточнить напрямую.",
+      "note": "Тип: капсульный отель. Кому подходит: дополнительный кандидат для восточной части района.",
+      "verification_note": "существование объекта сейчас, точный вход и действующие контакты. В карточке указано ограниченное дневное окно работы, поэтому поздний заезд без подтверждения не обещаем.",
+      "source_url": "https://vladivostok.jsprav.ru/ekonom-gostinitsyi-i-oteli/capsule-hotel/",
+      "sources": [
+        {
+          "title": "адрес и контакты",
+          "url": "https://vladivostok.jsprav.ru/ekonom-gostinitsyi-i-oteli/capsule-hotel/"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-h06",
+      "title": "ЛОТТЕ Отель Владивосток",
+      "need": "lodging",
+      "address": "Семёновская, 29.",
+      "price_note": "определяется по датам и категории на сайте; фиксированный тариф не найден и не выдумывается.",
+      "note": "Тип: гостиница с отдельными номерами; вариант более высокого бюджета. Кому подходит: тем, кому нужен отдельный номер и гостиничный сервис, а не бюджетное койко-место.",
+      "verification_note": "районную границу, итоговую цену, включённое питание и правила выбранного тарифа.",
+      "source_url": "https://lottehotelvladivostok.ru/",
+      "sources": [
+        {
+          "title": "официальный сайт",
+          "url": "https://lottehotelvladivostok.ru/"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-h07",
+      "title": "Аванта",
+      "need": "lodging",
+      "address": "Гоголя, 41, строение 3.",
+      "price_note": "по датам и категории; текущая сумма не подтверждена.",
+      "note": "Тип: гостиница. Кому подходит: отдельный вариант размещения в районе Гоголя; не обозначать как соседнюю остановку морской прогулки.",
+      "verification_note": "границу района, путь к входу и ограничения территории. Сайт отдельно описывает проход и автомобильный въезд; не строить путь к произвольному входу университета.",
+      "source_url": "https://hotel-avanta.ru/",
+      "sources": [
+        {
+          "title": "официальный сайт Аванты",
+          "url": "https://hotel-avanta.ru/"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-h08",
+      "title": "Астория",
+      "need": "lodging",
+      "address": "Партизанский проспект, 44, корпус 6.",
+      "price_note": "не уточнена на даты. Старые конференционные тарифы не используются как актуальный прайс.",
+      "note": "Тип: гостиница. Кому подходит: кандидат для отдельного номера в другой части подборки, а не рядом с каждой точкой центра.",
+      "verification_note": "район, действующий тариф, корпус и доступ к входу, условия позднего заезда.",
+      "source_url": "https://astoria.iprim.ru/",
+      "sources": [
+        {
+          "title": "контакты и адрес",
+          "url": "https://astoria.iprim.ru/"
+        },
+        {
+          "title": "сайт отеля, указанный в карточке",
+          "url": "https://astoriavl.ru/"
+        },
+        {
+          "title": "адрес 2",
+          "url": "https://vladivostok.spravka.city/company/port-house"
+        },
+        {
+          "title": "карточка с адресом 4",
+          "url": "https://www.vl.ru/amigo-hostel"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-t01",
+      "title": "Адмиральский сквер",
+      "need": "toilet",
+      "address": "Светланская, 48, Адмиральский сквер.",
+      "price_note": "",
+      "note": "Сведения: объект указан в перечне муниципальных общественных туалетов, опубликованном 29 июня 2026 года со ссылкой на МКУ «Зелёный Владивосток». Стоимость и часы конкретно этой точки: из выбранного сообщения не установлены. Указанные там бесплатность и 08:00–20:00 относятся к туалету на набережной Арсеньева, не переносим их на весь список.",
+      "verification_note": "координаты входа, работу сегодня, тариф и график.",
+      "source_url": "https://prim.news/2026/06/29/vo-vladivostoke-na-naberezhnoj-arseneva-zarabotal-obshhestvennyj-tualet/",
+      "sources": [
+        {
+          "title": "публикация с перечнем",
+          "url": "https://prim.news/2026/06/29/vo-vladivostoke-na-naberezhnoj-arseneva-zarabotal-obshhestvennyj-tualet/"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-t02",
+      "title": "Подземный переход у Светланской, 29",
+      "need": "toilet",
+      "address": "переход около Светланской, 29; точный вход требуется отметить отдельно.",
+      "price_note": "не подтверждены для этой точки. Не обещаем круглосуточность и бесплатность.",
+      "note": "Сведения: точка включена в тот же муниципальный перечень.",
+      "verification_note": "границу района, лестницы, конкретный вход и фактическую работу.",
+      "source_url": "https://prim.news/2026/06/29/vo-vladivostoke-na-naberezhnoj-arseneva-zarabotal-obshhestvennyj-tualet/",
+      "sources": [
+        {
+          "title": "перечень от 29 июня 2026",
+          "url": "https://prim.news/2026/06/29/vo-vladivostoke-na-naberezhnoj-arseneva-zarabotal-obshhestvennyj-tualet/"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-t03",
+      "title": "Набережная Цесаревича",
+      "need": "toilet",
+      "address": "отдельное здание у детской площадки-корабля и «Кровати примирения».",
+      "price_note": "",
+      "note": "Последние найденные подробные сведения: в обзоре от 20 августа 2026 — 60 ₽, ежедневно 11:00–23:00. Критическая оговорка: обновление того же материала сообщает о повторном закрытии. Сегодняшняя работа не подтверждена; цифры остаются исторической справкой, не текущим обещанием. Как показывать: только со статусом «уточнить работу», не как гарантированно открытый ближайший туалет.",
+      "verification_note": "",
+      "source_url": "https://www.newsvl.ru/vlad/2026/08/20/239924/",
+      "sources": [
+        {
+          "title": "обзор VL.ru и обновление",
+          "url": "https://www.newsvl.ru/vlad/2026/08/20/239924/"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-t04",
+      "title": "Нагорный парк",
+      "need": "toilet",
+      "address": "туалет возле кёрлинг-центра; не путать с другими санитарными объектами парка.",
+      "price_note": "не уточнены в выбранном источнике.",
+      "note": "Сведения: публикация от 9 июня 2026 года сообщает о появлении этой точки.",
+      "verification_note": "конкретное здание, вход, границу района и статус работы; переход от основных прогулок может требовать отдельного пути.",
+      "source_url": "https://vvo.live/post/novye-dorozhki-i-tualet-s-peniem-ptic-chto-izmenilos-v-nagornom-parke",
+      "sources": [
+        {
+          "title": "обзор изменений Нагорного парка",
+          "url": "https://vvo.live/post/novye-dorozhki-i-tualet-s-peniem-ptic-chto-izmenilos-v-nagornom-parke"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    },
+    {
+      "id": "guide-t05",
+      "title": "Лазо, 26, строение 2",
+      "need": "toilet",
+      "address": "Лазо, 26, строение 2.",
+      "price_note": "",
+      "note": "Сведения: в каталоге отмечен бесплатный общественный туалет. Стоимость: «бесплатно» — только характеристика справочника; не подтверждена на месте. Режим неизвестен.",
+      "verification_note": "существование, точное положение, вход, район и стоимость сегодня. Источник вторичный, поэтому это резерв для проверки, не готовая срочная рекомендация.",
+      "source_url": "https://totadres.ru/vladivostok/obschestvennye_tualety/p/1",
+      "sources": [
+        {
+          "title": "каталог общественных туалетов",
+          "url": "https://totadres.ru/vladivostok/obschestvennye_tualety/p/1"
+        },
+        {
+          "title": "тот же обзор VL.ru",
+          "url": "https://www.newsvl.ru/vlad/2026/08/20/239924/"
+        }
+      ],
+      "checked_at": null,
+      "status": "draft"
+    }
+  ],
+  "total": 33
+}
