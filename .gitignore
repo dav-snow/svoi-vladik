@@ -39,3 +39,9 @@ AGENTS.md
 
 # Server-only quest configuration
 /data/private/quest-answers.json
+
+# Local demo database (auth, visits, likes) and SQLite sidecar files
+/data/*.sqlite3
+/data/*.sqlite3-journal
+/data/*.sqlite3-wal
+/data/*.sqlite3-shm
