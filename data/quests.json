@@ -1,0 +1,609 @@
+{
+  "items": [
+    {
+      "id": "quest-leninsky-culture-001",
+      "title": "Три повода выйти из дома",
+      "description": "Сохранённый квест по трём исходным OSM-точкам. Справки сверены онлайн; визит и пешеходный проход не подтверждаются.",
+      "estimated_minutes": null,
+      "related_place_ids": [
+        "osm-node-676375880",
+        "osm-way-26537156",
+        "osm-way-133436813"
+      ],
+      "stop_count": 3,
+      "status": "draft",
+      "stops": [
+        {
+          "id": "stop-1",
+          "place_id": "osm-node-676375880",
+          "title": "Морская история",
+          "fact_text": "Музей посвящён истории Тихоокеанского флота.",
+          "fiction_text": "Вымышленный проводник предлагает начать знакомство с морской темы.",
+          "question": "Какому флоту посвящён музей?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Тихоокеанскому"
+            },
+            {
+              "id": "b",
+              "text": "Балтийскому"
+            },
+            {
+              "id": "c",
+              "text": "Черноморскому"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Источник исторической справки",
+              "url": "https://visit-primorye.ru/what-to-do/voenno-istoricheskij-muzej-tihookeanskogo-flota"
+            }
+          ],
+          "checked_at": null
+        },
+        {
+          "id": "stop-2",
+          "place_id": "osm-way-26537156",
+          "title": "Городская сцена",
+          "fact_text": "Официальное название театра включает имя Максима Горького.",
+          "fiction_text": "Вымышленный проводник предлагает представить афишу о своей прогулке.",
+          "question": "Имя какого писателя носит театр?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Антона Чехова"
+            },
+            {
+              "id": "b",
+              "text": "Максима Горького"
+            },
+            {
+              "id": "c",
+              "text": "Александра Пушкина"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Источник исторической справки",
+              "url": "https://gorkytheater.ru/contacts"
+            }
+          ],
+          "checked_at": null
+        },
+        {
+          "id": "stop-3",
+          "place_id": "osm-way-133436813",
+          "title": "Движение на склоне",
+          "fact_text": "Владивостокский фуникулёр открылся 5 мая 1962 года.",
+          "fiction_text": "Вымышленный проводник предлагает взглянуть на городской транспорт как на часть истории.",
+          "question": "В каком году открылся фуникулёр?",
+          "options": [
+            {
+              "id": "a",
+              "text": "1891"
+            },
+            {
+              "id": "b",
+              "text": "1962"
+            },
+            {
+              "id": "c",
+              "text": "2012"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Источник исторической справки",
+              "url": "https://visit-primorye.ru/what-to-do/funikulyor"
+            }
+          ],
+          "checked_at": null
+        }
+      ],
+      "sources": [
+        {
+          "title": "Источник исторической справки",
+          "url": "https://visit-primorye.ru/what-to-do/voenno-istoricheskij-muzej-tihookeanskogo-flota"
+        },
+        {
+          "title": "Источник исторической справки",
+          "url": "https://gorkytheater.ru/contacts"
+        },
+        {
+          "title": "Источник исторической справки",
+          "url": "https://visit-primorye.ru/what-to-do/funikulyor"
+        }
+      ],
+      "checked_at": null
+    },
+    {
+      "id": "quest-three-keys",
+      "title": "Три ключа от города",
+      "description": "Люди, архитектура и культура: исходный сценарий DEMO_CONTENT. Три ключа и проводник — авторский вымысел.",
+      "estimated_minutes": null,
+      "related_place_ids": [
+        "sukhanov-house",
+        "st-paul",
+        "pushkin-theatre"
+      ],
+      "stop_count": 3,
+      "status": "draft",
+      "stops": [
+        {
+          "id": "keys-house",
+          "place_id": "sukhanov-house",
+          "title": "Дом и его жители",
+          "fact_text": "Дом-музей знакомит с жизнью семьи чиновника Александра Суханова.",
+          "fiction_text": "Первый ключ спрятан в повседневной жизни. Узнаем, о ком рассказывает этот дом?",
+          "question": "Чья повседневная жизнь лежит в основе истории дома?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Семьи чиновника Суханова"
+            },
+            {
+              "id": "b",
+              "text": "Экипажа подводной лодки"
+            },
+            {
+              "id": "c",
+              "text": "Артистов передвижного цирка"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Источник исторической справки",
+              "url": "https://visit-primorye.ru/what-to-do/dom-muzej-semi-suhanovyh"
+            }
+          ],
+          "checked_at": null
+        },
+        {
+          "id": "keys-church",
+          "place_id": "st-paul",
+          "title": "Имя и традиция",
+          "fact_text": "Церковь Святого Павла на Пушкинской — лютеранская кирха.",
+          "fiction_text": "Второй ключ — внимательность: у этого здания своё имя и своя история.",
+          "question": "К какой традиции относится кирха Святого Павла?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Православной"
+            },
+            {
+              "id": "b",
+              "text": "Лютеранской"
+            },
+            {
+              "id": "c",
+              "text": "Католической"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Источник исторической справки",
+              "url": "https://vladivostok-city.com/ru/places/all/all/934"
+            }
+          ],
+          "checked_at": null
+        },
+        {
+          "id": "keys-theatre",
+          "place_id": "pushkin-theatre",
+          "title": "Город выходит на сцену",
+          "fact_text": "Культура.РФ указывает 1908 год постройки нынешнего здания Пушкинского театра.",
+          "fiction_text": "Последний ключ — сцена. Узнай, когда появилось нынешнее здание.",
+          "question": "В каком году построили нынешнее здание?",
+          "options": [
+            {
+              "id": "a",
+              "text": "1908"
+            },
+            {
+              "id": "b",
+              "text": "1962"
+            },
+            {
+              "id": "c",
+              "text": "2012"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Источник исторической справки",
+              "url": "https://www.culture.ru/institutes/85002/pushkinskii-teatr-dalnevostochnogo-federalnogo-universiteta"
+            }
+          ],
+          "checked_at": null
+        }
+      ],
+      "sources": [
+        {
+          "title": "Источник исторической справки",
+          "url": "https://visit-primorye.ru/what-to-do/dom-muzej-semi-suhanovyh"
+        },
+        {
+          "title": "Источник исторической справки",
+          "url": "https://vladivostok-city.com/ru/places/all/all/934"
+        },
+        {
+          "title": "Источник исторической справки",
+          "url": "https://www.culture.ru/institutes/85002/pushkinskii-teatr-dalnevostochnogo-federalnogo-universiteta"
+        }
+      ],
+      "checked_at": null
+    },
+    {
+      "id": "quest-letter-vladivostok",
+      "title": "Письмо из Владивостока",
+      "description": "Пять фрагментов вымышленной открытки: личный взгляд, память и море. Сценарий draft; внешний доступ и переходы требуют проверки.",
+      "estimated_minutes": null,
+      "related_place_ids": [
+        "eleanor-pray",
+        "nikolaev-gate",
+        "s56",
+        "red-pennant",
+        "nevelskoy-monument"
+      ],
+      "stop_count": 5,
+      "status": "draft",
+      "stops": [
+        {
+          "id": "letter-look",
+          "place_id": "eleanor-pray",
+          "title": "Взгляд",
+          "fact_text": "С Элеонорой Лорд Прей связаны письма о повседневной жизни Владивостока.",
+          "fiction_text": "Любой город начинается с чьего-то взгляда. Как сохранить впечатление, когда ещё нет привычных чатов?",
+          "question": "Какой формат лежит в основе этой истории о городе?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Письма"
+            },
+            {
+              "id": "b",
+              "text": "Прогнозы погоды"
+            },
+            {
+              "id": "c",
+              "text": "Каталоги запчастей"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Источник исторической справки",
+              "url": "https://visit-primorye.ru/what-to-do/pamyatnik-eleonore-lord-prey"
+            }
+          ],
+          "checked_at": null
+        },
+        {
+          "id": "letter-memory",
+          "place_id": "nikolaev-gate",
+          "title": "Память",
+          "fact_text": "Первые Николаевские ворота связаны с визитом наследника Николая в 1891 году; нынешняя арка воссоздана.",
+          "fiction_text": "Не всё старинное дошло без изменений. Иногда город восстанавливает то, что хочет помнить.",
+          "question": "Как правильно описать сегодняшнюю арку?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Неизменённый оригинал XIX века"
+            },
+            {
+              "id": "b",
+              "text": "Воссозданное историческое сооружение"
+            },
+            {
+              "id": "c",
+              "text": "Декорация одного фестиваля"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Источник исторической справки",
+              "url": "https://visit-primorye.ru/what-to-do/nikolaevskie-triumfalnye-vorota"
+            }
+          ],
+          "checked_at": null
+        },
+        {
+          "id": "letter-depth",
+          "place_id": "s56",
+          "title": "Глубина",
+          "fact_text": "С-56 — мемориальная подводная лодка-музей на Корабельной набережной.",
+          "fiction_text": "Следующая история связана с морем, но её герой мог двигаться под водой.",
+          "question": "К какому типу относится С-56?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Ледокол"
+            },
+            {
+              "id": "b",
+              "text": "Подводная лодка"
+            },
+            {
+              "id": "c",
+              "text": "Парусная яхта"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Источник исторической справки",
+              "url": "https://visit-primorye.ru/what-to-do/gvardejskaya-krasnoznamennaya-podvodnaya-lodka-s-56"
+            }
+          ],
+          "checked_at": null
+        },
+        {
+          "id": "letter-change",
+          "place_id": "red-pennant",
+          "title": "Перемены",
+          "fact_text": "До названия «Красный вымпел» судно носило имя «Адмирал Завойко».",
+          "fiction_text": "Бывает, что у одной вещи несколько имён. История корабля меняется вместе с его ролью.",
+          "question": "Как называлось судно раньше?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Адмирал Завойко"
+            },
+            {
+              "id": "b",
+              "text": "Космонавт"
+            },
+            {
+              "id": "c",
+              "text": "Тихий вечер"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Источник исторической справки",
+              "url": "https://www.culture.ru/institutes/8487/memorialnyi-korabl-krasnyi-vympel"
+            }
+          ],
+          "checked_at": null
+        },
+        {
+          "id": "letter-discovery",
+          "place_id": "nevelskoy-monument",
+          "title": "Открытие",
+          "fact_text": "Памятник посвящён исследователю Дальнего Востока и мореплавателю Геннадию Невельскому.",
+          "fiction_text": "Последний фрагмент — про людей, которые открывают неизвестное. Мы собрали свою городскую открытку.",
+          "question": "С чем связана деятельность Невельского?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Исследование Дальнего Востока и мореплавание"
+            },
+            {
+              "id": "b",
+              "text": "Создание фуникулёра"
+            },
+            {
+              "id": "c",
+              "text": "Постановка спектаклей Пушкинского театра"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Источник исторической справки",
+              "url": "https://visit-primorye.ru/what-to-do/pamyatnik-admiralu-g-i-nevelskomu"
+            }
+          ],
+          "checked_at": null
+        }
+      ],
+      "sources": [
+        {
+          "title": "Источник исторической справки",
+          "url": "https://visit-primorye.ru/what-to-do/pamyatnik-eleonore-lord-prey"
+        },
+        {
+          "title": "Источник исторической справки",
+          "url": "https://visit-primorye.ru/what-to-do/nikolaevskie-triumfalnye-vorota"
+        },
+        {
+          "title": "Источник исторической справки",
+          "url": "https://visit-primorye.ru/what-to-do/gvardejskaya-krasnoznamennaya-podvodnaya-lodka-s-56"
+        },
+        {
+          "title": "Источник исторической справки",
+          "url": "https://www.culture.ru/institutes/8487/memorialnyi-korabl-krasnyi-vympel"
+        },
+        {
+          "title": "Источник исторической справки",
+          "url": "https://visit-primorye.ru/what-to-do/pamyatnik-admiralu-g-i-nevelskomu"
+        }
+      ],
+      "checked_at": null
+    },
+    {
+      "id": "quest-city-code",
+      "title": "Код города",
+      "description": "Пять смыслов: форма, творчество, движение, история и отдых. Билет не является условием ответа; проход пока не проверен.",
+      "estimated_minutes": null,
+      "related_place_ids": [
+        "st-paul",
+        "pushkin-theatre",
+        "osm-way-133436813",
+        "osm-node-676375880",
+        "tsesarevich-embankment"
+      ],
+      "stop_count": 5,
+      "status": "draft",
+      "stops": [
+        {
+          "id": "code-form",
+          "place_id": "st-paul",
+          "title": "Форма",
+          "fact_text": "На Пушкинской, 14 находится лютеранская кирха Святого Павла.",
+          "fiction_text": "Город можно узнать по силуэтам. Начнём с этого здания.",
+          "question": "Что находится в этом здании?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Лютеранская кирха"
+            },
+            {
+              "id": "b",
+              "text": "Железнодорожный вокзал"
+            },
+            {
+              "id": "c",
+              "text": "Маяк"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Источник исторической справки",
+              "url": "https://vladivostok-city.com/ru/places/all/all/934"
+            }
+          ],
+          "checked_at": null
+        },
+        {
+          "id": "code-creativity",
+          "place_id": "pushkin-theatre",
+          "title": "Творчество",
+          "fact_text": "Нынешнее здание Пушкинского театра построено в 1908 году, согласно Культура.РФ.",
+          "fiction_text": "Представь, что сегодняшняя прогулка стала спектаклем.",
+          "question": "Какой год постройки указан в справке?",
+          "options": [
+            {
+              "id": "a",
+              "text": "1908"
+            },
+            {
+              "id": "b",
+              "text": "1962"
+            },
+            {
+              "id": "c",
+              "text": "2012"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Источник исторической справки",
+              "url": "https://www.culture.ru/institutes/85002/pushkinskii-teatr-dalnevostochnogo-federalnogo-universiteta"
+            }
+          ],
+          "checked_at": null
+        },
+        {
+          "id": "code-motion",
+          "place_id": "osm-way-133436813",
+          "title": "Движение",
+          "fact_text": "Дата открытия владивостокского фуникулёра — 5 мая 1962 года.",
+          "fiction_text": "Сопки меняют не только вид города, но и способы передвижения.",
+          "question": "В каком году открылся фуникулёр?",
+          "options": [
+            {
+              "id": "a",
+              "text": "1891"
+            },
+            {
+              "id": "b",
+              "text": "1962"
+            },
+            {
+              "id": "c",
+              "text": "2012"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Источник исторической справки",
+              "url": "https://visit-primorye.ru/what-to-do/funikulyor"
+            }
+          ],
+          "checked_at": null
+        },
+        {
+          "id": "code-history",
+          "place_id": "osm-node-676375880",
+          "title": "История",
+          "fact_text": "Военно-исторический музей ТОФ рассказывает об истории Тихоокеанского флота.",
+          "fiction_text": "Внешний вид города — только начало. Многие его истории хранятся в музеях.",
+          "question": "Какой теме посвящён этот музей?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Истории Тихоокеанского флота"
+            },
+            {
+              "id": "b",
+              "text": "Только истории театра"
+            },
+            {
+              "id": "c",
+              "text": "Только истории железной дороги"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Источник исторической справки",
+              "url": "https://visit-primorye.ru/what-to-do/voenno-istoricheskij-muzej-tihookeanskogo-flota"
+            }
+          ],
+          "checked_at": null
+        },
+        {
+          "id": "code-rest",
+          "place_id": "tsesarevich-embankment",
+          "title": "Отдых",
+          "fact_text": "Региональный туристический портал указывает 2012 год создания набережной Цесаревича.",
+          "fiction_text": "Исследование закончено. Теперь можно просто побыть в городе.",
+          "question": "В каком году появилась эта набережная?",
+          "options": [
+            {
+              "id": "a",
+              "text": "1908"
+            },
+            {
+              "id": "b",
+              "text": "2012"
+            },
+            {
+              "id": "c",
+              "text": "1962"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Источник исторической справки",
+              "url": "https://visit-primorye.ru/what-to-do/naberezhnaya-cesarevicha"
+            }
+          ],
+          "checked_at": null
+        }
+      ],
+      "sources": [
+        {
+          "title": "Источник исторической справки",
+          "url": "https://vladivostok-city.com/ru/places/all/all/934"
+        },
+        {
+          "title": "Источник исторической справки",
+          "url": "https://www.culture.ru/institutes/85002/pushkinskii-teatr-dalnevostochnogo-federalnogo-universiteta"
+        },
+        {
+          "title": "Источник исторической справки",
+          "url": "https://visit-primorye.ru/what-to-do/funikulyor"
+        },
+        {
+          "title": "Источник исторической справки",
+          "url": "https://visit-primorye.ru/what-to-do/voenno-istoricheskij-muzej-tihookeanskogo-flota"
+        },
+        {
+          "title": "Источник исторической справки",
+          "url": "https://visit-primorye.ru/what-to-do/naberezhnaya-cesarevicha"
+        }
+      ],
+      "checked_at": null
+    }
+  ],
+  "total": 4
+}

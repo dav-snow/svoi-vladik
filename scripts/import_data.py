@@ -3,6 +3,7 @@
 Usage:
     python scripts/import_data.py routes path/to/routes.json
     python scripts/import_data.py quests path/to/quests.json
+    python scripts/import_data.py places path/to/places.json
 
 The script:
   1. Reads the given JSON file.
@@ -32,9 +33,10 @@ sys.path.insert(0, str(REPO_ROOT / "backend"))
 
 from pydantic import BaseModel, ValidationError  # noqa: E402
 
-from main import Route, Quest  # noqa: E402
+from main import Route, Quest, Place  # noqa: E402
 
 TARGETS: dict[str, tuple[type[BaseModel], Path]] = {
+    "places": (Place, REPO_ROOT / "data" / "places.json"),
     "routes": (Route, REPO_ROOT / "data" / "routes.json"),
     "quests": (Quest, REPO_ROOT / "data" / "quests.json"),
 }
@@ -47,7 +49,7 @@ def die(code: int, message: str) -> None:
 
 def main(argv: list[str]) -> None:
     if len(argv) != 3:
-        die(4, "Usage: python scripts/import_data.py <routes|quests> <path/to/file.json>")
+        die(4, "Usage: python scripts/import_data.py <places|routes|quests> <path/to/file.json>")
 
     kind, raw_path = argv[1], argv[2]
     if kind not in TARGETS:
@@ -59,7 +61,7 @@ def main(argv: list[str]) -> None:
         die(1, f"Source file not found: {src}")
 
     try:
-        text = src.read_text(encoding="utf-8")
+        text = src.read_text(encoding="utf-8-sig")
     except OSError as exc:
         die(1, f"Cannot read {src}: {exc}")
 
@@ -73,10 +75,15 @@ def main(argv: list[str]) -> None:
 
     validated: list[dict] = []
     errors: list[str] = []
+    seen: set[str] = set()
     for index, raw in enumerate(payload["items"]):
         try:
-            validated.append(model(**raw).model_dump())
-        except (TypeError, ValidationError) as exc:
+            item = model.model_validate(raw)
+            if item.id in seen:
+                raise ValueError("Duplicate id")
+            seen.add(item.id)
+            validated.append(item.model_dump())
+        except (TypeError, ValueError, ValidationError) as exc:
             errors.append(f"  item[{index}]: {exc}")
 
     if errors:
@@ -85,7 +92,7 @@ def main(argv: list[str]) -> None:
     target.parent.mkdir(parents=True, exist_ok=True)
     normalised = {"items": validated, "total": len(validated)}
     target.write_text(
-        json.dumps(normalised, ensure_ascii=False, indent=2) + "\n",
+        json.dumps(normalised, ensure_ascii=False, indent=2, allow_nan=False) + "\n",
         encoding="utf-8",
     )
     print(f"Imported {len(validated)} {kind} item(s) into {target.relative_to(REPO_ROOT)}")

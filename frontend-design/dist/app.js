@@ -2,7 +2,7 @@
 
 const $ = id => document.getElementById(id);
 const ui = { map: $("map"), fallback: $("map-fallback"), status: $("map-status"), list: $("place-list"), count: $("place-count"), search: $("search"), selected: $("selected-place"), toast: $("toast") };
-const state = { places: [], boundary: null, map: null, markers: new Map(), filter: "all", query: "", selected: null, savedOnly: false, saved: new Set(), view: "map" };
+const state = { places: [], walks: [], quests: [], boundary: null, map: null, markers: new Map(), filter: "all", query: "", selected: null, savedOnly: false, saved: new Set(), view: "map", activeWalk: null, walkStep: 0, activeQuest: null };
 // Geolocation lives only in page memory (never persisted): origin device|manual|null,
 // lat/lng/accuracyM/capturedAt, radiusM, phase (idle|requesting|ready|denied|unavailable|timeout),
 // reqId guards against stale async callbacks, youMarker is the "Вы здесь" map marker.
@@ -10,6 +10,17 @@ const geo = { origin: null, lat: null, lng: null, accuracyM: null, capturedAt: n
 const storageKey = "svoi-vladik-design-v1";
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isMobileLayout = () => matchMedia("(max-width: 760px)").matches;
+const progressKey = 'svoi-vladik-progress-v1';
+let progress = { quests: {}, rewards: [] };
+let dialogRevision = 0;
+try {
+  const saved = JSON.parse(localStorage.getItem(progressKey) || '{}');
+  if (saved?.quests && typeof saved.quests === 'object' && !Array.isArray(saved.quests)) progress.quests = saved.quests;
+  if (Array.isArray(saved?.rewards)) progress.rewards = saved.rewards.filter(x => x === 'explorer-hat');
+  if (saved?.walk && typeof saved.walk.id === 'string' && Number.isInteger(saved.walk.step)) progress.walk = { id: saved.walk.id, step: saved.walk.step };
+} catch {}
+function saveProgress() { try { localStorage.setItem(progressKey, JSON.stringify(progress)); } catch { notify('Не удалось сохранить прогресс на этом устройстве'); } }
+function guideCard(pose, title, copy, actions = []) { return window.SvoiMascot.show(pose, title, copy, actions); }
 const META = {
   "osm-node-676375880": { short: "Музей Тихоокеанского флота", label: "Музей ТОФ", image: "museum.svg", kind: "Культура · Музей", description: "Место для знакомства с морской стороной города. Сохраните его для своей прогулки и уточните условия посещения перед выходом." },
   "osm-way-26537156": { short: "Театр имени Горького", label: "Театр Горького", image: "theatre.svg", kind: "Культура · Театр", description: "Повод выбраться на спектакль или включить знакомство с театром в прогулку по району. Афишу и условия посещения уточняйте отдельно." },
@@ -70,12 +81,15 @@ function setSaved(place) {
   if (state.selected?.id === place.id) renderSelected(place);
   notify(added ? "Место сохранено на этом устройстве" : "Место удалено из сохранённого");
 }
-function sourceURL(place) { return `https://www.openstreetmap.org/${place.osmType}/${place.osmId}`; }
+function sourceURL(place) { return place.source_url || `https://www.openstreetmap.org/${place.osmType}/${place.osmId}`; }
 function routeURL(place) { return `https://2gis.ru/directions/tab/pedestrian/points/%7C${place.lng},${place.lat}`; }
 function external(text, href, cls) {
-  const a = el("a", cls, text); a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer"; a.append(icon("arrow")); return a;
+  let url; try { url = new URL(href); } catch { return el('span', cls, text); }
+  if (url.protocol !== 'https:' || url.username || url.password) return el('span', cls, text);
+  const a = el("a", cls, text); a.href = url.href; a.target = "_blank"; a.rel = "noopener noreferrer"; a.append(icon("arrow")); return a;
 }
 function openDialog(id, content) {
+  dialogRevision++;
   const dialog = $(id); const body = $(id.replace("-dialog", "-content"));
   for (const d of document.querySelectorAll("dialog[open]")) d.close();
   body.replaceChildren(...content); dialog.showModal();
@@ -103,7 +117,7 @@ function placeCard(place) {
 function renderPlaces() {
   const q = state.query.toLocaleLowerCase("ru");
   const located = geo.origin && Number.isFinite(geo.lat) && Number.isFinite(geo.lng);
-  let found = state.places.filter(p => (!state.savedOnly || state.saved.has(p.id)) && (state.filter === "all" || p.category === state.filter) && (p.title + " " + p.originalName).toLocaleLowerCase("ru").includes(q));
+  let found = state.places.filter(p => (!state.savedOnly || state.saved.has(p.id)) && (state.filter === "all" || p.category === state.filter || state.filter === 'outdoors' && ['park', 'viewpoint', 'other'].includes(p.category)) && (p.title + " " + p.originalName).toLocaleLowerCase("ru").includes(q));
   if (located) {
     // Always compute distances and sort ascending (stable tie-break by id).
     // The radius only filters the list when geo.radiusFilter is on.
@@ -119,7 +133,7 @@ function renderPlaces() {
     if (located && geo.radiusFilter) {
       empty.append(el("h3", "", "В выбранном радиусе нет мест из нашего каталога Ленинского района"), el("p", "", "Увеличьте радиус, измените фильтр или выберите старт вручную."));
     } else {
-      empty.append(el("h3", "", state.savedOnly ? "Сохраним что-нибудь?" : "Пока ничего не нашлось"), el("p", "", state.savedOnly ? "Нажмите на закладку у места, к которому хочется вернуться." : "Попробуйте другое название или сбросьте фильтры."));
+      empty.append(el("h3", "", state.savedOnly ? "Сохраним что-нибудь?" : ['food', 'toilet'].includes(state.filter) ? 'Пока нет проверенных мест этой категории' : "Пока ничего не нашлось"), el("p", "", state.savedOnly ? "Нажмите на закладку у места, к которому хочется вернуться." : "Попробуйте другое название или сбросьте фильтры."));
     }
     empty.append(button("Показать все места", "secondary-button", resetFilters)); ui.list.append(empty);
   }
@@ -129,6 +143,7 @@ function renderPlaces() {
 }
 function resetFilters() {
   revealPlaces();
+  clearNearby(false);
   state.filter = "all"; state.query = ""; state.savedOnly = false; ui.search.value = "";
   document.querySelectorAll("[data-category]").forEach(b => {b.setAttribute("aria-pressed", String(b.dataset.category === "all"));b.classList.toggle("is-active",b.dataset.category==='all');});
   renderPlaces();
@@ -160,31 +175,38 @@ function showPlace(place) {
   const actions = el("div", "dialog-actions");
   actions.append(external("Пешком в 2ГИС", routeURL(place), "primary-button"), button(state.saved.has(place.id) ? "Сохранено" : "Сохранить", "secondary-button", () => { setSaved(place); showPlace(place); }, "bookmark"));
   const source = external("Посмотреть источник", sourceURL(place), "source-link");
-  openDialog("detail-dialog", [art, head, note, actions, source]);
+  const address = el('p', 'place-address', place.address || 'Точное место входа уточняйте по источнику.');
+  const manual = button('Выбрать как старт для поиска рядом', 'secondary-button', () => { setManualOrigin(place); $('detail-dialog').close(); revealPlaces(); });
+  openDialog("detail-dialog", [art, head, address, note, actions, source, manual]);
 }
 function showWalk() {
-  const intro = dialogHeading("ПРОГУЛКИ ПО ЛЕНИНСКОМУ", "Три повода выйти из дома", "Театр, морская история и фуникулёр — идея для знакомства с районом. Выберите, с какого места начать.");
-  const order = ["osm-way-26537156", "osm-node-676375880", "osm-way-133436813"];
-  const steps = el("div", "walk-stops");
-  order.map(id => state.places.find(p => p.id === id)).filter(Boolean).forEach((p, i) => {
-    const b = button("", "walk-stop", () => { $("detail-dialog").close(); selectPlace(p); });
-    b.append(el("span", "step-number", String(i + 1)), image(p.image, "walk-thumb"), el("span", "", p.title), icon("chevron")); steps.append(b);
-  });
-  const note = el("p", "info-note", "Это идея прогулки. Проход между точками ещё нужно проверить; пеший путь к выбранному месту откроется отдельно в навигаторе.");
-  openDialog("detail-dialog", [intro, steps, note]);
+  const cards = el('div', 'adventure-list');
+  for (const walk of state.walks) {
+    const card = el('article', 'adventure-card');
+    card.append(el('p', 'eyebrow', `ОСТАНОВОК: ${walk.place_ids.length} · ПЕШКОМ`), el('h3', '', walk.title), el('p', '', walk.description), button('Посмотреть прогулку', 'primary-button', () => showWalkDetail(walk), 'arrow'));
+    cards.append(card);
+  }
+  openDialog('detail-dialog', [guideCard('talking', 'Выбери свою прогулку', 'Выбирай настроение. За истории отвечаю я, за удобную обувь — ты.'), el('p', 'info-note', 'Редакционные прогулки: условия входа и переходы на местности ещё не проверены. Соединение точек на карте показывает порядок, а не пешеходный путь.'), cards]);
 }
 function showQuest() {
-  const art = image("guide.svg", "guide-art");
-  const head = dialogHeading("ГОРОД РАССКАЗЫВАЕТ ИСТОРИИ", "У каждой улицы есть сюжет", "Собираем первый исторический квест по Ленинскому району. Здесь появятся задания, персонаж-проводник и маленькая награда за любопытство.");
-  openDialog("detail-dialog", [art, head, button("Пока исследовать места", "primary-button", () => { $("detail-dialog").close(); resetFilters(); }, "compass")]);
+  const cards = el('div', 'adventure-list');
+  for (const quest of state.quests) {
+    const saved = questProgress(quest);
+    const card = el('article', 'adventure-card');
+    const descriptions = { 'quest-leninsky-culture-001': 'Начни с трёх историй: морской музей, театр и фуникулёр.', 'quest-three-keys': 'Собери три ключа: люди, архитектура и культура.', 'quest-letter-vladivostok': 'Собери пять фрагментов воображаемой открытки из Владивостока.', 'quest-city-code': 'Открой пять смыслов города: форму, творчество, движение, историю и отдых.' };
+    card.append(el('p', 'eyebrow', `ЗАДАНИЙ: ${quest.stops.length} · ПРОЙДЕНО: ${Object.keys(saved.answers).length}`), el('h3', '', quest.title), el('p', '', descriptions[quest.id] || quest.description.replace(/draft/g, 'предварительный')), button(saved.completed ? 'Посмотреть награду' : Object.keys(saved.answers).length ? 'Продолжить квест' : 'Начать квест', 'primary-button', () => openQuest(quest), 'arrow'));
+    cards.append(card);
+  }
+  openDialog('detail-dialog', [guideCard('interesting-places', 'У города есть истории', 'В квесте будут короткие истории и вопросы. Никакого экзамена.'), el('p', 'info-note', 'Можно играть из дома. Ответы и отметки не подтверждают физическое посещение; прогресс хранится только в этом браузере.'), cards]);
 }
 function showFirstTime() {
-  const intro = dialogHeading("РАДЫ ЗНАКОМСТВУ", "Освойся в Ленинском", "Начнём с нескольких мест. Не нужно знать город — достаточно выбрать, что интересно.");
+  const intro = guideCard('first-visit', 'Впервые во Владике?', 'У нас тут море, истории и внезапная тренировка ног. Что тебе интереснее?');
   const steps = el("div", "welcome-steps");
   ["Выберите место по настроению", "Откройте карточку и проверьте условия", "Отправляйтесь гулять с навигатором"].forEach((text, i) => { const row = el("div", "step-row"); row.append(el("span", "step-number", String(i + 1)), el("p", "", text)); steps.append(row); });
   const actions = el("div", "intent-grid");
   [["За культурой", "culture", "book"], ["Просто погулять", "all", "walk"]].forEach(([title, cat, name]) => actions.append(button(title, "intent-button", () => { $("firsttime-dialog").close(); chooseCategory(cat); }, name)));
-  openDialog("firsttime-dialog", [image("guide.svg", "guide-art"), intro, steps, actions]);
+  actions.append(button('Что рядом со мной', 'intent-button', () => { $('firsttime-dialog').close(); revealPlaces(); $('nearby-options').open = true; requestNearby(false); }, 'pin'), button('Выбрать старт вручную', 'intent-button', showManualOrigin, 'compass'));
+  openDialog("firsttime-dialog", [intro, steps, actions]);
 }
 function chooseCategory(category) {
   revealPlaces();
@@ -192,16 +214,19 @@ function chooseCategory(category) {
   document.querySelectorAll("[data-category]").forEach(b => {b.setAttribute("aria-pressed", String(b.dataset.category === category));b.classList.toggle("is-active",b.dataset.category===category);}); renderPlaces();
 }
 function showGuide() {
-  const head = dialogHeading("МАЯК НА СВЯЗИ", "Чем займёмся?", "Подскажу, с чего начать знакомство с районом.");
+  const head = guideCard(geo.origin ? 'talking' : 'location-unknown', 'Привет! Я твоя помощница', geo.origin ? 'Можем найти место, выбрать прогулку или продолжить историю.' : 'Пока не знаю, где ты. Разреши геолокацию или выбери старт вручную.');
   const choices = el("div", "intent-grid");
-  choices.append(button("Найти место", "intent-button", () => { $("guide-dialog").close(); resetFilters(); ui.search.focus(); }, "pin"), button("Выбрать прогулку", "intent-button", showWalk, "walk"), button("Я здесь впервые", "intent-button", showFirstTime, "compass"));
-  openDialog("guide-dialog", [image("guide.svg", "guide-art"), head, choices]);
+  choices.append(button('Что рядом со мной', 'intent-button', () => { $('guide-dialog').close(); revealPlaces(); $('nearby-options').open = true; requestNearby(false); }, 'pin'), button('Старт вручную', 'intent-button', showManualOrigin, 'compass'), button('Прогулки', 'intent-button', showWalk, 'walk'), button('Квесты', 'intent-button', showQuest, 'book'));
+  const categories = el('div', 'helper-category-row');
+  for (const [label, category] of [['Поесть', 'food'], ['Туалет', 'toilet'], ['Досуг', 'culture']]) categories.append(button(label, 'secondary-button', () => { $('guide-dialog').close(); chooseCategory(category); }));
+  openDialog("guide-dialog", [head, choices, categories]);
 }
 function showAvatar() {
   const head = dialogHeading("ТВОЙ МАЛЕНЬКИЙ ПРОФИЛЬ", "Какой ты сегодня?", "Выбор останется только в этом браузере. Начнём без регистрации.");
   const choices = el("div", "avatar-options");
   [["lighthouse", "Маяк", "☀"], ["boat", "Кораблик", "⛵"], ["sun", "Солнце", "☀"]].forEach(([id, label, glyph]) => { const b = button("", "avatar-option", () => { writeStorage(id); $("avatar-open").dataset.avatar = id; notify("Образ выбран"); $("detail-dialog").close(); }); b.append(id === "lighthouse" ? image("lighthouse.svg", "") : el("span", "avatar-glyph", glyph), el("span", "", label)); choices.append(b); });
-  openDialog("detail-dialog", [head, choices]);
+  const reward = el('div', 'reward-card', progress.rewards.includes('explorer-hat') ? '🎓 Шапка исследователя открыта! Награда остаётся на этом устройстве.' : '🎓 Пройди любой квест, чтобы открыть шапку исследователя.');
+  openDialog("detail-dialog", [head, choices, reward]);
 }
 async function getJSON(url) {
   const response = await fetch(url, { signal: AbortSignal.timeout(12000) });
@@ -224,6 +249,157 @@ function preparePlaces(collection) {
       image: m?.image || "guide.svg"
     };
   });
+}
+function prepareAPIPlaces(items) {
+  const kinds = { culture: 'Культура', park: 'Парк и отдых', viewpoint: 'Вид на город', food: 'Еда', toilet: 'Полезное', other: 'Место города' };
+  return items.filter(p => p.active !== false && p.district_verified !== false && Number.isFinite(p.coordinates?.lat) && Number.isFinite(p.coordinates?.lng)).map(p => {
+    const meta = META[p.id];
+    return { ...p, lat: p.coordinates.lat, lng: p.coordinates.lng, title: meta?.short || p.name, originalName: p.name, label: p.short_name || meta?.label || p.name, image: meta?.image || (p.category === 'culture' ? 'museum.svg' : 'lighthouse.svg'), kind: meta?.kind || kinds[p.category] || kinds.other, description: p.description || meta?.description || 'Условия посещения пока уточняются.' };
+  });
+}
+function renderSources(sources = []) {
+  const box = el('div', 'source-list');
+  for (const source of sources.slice(0, 6)) box.append(external(source.title || 'Источник факта', source.url, 'source-link'));
+  return box;
+}
+function showWalkDetail(walk) {
+  const stops = el('div', 'walk-stops');
+  walk.place_ids.forEach((id, index) => {
+    const place = state.places.find(p => p.id === id); if (!place) return;
+    const item = button('', 'walk-stop', () => { startWalk(walk, index); });
+    item.append(el('span', 'step-number', String(index + 1)), image(place.image, 'walk-thumb'), el('span', '', place.title), icon('chevron')); stops.append(item);
+  });
+  const actions = el('div', 'dialog-actions');
+  actions.append(button('Начать прогулку', 'primary-button', () => startWalk(walk), 'walk'));
+  const quest = state.quests.find(q => q.id === walk.quest_id);
+  if (quest) actions.append(button('Пройти связанный квест', 'secondary-button', () => openQuest(quest), 'book'));
+  openDialog('detail-dialog', [guideCard('directions', walk.title, walk.description), el('p', 'info-note', walk.route_note || 'Переходы ещё не проверены. Путь до остановки строит внешний навигатор.'), stops, actions, renderSources(walk.sources)]);
+}
+function startWalk(walk, index = 0) {
+  state.activeWalk = walk; state.walkStep = index;
+  $('nearby-options').open = false;
+  progress.walk = { id: walk.id, step: index }; saveProgress();
+  resetFilters(); updateWalkLine(); renderJourney();
+  $('detail-dialog').close();
+  const place = state.places.find(p => p.id === walk.place_ids[index]); if (place) selectPlace(place);
+}
+function stopWalk() { state.activeWalk = null; state.walkStep = 0; delete progress.walk; saveProgress(); updateWalkLine(); renderJourney(); }
+function updateWalkLine() {
+  const source = state.map?.getSource('walk-path'); if (!source) return;
+  const points = state.activeWalk?.place_ids.map(id => state.places.find(p => p.id === id)).filter(Boolean) || [];
+  source.setData({ type: 'FeatureCollection', features: points.length < 2 ? [] : [{ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: points.map(p => [p.lng, p.lat]) } }] });
+  for (const [id, marker] of state.markers) {
+    const bubble = marker.getElement().querySelector('.map-marker-bubble');
+    const index = state.activeWalk?.place_ids.indexOf(id) ?? -1;
+    marker.getElement().classList.toggle('is-route', index >= 0);
+    if (index >= 0) bubble.dataset.step = index + 1; else delete bubble.dataset.step;
+  }
+}
+function renderJourney() {
+  const panel = $('journey-panel'); if (!panel) return;
+  panel.replaceChildren(); panel.hidden = !state.activeWalk && !state.activeQuest;
+  document.querySelector('.district-badge > span:last-child').textContent = state.activeWalk ? 'Схема остановок · путь в 2ГИС' : 'Только Ленинский';
+  document.querySelector('.intro-section').hidden = !panel.hidden;
+  document.querySelector('.sheet-toggle-label').textContent = state.activeWalk ? `Прогулка · ${state.walkStep + 1} из ${state.activeWalk.place_ids.length}` : state.activeQuest ? 'Продолжить квест' : 'Исследовать район';
+  if (state.activeWalk) {
+    const walk = state.activeWalk, place = state.places.find(p => p.id === walk.place_ids[state.walkStep]);
+    const box = el('div', 'journey-card');
+    box.append(el('p', 'eyebrow', `ПРОГУЛКА · ${state.walkStep + 1} ИЗ ${walk.place_ids.length}`), el('h3', '', walk.title), el('p', '', place?.title || 'Остановка'));
+    const actions = el('div', 'journey-actions');
+    if (place) actions.append(external('Идти в 2ГИС', routeURL(place), 'primary-button'), button('На карте', 'secondary-button', () => selectPlace(place)));
+    actions.append(button('Я на месте', 'secondary-button', () => showArrival(walk)), button('Завершить прогулку', 'text-button', stopWalk));
+    box.append(actions, el('p', 'micro-copy', 'Пунктир — порядок остановок, не рассчитанный путь.')); panel.append(box);
+  }
+  if (state.activeQuest) {
+    const quest = state.activeQuest, saved = questProgress(quest);
+    const box = el('div', 'journey-card');
+    box.append(el('p', 'eyebrow', 'КВЕСТ'), el('h3', '', quest.title), el('p', '', `${Object.keys(saved.answers).length} из ${quest.stops.length} заданий`), button('Продолжить историю', 'primary-button', () => openQuest(quest)));
+    panel.append(box);
+  }
+}
+function showArrival(walk) {
+  const isLast = state.walkStep >= walk.place_ids.length - 1;
+  openDialog('detail-dialog', [guideCard('surprised', isLast ? 'Прогулка собрана!' : 'Уже здесь? Вот это темп!', 'Это твоя отметка о прибытии. GPS её не проверяет.', [{ label: isLast ? 'Закончить прогулку' : 'К следующей остановке', primary: true, run: () => { if (isLast) { stopWalk(); $('detail-dialog').close(); notify('Прогулка завершена на этом устройстве'); } else startWalk(walk, state.walkStep + 1); } }])]);
+}
+function questProgress(quest) {
+  let saved = progress.quests[quest.id];
+  if (!saved || typeof saved.answers !== 'object' || !saved.answers || Array.isArray(saved.answers)) saved = { answers: {}, completed: false };
+  const allowed = {};
+  for (const stop of quest.stops) if (stop.options.some(option => option.id === saved.answers[stop.id])) allowed[stop.id] = saved.answers[stop.id];
+  saved.answers = allowed; saved.completed = saved.completed === true && Object.keys(allowed).length === quest.stops.length; progress.quests[quest.id] = saved; return saved;
+}
+function openQuest(quest) {
+  const saved = questProgress(quest);
+  if (saved.completed) { showQuestReward(quest); return; }
+  state.activeQuest = quest; renderJourney();
+  const next = quest.stops.findIndex(stop => !saved.answers[stop.id]);
+  if (next < 0) { finishQuest(quest); return; }
+  showQuestStep(quest, next);
+}
+function showQuestStep(quest, index) {
+  const stop = quest.stops[index], place = state.places.find(p => p.id === stop.place_id);
+  const meter = el('div', 'quest-meter'); meter.setAttribute('aria-label', `Задание ${index + 1} из ${quest.stops.length}`);
+  quest.stops.forEach((_, i) => meter.append(el('span', i < index ? 'is-done' : i === index ? 'is-current' : '')));
+  const fact = el('section', 'fact-card'); fact.append(el('p', 'eyebrow', 'ИСТОРИЧЕСКАЯ СПРАВКА'), el('p', '', stop.fact_text), renderSources(stop.sources));
+  const fiction = el('p', 'fiction-copy', 'Проводница · художественная история: ' + stop.fiction_text);
+  fiction.hidden = !stop.fiction_text;
+  const options = el('div', 'quest-options');
+  const feedback = el('div', 'quest-feedback'); feedback.setAttribute('role', 'status'); feedback.hidden = true;
+  const next = button(index + 1 === quest.stops.length ? 'Получить награду' : 'Следующее задание', 'primary-button', () => index + 1 === quest.stops.length ? finishQuest(quest) : showQuestStep(quest, index + 1), 'arrow'); next.hidden = true;
+  for (const option of stop.options) {
+    const choice = button(option.text, 'quest-option', async () => {
+      const revision = dialogRevision;
+      options.querySelectorAll('button').forEach(b => { b.disabled = true; });
+      feedback.hidden = false; feedback.textContent = 'Проверяем ответ…';
+      try {
+        const result = await postJSON(`/api/v1/quest/${encodeURIComponent(quest.id)}/answer`, { stop_id: stop.id, option_id: option.id });
+        if (result.correct) { questProgress(quest).answers[stop.id] = option.id; saveProgress(); renderJourney(); }
+        if (revision !== dialogRevision || !$('detail-dialog').open) return;
+        feedback.className = 'quest-feedback ' + (result.correct ? 'is-correct' : 'is-wrong');
+        feedback.textContent = (result.correct ? 'Верно. ' : 'Не совсем. Перечитай короткую справку — ответ есть в ней. ') + (result.explanation || '');
+        if (result.correct) { choice.classList.add('is-correct'); next.hidden = false; } else options.querySelectorAll('button').forEach(b => { b.disabled = false; });
+      } catch {
+        if (revision !== dialogRevision) return;
+        feedback.textContent = 'Не удалось проверить ответ. Проверьте соединение и попробуйте снова.';
+        options.querySelectorAll('button').forEach(b => { b.disabled = false; });
+      }
+    }); options.append(choice);
+  }
+  const navigation = el('div', 'dialog-actions');
+  if (place) navigation.append(external('К остановке в 2ГИС', routeURL(place), 'secondary-button'), button('Показать место', 'secondary-button', () => { $('detail-dialog').close(); selectPlace(place); }));
+  openDialog('detail-dialog', [el('p', 'eyebrow', `${quest.title} · ${index + 1}/${quest.stops.length}`), meter, guideCard('interesting-places', stop.title, ''), fiction, fact, el('h3', 'quest-question', stop.question), options, feedback, next, navigation]);
+}
+async function finishQuest(quest) {
+  const feedback = el('p', 'info-note', 'Проверяем все задания…');
+  openDialog('detail-dialog', [guideCard('talking', 'История почти собрана', 'Остался последний шаг.'), feedback]);
+  const revision = dialogRevision;
+  try {
+    const saved = questProgress(quest);
+    const result = await postJSON(`/api/v1/quest/${encodeURIComponent(quest.id)}/complete`, { answers: Object.entries(saved.answers).map(([stop_id, option_id]) => ({ stop_id, option_id })) });
+    if (!result.completed) { saved.completed = false; feedback.textContent = 'Не все задания подтверждены. Начните квест заново или продолжите ответы.'; feedback.after(button('Начать заново', 'secondary-button', () => resetQuest(quest))); return; }
+    saved.completed = true; progress.rewards = ['explorer-hat']; saveProgress(); $('avatar-open').classList.add('has-reward'); state.activeQuest = null;
+    if (revision === dialogRevision) showQuestReward(quest); renderJourney();
+  } catch { if (revision === dialogRevision) { feedback.textContent = 'Не удалось завершить проверку. Прогресс сохранён, попробуйте ещё раз.'; feedback.after(button('Повторить', 'primary-button', () => finishQuest(quest))); } }
+}
+function resetQuest(quest) { progress.quests[quest.id] = { answers: {}, completed: false }; saveProgress(); showQuestStep(quest, 0); renderJourney(); }
+function showQuestReward(quest) {
+  openDialog('detail-dialog', [guideCard('surprised', 'Ты уже свой!', 'Все задания пройдены. Шапка городского исследователя открыта в твоём профиле.'), el('div', 'reward-celebration', '🎓'), el('p', 'info-note', 'Это локальная игровая награда, а не подтверждение посещения. Она сохранится на этом устройстве.'), button('Мой профиль', 'primary-button', showAvatar), button('Пройти заново', 'secondary-button', () => resetQuest(quest))]);
+}
+async function postJSON(url, body) {
+  const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(15000) });
+  if (!response.ok) throw new Error('Не удалось выполнить запрос');
+  return response.json();
+}
+function showManualOrigin() {
+  const select = el('select', 'manual-select'); select.setAttribute('aria-label', 'Начальная точка');
+  for (const place of state.places) { const option = el('option', '', place.title); option.value = place.id; select.append(option); }
+  const use = button('Искать рядом с этой точкой', 'primary-button', () => { const place = state.places.find(p => p.id === select.value); if (place) setManualOrigin(place); $('firsttime-dialog').close(); $('nearby-options').open = true; revealPlaces(); });
+  openDialog('firsttime-dialog', [guideCard('location-unknown', 'Выбери старт вручную', 'Это выбранная точка, а не местоположение устройства.'), select, use]);
+}
+function setManualOrigin(place) {
+  geo.reqId++; geo.origin = 'manual'; geo.lat = place.lat; geo.lng = place.lng; geo.accuracyM = null; geo.capturedAt = null;
+  geo.radiusFilter = true;
+  setGeoPhase('ready'); afterPositionSet();
 }
 function mapStatus(text) { ui.status.textContent = text; ui.status.hidden = false; }
 function frameMobilePlaces() {
@@ -272,6 +448,8 @@ function initialiseMap() {
       map.addSource("leninsky", { type: "geojson", data: state.boundary });
       map.addLayer({ id: "district-fill", type: "fill", source: "leninsky", paint: { "fill-color": "#ff8500", "fill-opacity": 0.025 } });
       map.addLayer({ id: "district-outline", type: "line", source: "leninsky", paint: { "line-color": "#ed9a49", "line-width": 1.7, "line-opacity": 0.65, "line-dasharray": [3,3] } });
+      map.addSource('walk-path', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+      map.addLayer({ id: 'walk-path', type: 'line', source: 'walk-path', paint: { 'line-color': '#df7200', 'line-width': 3, 'line-dasharray': [2, 3], 'line-opacity': .8 } });
       for (const place of state.places) {
         const pin = button("", "map-marker", () => selectPlace(place)); pin.setAttribute("aria-label", place.title);
         const bubble = el("span", "map-marker-bubble"); bubble.append(image(place.image,""));
@@ -280,7 +458,7 @@ function initialiseMap() {
         pin.setAttribute('aria-label',place.title);
         state.markers.set(place.id, marker);
       }
-      renderPlaces(); updateSelectedMarkers();
+      renderPlaces(); updateSelectedMarkers(); updateWalkLine(); placeYouMarker();
       frameMobilePlaces();
     });
     map.on("error", () => { if (!loaded) mapStatus("Подложка временно недоступна. Выберите место в списке."); });
@@ -301,14 +479,16 @@ function nearbyStatus(text, show = true) { const s = $("nearby-status"); if (!s)
 function setGeoPhase(phase) {
   geo.phase = phase;
   const btn = $("nearby-request"); if (btn) btn.disabled = phase === "requesting";
-  const actions = $("nearby-actions"); if (actions) actions.hidden = geo.origin !== "device";
+  const actions = $("nearby-actions"); if (actions) actions.hidden = !geo.origin && phase !== 'requesting';
+  if ($('nearby-refresh')) $('nearby-refresh').hidden = geo.origin !== 'device';
+  if ($('nearby-clear')) $('nearby-clear').textContent = phase === 'requesting' ? 'Отменить запрос' : 'Очистить старт';
 }
 function clearYouMarker() { if (geo.youMarker) { geo.youMarker.remove(); geo.youMarker = null; } }
 function placeYouMarker() {
   clearYouMarker();
-  if (!state.map || geo.origin !== "device") return;
+  if (!state.map || !geo.origin) return;
   const pin = el("div", "you-marker"); pin.setAttribute("aria-hidden", "true");
-  pin.append(el("span", "you-dot"), el("span", "you-label", "Вы здесь"));
+  pin.append(el("span", "you-dot"), el("span", "you-label", geo.origin === 'device' ? 'Вы здесь' : 'Выбранная точка'));
   geo.youMarker = new maplibregl.Marker({ element: pin, anchor: "center" }).setLngLat([geo.lng, geo.lat]).addTo(state.map);
 }
 function nearbyWithinRadius() {
@@ -321,11 +501,11 @@ function syncShowAllButton() {
 }
 function radiusLabel() { return geo.radiusM < 1000 ? geo.radiusM + " м" : (geo.radiusM / 1000) + " км"; }
 function updateNearbyStatus() {
-  if (geo.origin !== "device") return;
+  if (!geo.origin) return;
   const total = state.places.length, within = nearbyWithinRadius();
   const shown = geo.radiusFilter ? within : total;
-  let text = "Рядом со мной · " + radiusLabel() + " · показано " + shown + " из " + total + " мест";
-  text += " · точность около " + Math.round(geo.accuracyM) + " м · определено в " + formatTime(geo.capturedAt);
+  let text = (geo.origin === 'device' ? 'Рядом со мной' : 'Выбранная точка') + ' · ' + radiusLabel() + ' · ' + shown + ' из ' + total + ' мест';
+  if (geo.origin === 'device') text += " · точность около " + Math.round(geo.accuracyM) + " м · определено в " + formatTime(geo.capturedAt);
   if (geo.radiusFilter && Number.isFinite(geo.accuracyM) && geo.accuracyM > geo.radiusM) text += ". Точность ниже радиуса — результат приблизительный, обновите позицию или выберите точку вручную.";
   nearbyStatus(text);
 }
@@ -335,38 +515,40 @@ function afterPositionSet() {
   if (state.map) state.map.flyTo({ center: [geo.lng, geo.lat], zoom: Math.max(state.map.getZoom(), 14.6), duration: reducedMotion ? 0 : 600 });
 }
 function requestNearby(fresh) {
+  if (!window.isSecureContext) { setGeoPhase('unavailable'); nearbyStatus('Для геолокации нужен HTTPS или localhost. Выберите старт вручную.'); return; }
   if (!("geolocation" in navigator)) { setGeoPhase("unavailable"); nearbyStatus("Браузер не поддерживает геолокацию. Выберите место в списке или на карте вручную."); return; }
-  const reqId = ++geo.reqId; setGeoPhase("requesting"); nearbyStatus("Определяем местоположение…");
+  const reqId = ++geo.reqId; setGeoPhase("requesting"); nearbyStatus("Ищу твою точку. Пока далеко не убегай.");
   navigator.geolocation.getCurrentPosition(pos => {
     if (reqId !== geo.reqId) return; // stale callback: a newer request or a clear happened
     const { latitude, longitude, accuracy } = pos.coords;
-    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) { setGeoPhase("unavailable"); nearbyStatus("Не удалось определить координаты. Попробуйте обновить позицию или выбрать точку вручную."); return; }
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude) || Math.abs(latitude) > 90 || Math.abs(longitude) > 180 || !Number.isFinite(accuracy) || accuracy < 0) { setGeoPhase("unavailable"); nearbyStatus("Не удалось определить координаты. Попробуйте обновить позицию или выбрать точку вручную."); return; }
     geo.origin = "device"; geo.lat = latitude; geo.lng = longitude; geo.accuracyM = accuracy; geo.capturedAt = Date.now();
     setGeoPhase("ready"); afterPositionSet();
   }, err => {
     if (reqId !== geo.reqId) return;
-    if (err.code === err.PERMISSION_DENIED) { setGeoPhase("denied"); nearbyStatus("Доступ к геолокации отклонён. Выберите стартовую точку вручную в списке или на карте."); }
-    else if (err.code === err.TIMEOUT) { setGeoPhase("timeout"); nearbyStatus("Не успели определить местоположение. Обновите позицию или выберите точку вручную."); }
+    if (err.code === err.PERMISSION_DENIED) { setGeoPhase("denied"); nearbyStatus("Хорошо, без геолокации. Выбери старт вручную — этого достаточно."); }
+    else if (err.code === err.TIMEOUT) { setGeoPhase("timeout"); nearbyStatus("Поймать твоё положение не получилось. Попробуем ещё раз или выберем старт вручную?"); }
     else { setGeoPhase("unavailable"); nearbyStatus("Не удалось определить местоположение. Обновите позицию или выберите точку вручную."); }
   }, { enableHighAccuracy: false, timeout: 10000, maximumAge: fresh ? 0 : 60000 });
 }
-function clearNearby() {
+function clearNearby(render = true) {
   geo.reqId++; // invalidate any in-flight callback
   geo.origin = null; geo.lat = geo.lng = geo.accuracyM = geo.capturedAt = null; geo.radiusFilter = true;
-  clearYouMarker(); setGeoPhase("idle"); nearbyStatus("", false); syncShowAllButton(); renderPlaces();
+  clearYouMarker(); setGeoPhase("idle"); nearbyStatus("", false); syncShowAllButton(); if (render) renderPlaces();
 }
 function toggleRadiusFilter() {
-  if (geo.origin !== "device") return;
+  if (!geo.origin) return;
   geo.radiusFilter = !geo.radiusFilter;
   renderPlaces(); syncShowAllButton(); updateNearbyStatus();
 }
 $("nearby-request")?.addEventListener("click", () => requestNearby(false));
 $("nearby-refresh")?.addEventListener("click", () => requestNearby(true));
 $("nearby-clear")?.addEventListener("click", clearNearby);
+$("nearby-manual")?.addEventListener('click', showManualOrigin);
 $("nearby-show-all")?.addEventListener("click", toggleRadiusFilter);
 // Changing the radius never force-enables the filter; it only recomputes the
 // list/counter. If the filter was off, it stays off.
-$("nearby-radius")?.addEventListener("change", e => { const v = parseInt(e.target.value, 10); if (v >= 100 && v <= 5000) { geo.radiusM = v; renderPlaces(); if (geo.origin === "device") updateNearbyStatus(); } });
+$("nearby-radius")?.addEventListener("change", e => { const v = parseInt(e.target.value, 10); if (v >= 100 && v <= 5000) { geo.radiusM = v; renderPlaces(); if (geo.origin) updateNearbyStatus(); } });
 $("zoom-in").addEventListener("click", () => state.map ? state.map.zoomIn({duration:200}) : notify("Масштабирование доступно при загрузке карты"));
 $("zoom-out").addEventListener("click", () => state.map ? state.map.zoomOut({duration:200}) : notify("Масштабирование доступно при загрузке карты"));
 $("fit-district").addEventListener("click", () => state.map ? state.map.fitBounds([[131.8843306,43.0974826],[132.0481927,43.1499040]],{padding:55,duration:reducedMotion?0:700}) : notify("На схеме показан весь район"));
@@ -383,7 +565,22 @@ document.querySelectorAll("[data-close-dialog]").forEach(b=>b.addEventListener("
 document.querySelectorAll("dialog").forEach(d=>d.addEventListener("click",e=>{if(e.target===d)d.close();}));
 let mobileViewport=isMobileLayout();
 window.addEventListener('resize',()=>{const mobile=isMobileLayout();if(state.map){state.map.resize();if(mobile&&!state.selected)frameMobilePlaces();else if(mobile!==mobileViewport)state.map.setPadding({top:0,bottom:0,left:0,right:0});}mobileViewport=mobile;});
-Promise.all([getJSON('data/leninsky-boundary.geojson'),getJSON('data/leninsky-poi-candidates.geojson')]).then(([boundary,pois])=>{
-  state.boundary=boundary;state.places=preparePlaces(pois);const avatar=readStorage();if($('avatar-open'))$('avatar-open').dataset.avatar=avatar;
-  renderPlaces();initialiseMap();
-}).catch(error=>{console.error('Unable to initialise district data', error);ui.list.replaceChildren(el('li','empty-state','Не удалось загрузить места. Обновите страницу чуть позже.'));ui.count.textContent='—';mapStatus('Не удалось загрузить данные района');});
+async function loadCity() {
+  try {
+    const [boundary, places, walks, quests] = await Promise.all([getJSON('/data/leninsky-boundary.geojson'), getJSON('/api/v1/places'), getJSON('/api/v1/walks'), getJSON('/api/v1/quest')]);
+    state.boundary = boundary; state.places = prepareAPIPlaces(places.items || []);
+    const ids = new Set(state.places.map(p => p.id));
+    state.walks = (walks.items || []).filter(w => w.place_ids?.length && w.place_ids.every(id => ids.has(id)));
+    state.quests = (quests.items || []).filter(q => q.stops?.length && q.stops.every(stop => ids.has(stop.place_id)));
+    const avatar = readStorage(); $('avatar-open').dataset.avatar = avatar;
+    $('avatar-open').classList.toggle('has-reward', progress.rewards.includes('explorer-hat'));
+    if (progress.walk) { state.activeWalk = state.walks.find(w => w.id === progress.walk.id) || null; state.walkStep = state.activeWalk ? Math.min(Math.max(0, Number(progress.walk.step) || 0), state.activeWalk.place_ids.length - 1) : 0; }
+    $('catalog-note').textContent = `${state.places.length} мест из районного каталога. Условия посещения уточняются; перед выходом проверьте источник.`;
+    renderPlaces(); renderJourney(); initialiseMap();
+  } catch {
+    const box = el('li', 'empty-state'); box.append(el('h3', '', 'Не удалось загрузить город'), el('p', '', 'Запустите весь проект через start.cmd. Для работы нужен API, а не отдельная статическая страница.'), button('Повторить загрузку', 'secondary-button', loadCity));
+    ui.list.replaceChildren(box); ui.count.textContent = '—'; mapStatus('Каталог временно недоступен');
+  }
+}
+loadCity();
+if ('serviceWorker' in navigator && window.isSecureContext) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));

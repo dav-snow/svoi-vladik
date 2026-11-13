@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "type": "static-mascot-states",
+  "defaultState": "talking",
+  "sourceDirectory": "assets/mascot",
+  "optimization": {
+    "format": "WebP",
+    "longestEdge": 800,
+    "quality": 90,
+    "alphaQuality": 100,
+    "crop": false,
+    "transparencyPreserved": true
+  },
+  "states": [
+    {
+      "id": "location-unknown",
+      "src": "location-unknown.webp",
+      "sourceFile": "location-unknown.png",
+      "width": 800,
+      "height": 666,
+      "bytes": 120832,
+      "label": "Не знает местоположение или место"
+    },
+    {
+      "id": "interesting-places",
+      "src": "interesting-places.webp",
+      "sourceFile": "interesting-places.png",
+      "width": 800,
+      "height": 666,
+      "bytes": 120494,
+      "label": "Рассказывает об интересных местах"
+    },
+    {
+      "id": "talking",
+      "src": "talking.webp",
+      "sourceFile": "talking.png",
+      "width": 700,
+      "height": 800,
+      "bytes": 144172,
+      "label": "Рассказывает или подсказывает"
+    },
+    {
+      "id": "directions",
+      "src": "directions.webp",
+      "sourceFile": "directions.png",
+      "width": 731,
+      "height": 800,
+      "bytes": 153626,
+      "label": "Указывает, куда идти"
+    },
+    {
+      "id": "surprised",
+      "src": "surprised.webp",
+      "sourceFile": "surprised.png",
+      "width": 700,
+      "height": 800,
+      "bytes": 167890,
+      "label": "Удивляется или реагирует на проблему"
+    },
+    {
+      "id": "first-visit",
+      "src": "first-visit.webp",
+      "sourceFile": "first-visit.png",
+      "width": 800,
+      "height": 800,
+      "bytes": 167826,
+      "label": "Я тут впервые"
+    }
+  ]
+}

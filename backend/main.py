@@ -1,342 +1,439 @@
-"""Svoi Vladik backend skeleton (SV-05).
+"""One-origin demo API. Candidate status is preserved; answer keys stay private."""
+from __future__ import annotations
 
-Serves real data found in the repo: data/geo/leninsky-poi-candidates.geojson.
-Walks/quest content is not in the repo yet (U3 delivers it later). Until real
-files appear, the /api/v1/walks and /api/v1/quest endpoints fall back to
-editorial mock fixtures in data/examples/ so the frontend can integrate
-end-to-end.
-"""
-
+import hashlib
+import hmac
 import json
 import logging
-import re
+import secrets
+import time
+from collections import deque
 from pathlib import Path
-from typing import Any, Optional
+from typing import Annotated, Any, Literal
+from urllib.parse import urlsplit
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Path as ApiPath, Query, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, ValidationError, field_validator, model_validator
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 logger = logging.getLogger("svoi-vladik")
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
-POI_FILE = REPO_ROOT / "data" / "geo" / "leninsky-poi-candidates.geojson"
-BOUNDARY_FILE = REPO_ROOT / "data" / "geo" / "leninsky-boundary.geojson"
-# New design frontend; the legacy prototypes/leninsky-map/ is kept in the repo
-# but no longer mounted at /.
-FRONTEND_DIR = REPO_ROOT / "frontend-design" / "dist"
-# The frontend fetches its map data via relative paths like
-# "data/leninsky-boundary.geojson". The two Leninsky GeoJSON files are served
-# from data/geo/ (single source of truth) via explicit routes below; the rest
-# of /data (e.g. map-style.json) is served from this frontend data folder.
-DATA_DIR = REPO_ROOT / "frontend-design" / "dist" / "data"
+PLACES_FILE = REPO_ROOT / "data/places.json"
+POI_FILE = REPO_ROOT / "data/geo/leninsky-poi-candidates.geojson"
+BOUNDARY_FILE = REPO_ROOT / "data/geo/leninsky-boundary.geojson"
+ROUTES_FILE = REPO_ROOT / "data/routes.json"
+QUESTS_FILE = REPO_ROOT / "data/quests.json"
+ANSWERS_FILE = REPO_ROOT / "data/private/quest-answers.json"
+FRONTEND_DIR = REPO_ROOT / "frontend-design/dist"
+DATA_DIR = FRONTEND_DIR / "data"
+# Kept for callers of the old loader; public endpoints no longer substitute mocks.
+ROUTES_MOCK_FILE = REPO_ROOT / "data/examples/route_mock.json"
+QUESTS_MOCK_FILE = REPO_ROOT / "data/examples/quest_mock.json"
 GEO_JSON_MEDIA_TYPE = "application/geo+json"
-
-# Stable place_id shape, matches docs/API.md.
-PLACE_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
-
-# Real content from U3 (not in repo yet).
-ROUTES_FILE = REPO_ROOT / "data" / "routes.json"
-QUESTS_FILE = REPO_ROOT / "data" / "quests.json"
-
-# Editorial mock fallbacks for frontend integration.
-ROUTES_MOCK_FILE = REPO_ROOT / "data" / "examples" / "route_mock.json"
-QUESTS_MOCK_FILE = REPO_ROOT / "data" / "examples" / "quest_mock.json"
-
-app = FastAPI(title="Svoi Vladik API", version="0.1.0")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # dev only; restrict before public stand (SECURITY.md)
-    allow_methods=["GET", "POST"],
-    allow_headers=["*"],
-)
-
-
-# --- Models matched to the real GeoJSON structure ---
+ID_PATTERN = r"^[A-Za-z0-9_-]{1,64}$"
+Id = Annotated[str, StringConstraints(strict=True, min_length=1, max_length=64, pattern=ID_PATTERN)]
+Status = Literal["draft", "verified", "needs_review", "expired", "archived", "demo"]
+Category = Literal["culture", "viewpoint", "park", "food", "toilet", "other"]
+SECURITY_HEADERS = {"X-Content-Type-Options": "nosniff", "Referrer-Policy": "strict-origin-when-cross-origin", "Permissions-Policy": "geolocation=(self)"}
 
 class Coordinates(BaseModel):
-    lat: float
-    lng: float
-
-
-class Place(BaseModel):
-    id: str
-    name: str
-    category: str
-    coordinates: Coordinates
-    status: str
-    price_rub: Optional[int] = None
-    checked_at: Optional[str] = None
-    source_url: Optional[str] = None
-    verification_note: Optional[str] = None
-    osm_tags: dict[str, Any] = {}
-
-
-# --- Models for walks (routes) and quests, aligned with docs/API.md ---
+    lat: float = Field(ge=-90, le=90, allow_inf_nan=False, strict=True)
+    lng: float = Field(ge=-180, le=180, allow_inf_nan=False, strict=True)
 
 class SourceRef(BaseModel):
     title: str
     url: str
 
+    @field_validator("url")
+    @classmethod
+    def https_url(cls, value):
+        parsed = urlsplit(value)
+        if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
+            raise ValueError("Expected a public HTTPS source")
+        return value
 
-class Route(BaseModel):
-    id: str
+class Editorial(BaseModel):
+    # An explicit response model drops unrecognised editorial/private fields.
+    model_config = ConfigDict(extra="ignore")
+    source_url: str | None = None
+    sources: list[SourceRef] = Field(default_factory=list)
+    checked_at: str | None = None
+    verification_note: str | None = None
+    status: Status = "draft"
+
+    @field_validator("source_url")
+    @classmethod
+    def https_source(cls, value):
+        return SourceRef.https_url(value) if value else value
+
+class Place(Editorial):
+    id: Id
+    name: str = Field(min_length=1, max_length=300)
+    category: Category
+    coordinates: Coordinates | None = None
+    price_rub: int | None = Field(default=None, ge=0, strict=True)
+    description: str = ""
+    address: str | None = None
+    image: str | None = None
+    district_verified: bool = Field(default=False, strict=True)
+    active: bool = Field(default=True, strict=True)
+    osm_tags: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def active_coordinates(self):
+        if self.active and self.coordinates is None:
+            raise ValueError("Active place needs coordinates")
+        return self
+
+class Route(Editorial):
+    id: Id
     title: str
     description: str
-    place_ids: list[str]
-    estimated_minutes: int
-    route_note: Optional[str] = None
-    route_checked_at: Optional[str] = None
-    quest_id: Optional[str] = None
-    source_url: Optional[str] = None
-    sources: list[SourceRef] = []
-    checked_at: Optional[str] = None
-    status: str
+    place_ids: list[Id] = Field(min_length=3, max_length=5)
+    estimated_minutes: int | None = Field(default=None, ge=1)
+    route_note: str | None = None
+    route_checked_at: str | None = None
+    quest_id: Id | None = None
 
+    @field_validator("place_ids")
+    @classmethod
+    def unique_places(cls, value):
+        if len(set(value)) != len(value):
+            raise ValueError("Duplicate route place")
+        return value
 
 class QuestOption(BaseModel):
-    id: str
+    id: Id
     text: str
 
-
 class QuestStop(BaseModel):
-    id: str
-    place_id: str
+    model_config = ConfigDict(extra="ignore")
+    id: Id
+    place_id: Id
     title: str
     fact_text: str
-    fiction_text: str
+    fiction_text: str = ""
     question: str
-    options: list[QuestOption]
-    sources: list[SourceRef] = []
-    checked_at: Optional[str] = None
+    options: list[QuestOption] = Field(min_length=2, max_length=6)
+    sources: list[SourceRef] = Field(default_factory=list)
+    checked_at: str | None = None
 
+    @model_validator(mode="after")
+    def unique_options(self):
+        if len({o.id for o in self.options}) != len(self.options):
+            raise ValueError("Duplicate option")
+        return self
 
-class Quest(BaseModel):
-    id: str
+class Quest(Editorial):
+    id: Id
     title: str
     description: str
-    estimated_minutes: int
-    related_place_ids: list[str]
-    stop_count: int
-    source_url: Optional[str] = None
-    sources: list[SourceRef] = []
-    checked_at: Optional[str] = None
-    status: str
-    stops: list[QuestStop]
+    estimated_minutes: int | None = Field(default=None, ge=1)
+    related_place_ids: list[Id]
+    stop_count: int = Field(ge=3, le=5)
+    stops: list[QuestStop] = Field(min_length=3, max_length=5)
+
+    @model_validator(mode="after")
+    def consistent_stops(self):
+        if self.stop_count != len(self.stops) or len({s.id for s in self.stops}) != len(self.stops):
+            raise ValueError("Invalid stop count or duplicate stop")
+        if set(s.place_id for s in self.stops) != set(self.related_place_ids):
+            raise ValueError("Quest places do not match stops")
+        return self
+
+class AnswerInput(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    stop_id: Id
+    option_id: Id
+
+class CompleteInput(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    answers: list[AnswerInput] = Field(max_length=5)
+
+    @field_validator("answers")
+    @classmethod
+    def unique_answers(cls, value):
+        if len({a.stop_id for a in value}) != len(value):
+            raise ValueError("One answer per stop")
+        return value
+
+class PrivateAnswer(BaseModel):
+    correct_option_id: Id
+    explanation: str = Field(min_length=1)
 
 
-# --- Loaders ---
-
-def _read_json_safely(path: Path) -> Optional[Any]:
-    """Return parsed JSON or None if file is missing, empty or malformed."""
+def _read_json_safely(path: Path) -> Any | None:
     try:
-        text = path.read_text(encoding="utf-8").strip()
-    except FileNotFoundError:
-        return None
-    except OSError as exc:
-        logger.warning("Cannot read %s: %s", path, exc)
-        return None
-    if not text:
-        logger.info("%s is empty; treating as no data", path)
-        return None
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError as exc:
-        logger.warning("Malformed JSON in %s: %s", path, exc)
+        return json.loads(path.read_text(encoding="utf-8-sig"))
+    except (OSError, ValueError):
         return None
 
 
-def load_places() -> list[Place]:
-    """Convert GeoJSON features to flat Place records (lng/lat -> lat/lng).
-
-    Never raises: on missing/empty/invalid source returns an empty list.
-    """
-    raw = _read_json_safely(POI_FILE)
-    if not isinstance(raw, dict):
-        return []
-    places: list[Place] = []
-    for f in raw.get("features", []) or []:
-        try:
-            p = f["properties"]
-            lng, lat = f["geometry"]["coordinates"]
-            places.append(Place(
-                id=f["id"],
-                name=p["name"],
-                category=p.get("category", "other"),
-                coordinates=Coordinates(lat=lat, lng=lng),
-                status=p.get("status", "draft"),
-                price_rub=p.get("price_rub"),
-                checked_at=p.get("checked_at"),
-                source_url=p.get("osm_url"),
-                verification_note=p.get("verification_note"),
-                osm_tags=p.get("osm_tags", {}),
-            ))
-        except (KeyError, TypeError, ValueError, ValidationError) as exc:
-            logger.warning("Skipping invalid POI feature: %s", exc)
-    return places
-
-
-def load_collection(real_path: Path, mock_path: Path, model: type[BaseModel]) -> dict[str, Any]:
-    """Load items from the real file if present, otherwise from the mock fixture.
-
-    Safe against missing, empty, malformed and schema-invalid files: on any
-    problem returns {"items": [], "total": 0} rather than raising. Individual
-    bad items are skipped; valid items still render.
-    """
+def load_collection(real_path: Path, mock_path: Path | None, model: type[BaseModel]) -> dict[str, Any]:
+    """Fail closed on bad data. A missing real dataset is not a mock catalogue."""
     data = _read_json_safely(real_path)
-    if data is None:
-        data = _read_json_safely(mock_path)
-    if not isinstance(data, dict):
+    if not isinstance(data, dict) or not isinstance(data.get("items"), list):
         return {"items": [], "total": 0}
-    raw_items = data.get("items") or []
-    if not isinstance(raw_items, list):
-        return {"items": [], "total": 0}
-    items: list[dict[str, Any]] = []
-    for raw in raw_items:
+    items, seen = [], set()
+    for raw in data["items"]:
         try:
-            items.append(model(**raw).model_dump())
-        except (TypeError, ValidationError) as exc:
-            logger.warning("Dropping invalid %s item: %s", model.__name__, exc)
+            item = model.model_validate(raw)
+            if item.id in seen:
+                continue
+            seen.add(item.id)
+            items.append(item.model_dump())
+        except (TypeError, ValueError, ValidationError):
+            logger.warning("Skipped invalid %s record", model.__name__)
     return {"items": items, "total": len(items)}
 
 
+def load_places() -> list[Place]:
+    if PLACES_FILE.exists():
+        records = load_collection(PLACES_FILE, None, Place)["items"]
+    else:
+        # Compatibility with the three original OSM candidates until import.
+        raw = _read_json_safely(POI_FILE) or {}
+        records = []
+        for feature in raw.get("features", []):
+            try:
+                p = feature["properties"]
+                if feature["geometry"]["type"] != "Point":
+                    continue
+                lng, lat = feature["geometry"]["coordinates"]
+                records.append({"id": feature["id"], "name": p["name"], "category": p.get("category", "other"), "coordinates": {"lat": lat, "lng": lng}, "status": p.get("status", "draft"), "price_rub": p.get("price_rub"), "checked_at": p.get("checked_at"), "source_url": p.get("osm_url"), "verification_note": p.get("verification_note"), "osm_tags": p.get("osm_tags", {}), "district_verified": p.get("district_membership") == "representative_point_inside_osm_boundary", "active": True})
+            except (KeyError, TypeError, ValueError):
+                continue
+    result = []
+    for raw in records:
+        try:
+            place = Place.model_validate(raw)
+            if place.active and place.district_verified and place.status in {"draft", "verified"}:
+                result.append(place)
+        except ValidationError:
+            continue
+    return result
+
+# Retained as an import-compatible snapshot; requests read current files.
 PLACES = load_places()
 
-
-# --- Unified error format: {"error": {"code": "<SYMBOLIC>", "message": "..."}} ---
-
-# Default symbolic codes and messages per HTTP status; used when a handler does
-# not provide its own.
-_DEFAULT_ERRORS: dict[int, tuple[str, str]] = {
-    400: ("BAD_REQUEST", "Неверный запрос"),
-    404: ("NOT_FOUND", "Ресурс не найден"),
-    405: ("METHOD_NOT_ALLOWED", "Метод не поддерживается"),
-    415: ("UNSUPPORTED_MEDIA_TYPE", "Неподдерживаемый тип содержимого"),
-    422: ("VALIDATION_ERROR", "Неверные параметры запроса"),
-    500: ("INTERNAL_ERROR", "Внутренняя ошибка сервера"),
+_DEFAULT_ERRORS = {
+    400: ("BAD_REQUEST", "Неверный запрос"), 404: ("NOT_FOUND", "Ресурс не найден"),
+    405: ("METHOD_NOT_ALLOWED", "Метод не поддерживается"), 413: ("PAYLOAD_TOO_LARGE", "Запрос слишком большой"),
+    414: ("URI_TOO_LONG", "Строка запроса слишком длинная"), 415: ("UNSUPPORTED_MEDIA_TYPE", "Ожидается JSON"),
+    422: ("VALIDATION_ERROR", "Неверные параметры запроса"), 429: ("RATE_LIMITED", "Слишком много запросов; попробуйте позже"),
+    500: ("INTERNAL_ERROR", "Внутренняя ошибка сервера"), 503: ("UNAVAILABLE", "Данные временно недоступны"),
 }
 
+def _error_response(status_code, code=None, message=None):
+    default_code, default_message = _DEFAULT_ERRORS.get(status_code, ("ERROR", "Ошибка"))
+    return JSONResponse(status_code=status_code, content={"error": {"code": code or default_code, "message": message or default_message}}, headers=SECURITY_HEADERS)
 
-def _error_response(status_code: int, code: Optional[str] = None,
-                    message: Optional[str] = None) -> JSONResponse:
-    default_code, default_message = _DEFAULT_ERRORS.get(
-        status_code, ("ERROR", "Ошибка")
-    )
-    return JSONResponse(
-        status_code=status_code,
-        content={"error": {
-            "code": code or default_code,
-            "message": message or default_message,
-        }},
-    )
+def _raise_api_error(status_code, code=None, message=None):
+    default_code, default_message = _DEFAULT_ERRORS[status_code]
+    raise HTTPException(status_code, detail={"code": code or default_code, "message": message or default_message})
 
+class PostLimiter:
+    """Single-process demo limit. Salted opaque keys, no persistent IP log."""
+    def __init__(self):
+        self.salt = secrets.token_bytes(32)
+        self.events: dict[str, deque] = {}
+        self.limit = 30
 
-def _raise_api_error(status_code: int, code: str, message: str) -> None:
-    """Raise HTTPException carrying our symbolic code via `detail`."""
-    raise HTTPException(status_code=status_code, detail={"code": code, "message": message})
+    def allow(self, host):
+        now = time.monotonic()
+        key = hmac.new(self.salt, host.encode(), hashlib.sha256).hexdigest()
+        for old_key, hits in list(self.events.items()):
+            while hits and hits[0] <= now - 60:
+                hits.popleft()
+            if not hits:
+                del self.events[old_key]
+        if key not in self.events:
+            if len(self.events) >= 2048:
+                return False
+            self.events[key] = deque()
+        if len(self.events[key]) >= self.limit:
+            return False
+        self.events[key].append(now)
+        return True
 
+POST_LIMITER = PostLimiter()
+
+class DemoSafetyMiddleware:
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+        path = scope.get("path", "")
+        async def send_safe(message):
+            if message["type"] == "http.response.start":
+                headers = list(message.get("headers", []))
+                existing = {k.lower() for k, _ in headers}
+                headers.extend((k.lower().encode(), v.encode()) for k, v in SECURITY_HEADERS.items() if k.lower().encode() not in existing)
+                message["headers"] = headers
+            await send(message)
+        # Block even if a private file is accidentally copied into the web root.
+        normal = path.replace("\\", "/").casefold()
+        if normal == "/data/private" or normal.startswith("/data/private/"):
+            return await _error_response(404)(scope, receive, send_safe)
+        if path.startswith("/api/") and len(scope.get("query_string", b"")) > 1024:
+            return await _error_response(414)(scope, receive, send_safe)
+        is_answer = scope["method"] == "POST" and path.startswith("/api/v1/quest/") and path.rsplit("/", 1)[-1] in {"answer", "complete"}
+        if is_answer:
+            host = (scope.get("client") or ("unknown", 0))[0]
+            if not POST_LIMITER.allow(host):
+                response = _error_response(429)
+                response.headers["Retry-After"] = "60"
+                return await response(scope, receive, send_safe)
+            headers = {k.lower(): v for k, v in scope.get("headers", [])}
+            if headers.get(b"content-type", b"").split(b";", 1)[0].strip().lower() != b"application/json" or headers.get(b"content-encoding", b"identity") != b"identity":
+                return await _error_response(415)(scope, receive, send_safe)
+            body = bytearray()
+            while True:
+                message = await receive()
+                if message["type"] == "http.disconnect":
+                    return
+                body.extend(message.get("body", b""))
+                if len(body) > 16 * 1024:
+                    return await _error_response(413)(scope, receive, send_safe)
+                if not message.get("more_body", False):
+                    break
+            delivered = False
+            async def replay():
+                nonlocal delivered
+                if not delivered:
+                    delivered = True
+                    return {"type": "http.request", "body": bytes(body), "more_body": False}
+                return await receive()
+            return await self.app(scope, replay, send_safe)
+        await self.app(scope, receive, send_safe)
+
+app = FastAPI(title="Svoi Vladik API", version="0.2.0")
+app.add_middleware(DemoSafetyMiddleware)
+# Same-origin UI: no permissive CORS middleware is necessary.
 
 @app.exception_handler(StarletteHTTPException)
-async def http_exception_handler(request: Request, exc: StarletteHTTPException):
-    # If a route raised HTTPException(detail={"code":..., "message":...}),
-    # honour those symbolic values. Otherwise (e.g. Starlette's plain-string
-    # "Not Found" / "Method Not Allowed") fall back to the localized default
-    # from _DEFAULT_ERRORS by status, instead of leaking the English string.
+async def http_exception_handler(request, exc):
     detail = exc.detail
-    if isinstance(detail, dict) and "code" in detail and "message" in detail:
-        return _error_response(exc.status_code, detail["code"], detail["message"])
+    if isinstance(detail, dict):
+        return _error_response(exc.status_code, detail.get("code"), detail.get("message"))
     return _error_response(exc.status_code)
 
-
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
+async def validation_exception_handler(request, exc):
     return _error_response(422)
 
-
 @app.exception_handler(Exception)
-async def unhandled_exception_handler(request: Request, exc: Exception):
-    logger.exception("Unhandled error on %s: %s", request.url.path, exc)
-    # Do not leak exception text or traceback into the response.
+async def unhandled_exception_handler(request, exc):
+    logger.error("Unhandled API error")
     return _error_response(500)
 
-
-# --- Endpoints ---
-
 @app.get("/health")
+@app.get("/api/v1/health", include_in_schema=False)
 async def health():
     return {"status": "ok"}
 
-
 @app.get("/api/v1/places")
-async def get_places():
-    return {"items": [p.model_dump() for p in PLACES], "total": len(PLACES)}
-
+async def get_places(request: Request, category: Category | None = None, max_price_rub: Annotated[int | None, Query(ge=0, le=100000)] = None):
+    params = list(request.query_params.multi_items())
+    if any(k not in {"category", "max_price_rub"} for k, _ in params) or len({k for k, _ in params}) != len(params):
+        _raise_api_error(422)
+    places = [p.model_dump() for p in load_places() if (category is None or p.category == category) and (max_price_rub is None or p.price_rub is not None and p.price_rub <= max_price_rub)]
+    return {"items": places, "total": len(places)}
 
 @app.get("/api/v1/places/{place_id}")
-async def get_place(place_id: str):
-    # Validate shape first: malformed id -> 422 VALIDATION_ERROR.
-    if not PLACE_ID_RE.match(place_id):
-        _raise_api_error(422, "VALIDATION_ERROR", "Неверный формат place_id")
-    for p in PLACES:
+async def get_place(place_id: Annotated[str, ApiPath(pattern=ID_PATTERN, min_length=1, max_length=64)]):
+    for p in load_places():
         if p.id == place_id:
             return p.model_dump()
-    _raise_api_error(404, "NOT_FOUND", "Место не найдено")
+    _raise_api_error(404, message="Место не найдено")
 
+def public_collection(path, model):
+    data = load_collection(path, None, model)
+    active_ids = {p.id for p in load_places()}
+    data["items"] = [item for item in data["items"] if item["status"] in {"draft", "verified"} and set(item.get("place_ids", item.get("related_place_ids", []))) <= active_ids]
+    data["total"] = len(data["items"])
+    return data
 
-@app.get("/api/v1/walks", response_model=dict[str, Any])
+@app.get("/api/v1/walks")
 async def get_walks():
-    """Return U3 walks if available, otherwise the editorial mock fixture."""
-    return load_collection(ROUTES_FILE, ROUTES_MOCK_FILE, Route)
+    return public_collection(ROUTES_FILE, Route)
 
-
-@app.get("/api/v1/quest", response_model=dict[str, Any])
+@app.get("/api/v1/quest")
 async def get_quest():
-    """Return U3 quest if available, otherwise the editorial mock fixture."""
-    return load_collection(QUESTS_FILE, QUESTS_MOCK_FILE, Quest)
+    return public_collection(QUESTS_FILE, Quest)
 
+def find_quest(quest_id):
+    for item in public_collection(QUESTS_FILE, Quest)["items"]:
+        if item["id"] == quest_id:
+            return Quest.model_validate(item)
+    _raise_api_error(404, message="Квест не найден")
 
-# --- Test endpoints for U1 (frontend edge cases) ---
+def find_stop_option(quest, answer):
+    stop = next((s for s in quest.stops if s.id == answer.stop_id), None)
+    if stop is None or answer.option_id not in {o.id for o in stop.options}:
+        _raise_api_error(404, message="Точка или вариант не найдены")
+    return stop
+
+def private_answers(quest):
+    raw = _read_json_safely(ANSWERS_FILE)
+    try:
+        keys = raw["quests"][quest.id]
+        result = {s.id: PrivateAnswer.model_validate(keys[s.id]) for s in quest.stops}
+        if any(result[s.id].correct_option_id not in {o.id for o in s.options} for s in quest.stops):
+            raise ValueError("Answer key mismatch")
+        return result
+    except (KeyError, TypeError, ValueError, ValidationError):
+        _raise_api_error(503, message="Проверка ответов временно недоступна")
+
+@app.post("/api/v1/quest/{quest_id}/answer")
+async def answer_quest(quest_id: Annotated[str, ApiPath(pattern=ID_PATTERN, max_length=64)], answer: AnswerInput):
+    quest = find_quest(quest_id)
+    stop = find_stop_option(quest, answer)
+    key = private_answers(quest)[stop.id]
+    return {"correct": answer.option_id == key.correct_option_id, "explanation": key.explanation}
+
+@app.post("/api/v1/quest/{quest_id}/complete")
+async def complete_quest(quest_id: Annotated[str, ApiPath(pattern=ID_PATTERN, max_length=64)], submission: CompleteInput):
+    quest = find_quest(quest_id)
+    for answer in submission.answers:
+        find_stop_option(quest, answer)
+    keys = private_answers(quest)
+    completed = {a.stop_id for a in submission.answers} == {s.id for s in quest.stops} and all(a.option_id == keys[a.stop_id].correct_option_id for a in submission.answers)
+    if not completed:
+        return {"completed": False, "reward": None}
+    return {"completed": True, "reward": {"id": "explorer-hat", "name": "Шапка исследователя"}}
 
 @app.get("/api/v1/test-empty")
 async def test_empty():
     return []
 
-
 @app.get("/api/v1/test-error")
 async def test_error():
-    _raise_api_error(404, "NOT_FOUND", "Место не найдено")
+    _raise_api_error(404, message="Место не найдено")
 
-
-# --- Map data: single source of truth in data/geo/ ---
-# These explicit routes must precede the /data mount so the StaticFiles mount
-# does not intercept them. Serving from data/geo/ keeps one source of truth:
-# new places are added only to data/geo/leninsky-poi-candidates.geojson.
+# Explicit allowlist, never turn the repository data directory into a mount.
+@app.get("/api/v1/map-data/{filename}")
+async def map_data(filename: str):
+    allowed = {"leninsky-boundary.geojson": BOUNDARY_FILE, "leninsky-poi-candidates.geojson": POI_FILE}
+    file = allowed.get(filename)
+    if file is None or not file.is_file():
+        _raise_api_error(404)
+    return FileResponse(file, media_type=GEO_JSON_MEDIA_TYPE)
 
 @app.get("/data/leninsky-boundary.geojson")
 async def data_boundary():
-    return FileResponse(BOUNDARY_FILE, media_type=GEO_JSON_MEDIA_TYPE)
-
+    return await map_data("leninsky-boundary.geojson")
 
 @app.get("/data/leninsky-poi-candidates.geojson")
 async def data_pois():
-    return FileResponse(POI_FILE, media_type=GEO_JSON_MEDIA_TYPE)
-
-
-# --- Static files ---
-# Serve the new design frontend (frontend-design/dist) at "/" with html=True.
-# The legacy prototype under prototypes/leninsky-map/ is kept in the repo but
-# no longer mounted. Mount /data for the remaining frontend data files (e.g.
-# map-style.json); the two Leninsky GeoJSON files above come from data/geo/.
-# Mounts are declared last so /api/v1/*, /health, /docs, /openapi.json match
-# first.
+    return await map_data("leninsky-poi-candidates.geojson")
 
 if DATA_DIR.is_dir():
     app.mount("/data", StaticFiles(directory=DATA_DIR), name="data")
-
 if FRONTEND_DIR.is_dir():
     app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")

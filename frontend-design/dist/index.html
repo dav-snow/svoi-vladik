@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#FF8500">
+  <meta name="application-name" content="svoi-vladik">
   <meta name="description" content="Свой Владик — карта мест Ленинского района Владивостока. Знакомьтесь с городом в своём темпе.">
   <title>Свой Владик — Ленинский район</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,7 +12,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;650;700;750;800&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
   <link href="styles.css" rel="stylesheet">
+  <link href="mascot.css" rel="stylesheet">
+  <link href="polish.css" rel="stylesheet">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/lighthouse.svg" type="image/svg+xml">
   <script defer src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script defer src="mascot.js"></script>
   <script defer src="app.js"></script>
 </head>
 <body>
@@ -64,9 +70,10 @@
           <div id="category-controls" class="category-controls" role="group" aria-label="Категория мест">
             <button type="button" data-category="all" class="category-button is-active" aria-pressed="true">Все</button>
             <button type="button" data-category="culture" class="category-button" aria-pressed="false">Культура</button>
-            <button type="button" data-category="other" class="category-button" aria-pressed="false">Прогулки</button>
+            <button type="button" data-category="outdoors" class="category-button" aria-pressed="false">На воздухе</button>
           </div>
-          <div class="nearby-section" aria-label="Поиск мест рядом">
+          <details id="nearby-options" class="nearby-section">
+            <summary>Местоположение и поиск рядом <span aria-hidden="true">⌄</span></summary>
             <div class="nearby-controls">
               <button id="nearby-request" class="nearby-button" type="button">
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m16 8-2 6-6 2 2-6z"/></svg>
@@ -82,27 +89,29 @@
                   <option value="5000">5 км</option>
                 </select>
               </label>
+              <button id="nearby-manual" class="nearby-button" type="button">Выбрать старт</button>
             </div>
-            <p id="nearby-hint" class="nearby-hint">Используем местоположение для поиска ближайших мест. Историю перемещений не сохраняем.</p>
+            <p id="nearby-hint" class="nearby-hint">Позиция используется только на этой странице. Историю не сохраняем. Провайдер карты видит запрошенную область.</p>
             <p id="nearby-status" class="nearby-status" role="status" aria-live="polite" hidden></p>
             <div id="nearby-actions" class="nearby-actions" hidden>
               <button id="nearby-show-all" class="nearby-link" type="button">Показать все места</button>
               <button id="nearby-refresh" class="nearby-link" type="button">Обновить местоположение</button>
               <button id="nearby-clear" class="nearby-link" type="button">Не использовать моё местоположение</button>
             </div>
-          </div>
+          </details>
         </section>
 
+        <section id="journey-panel" class="journey-panel" aria-label="Моя прогулка и квест" hidden></section>
         <section class="places-section" aria-labelledby="places-title">
           <div class="section-heading"><h2 id="places-title">Места с характером</h2><span id="place-count" class="place-count" aria-live="polite"></span></div>
-          <div id="place-list" class="place-list" aria-label="Места района"></div>
+          <ul id="place-list" class="place-list" aria-label="Места района"></ul>
         </section>
 
         <section class="quest-promo" aria-label="Истории района">
           <div class="quest-promo-copy"><p class="eyebrow">НЕ ПРОСТО ПРОГУЛКА</p><h2>У каждой улицы своя история</h2><button class="promo-link" type="button" data-view="walks">Посмотреть прогулку <span aria-hidden="true">→</span></button></div>
-          <img src="assets/guide.svg" alt="Маяк — проводник по району" class="quest-guide" width="112" height="112">
+          <img src="assets/mascot/interesting-places.webp" alt="" class="quest-guide" width="112" height="112" loading="lazy">
         </section>
-        <p class="catalog-note">Точки-кандидаты из OpenStreetMap. Перед посещением проверьте условия по источнику.</p>
+        <p id="catalog-note" class="catalog-note">Загружаем места Ленинского района…</p>
       </div>
     </aside>
 
@@ -123,7 +132,7 @@
         <span class="control-divider" aria-hidden="true"></span>
         <button id="fit-district" type="button" aria-label="Показать весь Ленинский район" title="Показать весь район"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
-      <button id="guide-open" class="guide-button" type="button" aria-label="Спросить гида"><img src="assets/lighthouse.svg" alt="" width="28" height="28"><span>Спросить гида</span><span aria-hidden="true">↗</span></button>
+      <button id="guide-open" class="guide-button" type="button" aria-label="Спросить помощницу"><img src="assets/mascot/talking.webp" alt="" width="48" height="56" loading="lazy"><span>Спросить помощницу</span><span aria-hidden="true">↗</span></button>
     </section>
   </main>
 

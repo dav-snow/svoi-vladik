@@ -1,0 +1,564 @@
+{
+  "items": [
+    {
+      "id": "sukhanov-house",
+      "name": "Дом-музей семьи Сухановых",
+      "category": "culture",
+      "coordinates": {
+        "lat": 43.1172756,
+        "lng": 131.8949904
+      },
+      "status": "draft",
+      "price_rub": null,
+      "price_note": "Цена, билеты и условия посещения не подтверждены; отсутствие цены не означает бесплатный вход.",
+      "opening_hours": null,
+      "source_url": "https://visit-primorye.ru/what-to-do/dom-muzej-semi-suhanovyh",
+      "verification_note": "OSM way 106483748 совпадает с адресом музейной карточки. Метка представляет здание, а не проверенную точку внешнего наблюдения. Онлайн-сверка названия и положения не подтверждает вход, текущую работу или пешеходный проход. Принадлежность проверена по общественному полигону OSM, а не юридически удостоверенной границе.",
+      "description": "История города через жизнь одной семьи. Посещение экспозиции внутри имеет собственные условия.",
+      "address": "Владивосток, улица Суханова, 9",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/dom-muzej-semi-suhanovyh"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/106483748"
+        }
+      ],
+      "coordinate_source_url": "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=ru&limit=2&q=%D0%A1%D1%83%D1%85%D0%B0%D0%BD%D0%BE%D0%B2%D0%B0%209%20%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA",
+      "coordinate_kind": "osm_representative_point_not_verified_entrance",
+      "district_verified": true,
+      "active": true,
+      "checked_at": null,
+      "source_checked_at": "2026-11-13"
+    },
+    {
+      "id": "sukhanov-square",
+      "name": "Сквер имени Суханова",
+      "category": "park",
+      "coordinates": {
+        "lat": 43.1182633,
+        "lng": 131.891765
+      },
+      "status": "draft",
+      "price_rub": null,
+      "price_note": "Цена, билеты и условия посещения не подтверждены; отсутствие цены не означает бесплатный вход.",
+      "opening_hours": null,
+      "source_url": "https://visit-primorye.ru/what-to-do/dom-muzej-semi-suhanovyh",
+      "verification_note": "OSM way 25617751 имеет leisure=park; музейный источник упоминает сквер. Выбрана представительская точка территории, не вход. Онлайн-сверка названия и положения не подтверждает вход, текущую работу или пешеходный проход. Принадлежность проверена по общественному полигону OSM, а не юридически удостоверенной границе.",
+      "description": "Пауза между городскими открытиями. Сквер остаётся отдельным кандидатом для прогулки и встречи.",
+      "address": "Владивосток, сквер имени Суханова",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/dom-muzej-semi-suhanovyh"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/25617751"
+        }
+      ],
+      "coordinate_source_url": "https://www.openstreetmap.org/way/25617751",
+      "coordinate_kind": "osm_representative_point_not_verified_entrance",
+      "district_verified": true,
+      "active": true,
+      "checked_at": null,
+      "source_checked_at": "2026-11-13"
+    },
+    {
+      "id": "st-paul",
+      "name": "Кирха Святого Павла",
+      "category": "culture",
+      "coordinates": {
+        "lat": 43.1156611,
+        "lng": 131.9018982
+      },
+      "status": "draft",
+      "price_rub": null,
+      "price_note": "Цена, билеты и условия посещения не подтверждены; отсутствие цены не означает бесплатный вход.",
+      "opening_hours": null,
+      "source_url": "https://vladivostok-city.com/ru/places/all/all/934",
+      "verification_note": "OSM way 35333479 и адрес совпадают с путеводителем. Действующее религиозное место; доступ к фасаду и мероприятия проверяются отдельно. Онлайн-сверка названия и положения не подтверждает вход, текущую работу или пешеходный проход. Принадлежность проверена по общественному полигону OSM, а не юридически удостоверенной границе.",
+      "description": "Лютеранская церковь на Пушкинской: знакомство с архитектурой. Квест читается по справке и не требует входа.",
+      "address": "Владивосток, Пушкинская улица, 14",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://vladivostok-city.com/ru/places/all/all/934"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/35333479"
+        }
+      ],
+      "coordinate_source_url": "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=ru&limit=2&q=%D0%9F%D1%83%D1%88%D0%BA%D0%B8%D0%BD%D1%81%D0%BA%D0%B0%D1%8F%2014%20%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA",
+      "coordinate_kind": "osm_representative_point_not_verified_entrance",
+      "district_verified": true,
+      "active": true,
+      "checked_at": null,
+      "source_checked_at": "2026-11-13"
+    },
+    {
+      "id": "pushkin-theatre",
+      "name": "Пушкинский театр ДВФУ",
+      "category": "culture",
+      "coordinates": {
+        "lat": 43.1157068,
+        "lng": 131.9002186
+      },
+      "status": "draft",
+      "price_rub": null,
+      "price_note": "Цена, билеты и условия посещения не подтверждены; отсутствие цены не означает бесплатный вход.",
+      "opening_hours": null,
+      "source_url": "https://www.culture.ru/institutes/85002/pushkinskii-teatr-dalnevostochnogo-federalnogo-universiteta",
+      "verification_note": "OSM way 35333854 совпадает с адресом Культура.РФ. Билеты, работа площадки и доступ внутрь не включены в обещания уличного сценария. Онлайн-сверка названия и положения не подтверждает вход, текущую работу или пешеходный проход. Принадлежность проверена по общественному полигону OSM, а не юридически удостоверенной границе.",
+      "description": "Культурная остановка на Пушкинской. Прочитайте историю здания и придумайте название спектакля о прогулке.",
+      "address": "Владивосток, Пушкинская улица, 27",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://www.culture.ru/institutes/85002/pushkinskii-teatr-dalnevostochnogo-federalnogo-universiteta"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/35333854"
+        }
+      ],
+      "coordinate_source_url": "https://www.openstreetmap.org/way/35333854",
+      "coordinate_kind": "osm_representative_point_not_verified_entrance",
+      "district_verified": true,
+      "active": true,
+      "checked_at": null,
+      "source_checked_at": "2026-11-13"
+    },
+    {
+      "id": "osm-way-133436813",
+      "name": "Владивостокский фуникулёр",
+      "category": "other",
+      "coordinates": {
+        "lat": 43.1174378,
+        "lng": 131.9000136
+      },
+      "status": "draft",
+      "price_rub": null,
+      "price_note": "Цена, билеты и условия посещения не подтверждены; отсутствие цены не означает бесплатный вход.",
+      "opening_hours": null,
+      "source_url": "https://visit-primorye.ru/what-to-do/funikulyor",
+      "verification_note": "Сохранена одна карточка и прежний OSM-ID. Это геометка здания станции на Суханова, не подтверждённый нижний вход с Пушкинской. Вход, подход, работа и тариф уточняются. Станции не считаются двумя достопримечательностями. Онлайн-сверка названия и положения не подтверждает вход, текущую работу или пешеходный проход. Принадлежность проверена по общественному полигону OSM, а не юридически удостоверенной границе.",
+      "description": "Городской транспорт на склоне сопки. Для задания достаточно справки: поездка не является условием прохождения.",
+      "address": "Владивосток, улица Суханова, 29 — адрес OSM-метки станции",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/funikulyor"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/133436813"
+        }
+      ],
+      "coordinate_source_url": "https://www.openstreetmap.org/way/133436813",
+      "coordinate_kind": "osm_representative_point_not_verified_entrance",
+      "district_verified": true,
+      "active": true,
+      "checked_at": null,
+      "source_checked_at": "2026-11-13",
+      "approach_note": "Геометка станции на Суханова; нижний вход уточняется. Поездка для квеста не нужна."
+    },
+    {
+      "id": "eagle-view",
+      "name": "Площадка у Орлиного гнезда — кандидат",
+      "category": "viewpoint",
+      "coordinates": {
+        "lat": 43.1223764,
+        "lng": 131.8990512
+      },
+      "status": "draft",
+      "price_rub": null,
+      "price_note": "Цена, билеты и условия посещения не подтверждены; отсутствие цены не означает бесплатный вход.",
+      "opening_hours": null,
+      "source_url": "https://visit-primorye.ru/what-to-do/sopka-orlinoe-gnezdo",
+      "verification_note": "НЕАКТИВНО: OSM node 414170281 — natural=peak, а не выбранная площадка. Пик не подменяет доступное место наблюдения. Маршрут «На уровень выше» до уточнения не импортирован. Онлайн-сверка названия и положения не подтверждает вход, текущую работу или пешеходный проход. Принадлежность проверена по общественному полигону OSM, а не юридически удостоверенной границе.",
+      "description": "Предложенный видовой финал не включён в активные маршруты. Найденная геометка обозначает вершину сопки.",
+      "address": "Владивосток, сопка Орлиное Гнездо",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/sopka-orlinoe-gnezdo"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/node/414170281"
+        }
+      ],
+      "coordinate_source_url": "https://www.openstreetmap.org/node/414170281",
+      "coordinate_kind": "osm_representative_point_not_verified_entrance",
+      "district_verified": true,
+      "active": false,
+      "checked_at": null,
+      "source_checked_at": "2026-11-13"
+    },
+    {
+      "id": "nagorny",
+      "name": "Нагорный парк",
+      "category": "park",
+      "coordinates": {
+        "lat": 43.1180984,
+        "lng": 131.9224985
+      },
+      "status": "draft",
+      "price_rub": null,
+      "price_note": "Цена, билеты и условия посещения не подтверждены; отсутствие цены не означает бесплатный вход.",
+      "opening_hours": null,
+      "source_url": "https://visit-primorye.ru/what-to-do/nagornyj-park",
+      "verification_note": "OSM way 492719949 обозначает парк, а не одноимённую автобусную остановку. Конкретный вход и маршрут внутри требуют осмотра. Онлайн-сверка названия и положения не подтверждает вход, текущую работу или пешеходный проход. Принадлежность проверена по общественному полигону OSM, а не юридически удостоверенной границе.",
+      "description": "Парк на Тюменской сопке с дорожками и видами. Отдельная локация, а не автоматическая соседняя точка Пушкинской.",
+      "address": "Владивосток, сопка Тюменская",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/nagornyj-park"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/492719949"
+        }
+      ],
+      "coordinate_source_url": "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=ru&limit=2&q=%D0%9D%D0%B0%D0%B3%D0%BE%D1%80%D0%BD%D1%8B%D0%B9%20%D0%BF%D0%B0%D1%80%D0%BA%20%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA",
+      "coordinate_kind": "osm_representative_point_not_verified_entrance",
+      "district_verified": true,
+      "active": true,
+      "checked_at": null,
+      "source_checked_at": "2026-11-13"
+    },
+    {
+      "id": "stone-lions",
+      "name": "Каменные львы у Восточного института — кандидат",
+      "category": "culture",
+      "coordinates": null,
+      "status": "draft",
+      "price_rub": null,
+      "price_note": "Цена, билеты и условия посещения не подтверждены; отсутствие цены не означает бесплатный вход.",
+      "opening_hours": null,
+      "source_url": "https://cnbdvo.ru/item/2291576",
+      "verification_note": "НЕАКТИВНО: публикация библиотеки связывает львов с Восточным институтом, но точная метка скульптур не найдена. Координаты здания way 35333712 не использованы вместо координат львов. Онлайн-сверка названия и положения не подтверждает вход, текущую работу или пешеходный проход. Принадлежность проверена по общественному полигону OSM, а не юридически удостоверенной границе.",
+      "description": "Скульптуры у исторического здания на Пушкинской. Точная метка отложена до проверки их положения.",
+      "address": "Владивосток, Пушкинская улица, 10",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://cnbdvo.ru/item/2291576"
+        }
+      ],
+      "coordinate_source_url": null,
+      "coordinate_kind": "unresolved",
+      "district_verified": false,
+      "active": false,
+      "checked_at": null,
+      "source_checked_at": "2026-11-13"
+    },
+    {
+      "id": "eleanor-pray",
+      "name": "Памятник Элеоноре Лорд Прей",
+      "category": "culture",
+      "coordinates": {
+        "lat": 43.1149638,
+        "lng": 131.8905041
+      },
+      "status": "draft",
+      "price_rub": null,
+      "price_note": "Цена, билеты и условия посещения не подтверждены; отсутствие цены не означает бесплатный вход.",
+      "opening_hours": null,
+      "source_url": "https://visit-primorye.ru/what-to-do/pamyatnik-eleonore-lord-prey",
+      "verification_note": "OSM node 2953486090 — мемориал «Элеонора Прей» на Светланской. Совпадение проверено по туристическому описанию; проход к лестнице не проверен. Онлайн-сверка названия и положения не подтверждает вход, текущую работу или пешеходный проход. Принадлежность проверена по общественному полигону OSM, а не юридически удостоверенной границе.",
+      "description": "Письма о Владивостоке помогают взглянуть на город глазами его жительницы. Остановка о личной городской истории.",
+      "address": "Владивосток, Светланская улица, район домов 41–43",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/pamyatnik-eleonore-lord-prey"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/node/2953486090"
+        }
+      ],
+      "coordinate_source_url": "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=ru&limit=2&q=%D0%AD%D0%BB%D0%B5%D0%BE%D0%BD%D0%BE%D1%80%D0%B0%20%D0%9F%D1%80%D0%B5%D0%B9%20%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA",
+      "coordinate_kind": "osm_representative_point_not_verified_entrance",
+      "district_verified": true,
+      "active": true,
+      "checked_at": null,
+      "source_checked_at": "2026-11-13"
+    },
+    {
+      "id": "nikolaev-gate",
+      "name": "Николаевские триумфальные ворота",
+      "category": "culture",
+      "coordinates": {
+        "lat": 43.1139186,
+        "lng": 131.8924323
+      },
+      "status": "draft",
+      "price_rub": null,
+      "price_note": "Цена, билеты и условия посещения не подтверждены; отсутствие цены не означает бесплатный вход.",
+      "opening_hours": null,
+      "source_url": "https://visit-primorye.ru/what-to-do/nikolaevskie-triumfalnye-vorota",
+      "verification_note": "Использована OSM node 296115500 «Триумфальная арка», wikidata Q28667682. Поиск дома № 8 вернул соседнее здание; его координаты отклонены. Подход в сквере ещё не проверен. Онлайн-сверка названия и положения не подтверждает вход, текущую работу или пешеходный проход. Принадлежность проверена по общественному полигону OSM, а не юридически удостоверенной границе.",
+      "description": "Воссозданная арка напоминает о городской памяти. Нынешнее сооружение не выдаётся за неизменённый оригинал XIX века.",
+      "address": "Владивосток, улица Петра Великого, район дома 8",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/nikolaevskie-triumfalnye-vorota"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/node/296115500"
+        }
+      ],
+      "coordinate_source_url": "https://api.openstreetmap.org/api/0.6/map?bbox=131.8918,43.1135,131.8933,43.1143",
+      "coordinate_kind": "osm_representative_point_not_verified_entrance",
+      "district_verified": true,
+      "active": true,
+      "checked_at": null,
+      "source_checked_at": "2026-11-13"
+    },
+    {
+      "id": "s56",
+      "name": "Подводная лодка-музей С-56",
+      "category": "culture",
+      "coordinates": {
+        "lat": 43.1133649,
+        "lng": 131.8912557
+      },
+      "status": "draft",
+      "price_rub": null,
+      "price_note": "Цена, билеты и условия посещения не подтверждены; отсутствие цены не означает бесплатный вход.",
+      "opening_hours": null,
+      "source_url": "https://visit-primorye.ru/what-to-do/gvardejskaya-krasnoznamennaya-podvodnaya-lodka-s-56",
+      "verification_note": "OSM way 30281940 S-56 совпадает с названием и положением объекта. Доступ на борт, билеты и часы не подтверждены. Онлайн-сверка названия и положения не подтверждает вход, текущую работу или пешеходный проход. Принадлежность проверена по общественному полигону OSM, а не юридически удостоверенной границе.",
+      "description": "Мемориальная подводная лодка на Корабельной набережной. Задание выполняется по справке; музейное посещение отдельно.",
+      "address": "Владивосток, Корабельная набережная",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/gvardejskaya-krasnoznamennaya-podvodnaya-lodka-s-56"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/30281940"
+        }
+      ],
+      "coordinate_source_url": "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=ru&limit=2&q=%D0%A1-56%20%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA",
+      "coordinate_kind": "osm_representative_point_not_verified_entrance",
+      "district_verified": true,
+      "active": true,
+      "checked_at": null,
+      "source_checked_at": "2026-11-13"
+    },
+    {
+      "id": "red-pennant",
+      "name": "Мемориальный корабль «Красный вымпел»",
+      "category": "culture",
+      "coordinates": {
+        "lat": 43.1125551,
+        "lng": 131.8905288
+      },
+      "status": "draft",
+      "price_rub": null,
+      "price_note": "Цена, билеты и условия посещения не подтверждены; отсутствие цены не означает бесплатный вход.",
+      "opening_hours": null,
+      "source_url": "https://www.culture.ru/institutes/8487/memorialnyi-korabl-krasnyi-vympel",
+      "verification_note": "OSM way 170639233 — метка корабля, не безопасная точка у края причала. Туристическая страница предупреждает о зимнем закрытии посещения. Внешний доступ и нынешнюю стоянку требуется подтвердить; сценарий только draft. Онлайн-сверка названия и положения не подтверждает вход, текущую работу или пешеходный проход. Принадлежность проверена по общественному полигону OSM, а не юридически удостоверенной границе.",
+      "description": "Корабль с историей нескольких имён. Знакомство со справкой без обязательного подъёма на борт.",
+      "address": "Владивосток, Корабельная набережная",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://www.culture.ru/institutes/8487/memorialnyi-korabl-krasnyi-vympel"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/170639233"
+        },
+        {
+          "title": "Сезонные ограничения посещения",
+          "url": "https://visit-primorye.ru/en/what-to-do/memorialnyj-korabl-krasnyj-vympel"
+        }
+      ],
+      "coordinate_source_url": "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=ru&limit=2&q=%D0%9A%D1%80%D0%B0%D1%81%D0%BD%D1%8B%D0%B9%20%D0%B2%D1%8B%D0%BC%D0%BF%D0%B5%D0%BB%20%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA",
+      "coordinate_kind": "osm_representative_point_not_verified_entrance",
+      "district_verified": true,
+      "active": true,
+      "checked_at": null,
+      "source_checked_at": "2026-11-13"
+    },
+    {
+      "id": "nevelskoy-monument",
+      "name": "Памятник адмиралу Г. И. Невельскому",
+      "category": "culture",
+      "coordinates": {
+        "lat": 43.113701,
+        "lng": 131.897939
+      },
+      "status": "draft",
+      "price_rub": null,
+      "price_note": "Цена, билеты и условия посещения не подтверждены; отсутствие цены не означает бесплатный вход.",
+      "opening_hours": null,
+      "source_url": "https://visit-primorye.ru/what-to-do/pamyatnik-admiralu-g-i-nevelskomu",
+      "verification_note": "OSM node 1316982367 сопоставлена с региональным источником. Переходы со Светланской и доступный подход не проверены. Онлайн-сверка названия и положения не подтверждает вход, текущую работу или пешеходный проход. Принадлежность проверена по общественному полигону OSM, а не юридически удостоверенной границе.",
+      "description": "Об исследовании Дальнего Востока и мореплавании. Факт в карточке не зависит от читаемости надписи.",
+      "address": "Владивосток, Светланская улица, район дома 67",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/pamyatnik-admiralu-g-i-nevelskomu"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/node/1316982367"
+        }
+      ],
+      "coordinate_source_url": "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=ru&limit=2&q=%D0%9F%D0%B0%D0%BC%D1%8F%D1%82%D0%BD%D0%B8%D0%BA%20%D0%9D%D0%B5%D0%B2%D0%B5%D0%BB%D1%8C%D1%81%D0%BA%D0%BE%D0%BC%D1%83%20%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA",
+      "coordinate_kind": "osm_representative_point_not_verified_entrance",
+      "district_verified": true,
+      "active": true,
+      "checked_at": null,
+      "source_checked_at": "2026-11-13"
+    },
+    {
+      "id": "tsesarevich-embankment",
+      "name": "Набережная Цесаревича",
+      "category": "park",
+      "coordinates": {
+        "lat": 43.1130218,
+        "lng": 131.9040819
+      },
+      "status": "draft",
+      "price_rub": null,
+      "price_note": "Цена, билеты и условия посещения не подтверждены; отсутствие цены не означает бесплатный вход.",
+      "opening_hours": null,
+      "source_url": "https://visit-primorye.ru/what-to-do/naberezhnaya-cesarevicha",
+      "verification_note": "Выбрана представительская точка территории OSM relation 2904784, не вход и не одноимённый отрезок дороги. Переходы, покрытие и ограничения проверяются отдельно. Онлайн-сверка названия и положения не подтверждает вход, текущую работу или пешеходный проход. Принадлежность проверена по общественному полигону OSM, а не юридически удостоверенной границе.",
+      "description": "Прогулочное пространство у моря. Несколько игровых этапов на набережной не превращаются в несколько разных мест.",
+      "address": "Владивосток, набережная Цесаревича",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/naberezhnaya-cesarevicha"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/relation/2904784"
+        }
+      ],
+      "coordinate_source_url": "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=ru&limit=2&q=%D0%9D%D0%B0%D0%B1%D0%B5%D1%80%D0%B5%D0%B6%D0%BD%D0%B0%D1%8F%20%D0%A6%D0%B5%D1%81%D0%B0%D1%80%D0%B5%D0%B2%D0%B8%D1%87%D0%B0%20%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA",
+      "coordinate_kind": "osm_representative_point_not_verified_entrance",
+      "district_verified": true,
+      "active": true,
+      "checked_at": null,
+      "source_checked_at": "2026-11-13"
+    },
+    {
+      "id": "osm-node-676375880",
+      "name": "Военно-исторический музей Тихоокеанского флота",
+      "category": "culture",
+      "coordinates": {
+        "lat": 43.1144566,
+        "lng": 131.9009151
+      },
+      "status": "draft",
+      "price_rub": null,
+      "price_note": "Цена, билеты и условия посещения не подтверждены; отсутствие цены не означает бесплатный вход.",
+      "opening_hours": null,
+      "source_url": "https://visit-primorye.ru/what-to-do/voenno-istoricheskij-muzej-tihookeanskogo-flota",
+      "verification_note": "Сохранена исходная OSM node 676375880. Название и адрес сверены с региональным порталом. Разрешённая внешняя остановка и условия посещения пока не проверены. Онлайн-сверка названия и положения не подтверждает вход, текущую работу или пешеходный проход. Принадлежность проверена по общественному полигону OSM, а не юридически удостоверенной границе.",
+      "description": "Музей морской истории на Светланской. Уличный этап не обещает вход в экспозицию или на музейную территорию.",
+      "address": "Владивосток, Светланская улица, 66",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/voenno-istoricheskij-muzej-tihookeanskogo-flota"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/node/676375880"
+        }
+      ],
+      "coordinate_source_url": "https://www.openstreetmap.org/node/676375880",
+      "coordinate_kind": "osm_representative_point_not_verified_entrance",
+      "district_verified": true,
+      "active": true,
+      "checked_at": null,
+      "source_checked_at": "2026-11-13"
+    },
+    {
+      "id": "osm-way-26537156",
+      "name": "Приморский драматический театр имени Максима Горького",
+      "category": "culture",
+      "coordinates": {
+        "lat": 43.1159611,
+        "lng": 131.8934864
+      },
+      "status": "draft",
+      "price_rub": null,
+      "price_note": "Цена, билеты и условия посещения не подтверждены; отсутствие цены не означает бесплатный вход.",
+      "opening_hours": null,
+      "source_url": "https://gorkytheater.ru/contacts",
+      "verification_note": "Сохранён исходный OSM way 26537156. Адрес сверён с официальным сайтом. Текущие мероприятия и стоимость не переносились. Онлайн-сверка названия и положения не подтверждает вход, текущую работу или пешеходный проход. Принадлежность проверена по общественному полигону OSM, а не юридически удостоверенной границе.",
+      "description": "Театральная остановка на Светланской. Афиша и билеты отдельно; короткий вопрос относится к названию театра.",
+      "address": "Владивосток, Светланская улица, 49",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://gorkytheater.ru/contacts"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/26537156"
+        }
+      ],
+      "coordinate_source_url": "https://www.openstreetmap.org/way/26537156",
+      "coordinate_kind": "osm_representative_point_not_verified_entrance",
+      "district_verified": true,
+      "active": true,
+      "checked_at": null,
+      "source_checked_at": "2026-11-13"
+    },
+    {
+      "id": "minny-park",
+      "name": "Парк «Минный городок» — отдельная проверка",
+      "category": "park",
+      "coordinates": {
+        "lat": 43.1206655,
+        "lng": 131.9411054
+      },
+      "status": "draft",
+      "price_rub": null,
+      "price_note": "Цена, билеты и условия посещения не подтверждены; отсутствие цены не означает бесплатный вход.",
+      "opening_hours": null,
+      "source_url": "https://visit-primorye.ru/what-to-do/park-minnyj-gorodok",
+      "verification_note": "НЕАКТИВНО: OSM relation 1935085 — территория парка, не остановка. Актуальная страница сообщает о частично открытых зонах и продолжающихся работах; фразу о полном закрытии до 2027 года не повторяем. Доступная зона и подход не подтверждены. Онлайн-сверка названия и положения не подтверждает вход, текущую работу или пешеходный проход. Принадлежность проверена по общественному полигону OSM, а не юридически удостоверенной границе.",
+      "description": "Парк проходит поэтапное обновление. Сохранён для редакторской проверки и не включён в активные прогулки.",
+      "address": "Владивосток, район улицы Адмирала Юмашева, 14г",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/park-minnyj-gorodok"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/relation/1935085"
+        }
+      ],
+      "coordinate_source_url": "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=ru&limit=2&q=%D0%9F%D0%B0%D1%80%D0%BA%20%D0%9C%D0%B8%D0%BD%D0%BD%D1%8B%D0%B9%20%D0%B3%D0%BE%D1%80%D0%BE%D0%B4%D0%BE%D0%BA%20%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D0%BA",
+      "coordinate_kind": "osm_representative_point_not_verified_entrance",
+      "district_verified": true,
+      "active": false,
+      "checked_at": null,
+      "source_checked_at": "2026-11-13"
+    }
+  ],
+  "total": 17
+}

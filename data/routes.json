@@ -1,0 +1,213 @@
+{
+  "items": [
+    {
+      "id": "route-leninsky-culture-001",
+      "title": "Три повода выйти из дома",
+      "description": "Сохранённая исходная подборка: музей флота, театр Горького и фуникулёр.",
+      "place_ids": [
+        "osm-node-676375880",
+        "osm-way-26537156",
+        "osm-way-133436813"
+      ],
+      "estimated_minutes": null,
+      "status": "draft",
+      "route_note": "Редакционный порядок остановок, не проверенный пешеходный маршрут. Переходы, лестницы, входы и ограничения на местности не проверены. Прямые отрезки не являются дорогой; внешний навигатор строит путь к следующей выбранной точке. Время, длина и общая стоимость не установлены. Старое моковое значение 90 минут удалено. Геометка фуникулёра относится к станции на Суханова; вход уточняется, поездка необязательна.",
+      "quest_id": "quest-leninsky-culture-001",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/voenno-istoricheskij-muzej-tihookeanskogo-flota"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/node/676375880"
+        },
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://gorkytheater.ru/contacts"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/26537156"
+        },
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/funikulyor"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/133436813"
+        }
+      ],
+      "route_checked_at": null,
+      "checked_at": null
+    },
+    {
+      "id": "route-city-character",
+      "title": "Город с характером",
+      "description": "Дом, кирха и театр: три разные стороны городского характера.",
+      "place_ids": [
+        "sukhanov-house",
+        "st-paul",
+        "pushkin-theatre"
+      ],
+      "estimated_minutes": null,
+      "status": "draft",
+      "route_note": "Редакционный порядок остановок, не проверенный пешеходный маршрут. Переходы, лестницы, входы и ограничения на местности не проверены. Прямые отрезки не являются дорогой; внешний навигатор строит путь к следующей выбранной точке. Время, длина и общая стоимость не установлены. Внешний осмотр и входы требуют подтверждения.",
+      "quest_id": "quest-three-keys",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/dom-muzej-semi-suhanovyh"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/106483748"
+        },
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://vladivostok-city.com/ru/places/all/all/934"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/35333479"
+        },
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://www.culture.ru/institutes/85002/pushkinskii-teatr-dalnevostochnogo-federalnogo-universiteta"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/35333854"
+        }
+      ],
+      "route_checked_at": null,
+      "checked_at": null
+    },
+    {
+      "id": "route-five-stories",
+      "title": "Пять историй одного города",
+      "description": "Личный взгляд, городская память и море: пять остановок для авторской открытки.",
+      "place_ids": [
+        "eleanor-pray",
+        "nikolaev-gate",
+        "s56",
+        "red-pennant",
+        "nevelskoy-monument"
+      ],
+      "estimated_minutes": null,
+      "status": "draft",
+      "route_note": "Редакционный порядок остановок, не проверенный пешеходный маршрут. Переходы, лестницы, входы и ограничения на местности не проверены. Прямые отрезки не являются дорогой; внешний навигатор строит путь к следующей выбранной точке. Время, длина и общая стоимость не установлены. Внешний доступ к «Красному вымпелу» и текущая стоянка не подтверждены; зимнее посещение борта не обещается. До проверки это сценарий демо, не готовая самостоятельная прогулка.",
+      "quest_id": "quest-letter-vladivostok",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/pamyatnik-eleonore-lord-prey"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/node/2953486090"
+        },
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/nikolaevskie-triumfalnye-vorota"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/node/296115500"
+        },
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/gvardejskaya-krasnoznamennaya-podvodnaya-lodka-s-56"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/30281940"
+        },
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://www.culture.ru/institutes/8487/memorialnyi-korabl-krasnyi-vympel"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/170639233"
+        },
+        {
+          "title": "Сезонные ограничения посещения",
+          "url": "https://visit-primorye.ru/en/what-to-do/memorialnyj-korabl-krasnyj-vympel"
+        },
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/pamyatnik-admiralu-g-i-nevelskomu"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/node/1316982367"
+        }
+      ],
+      "route_checked_at": null,
+      "checked_at": null
+    },
+    {
+      "id": "route-stage-to-sea",
+      "title": "От сцены к морю",
+      "description": "Архитектура, городской транспорт, морская история и набережная.",
+      "place_ids": [
+        "st-paul",
+        "pushkin-theatre",
+        "osm-way-133436813",
+        "osm-node-676375880",
+        "tsesarevich-embankment"
+      ],
+      "estimated_minutes": null,
+      "status": "draft",
+      "route_note": "Редакционный порядок остановок, не проверенный пешеходный маршрут. Переходы, лестницы, входы и ограничения на местности не проверены. Прямые отрезки не являются дорогой; внешний навигатор строит путь к следующей выбранной точке. Время, длина и общая стоимость не установлены. Сохранена метка станции на Суханова; нижний подход с Пушкинской уточняется. Разрешённая внешняя остановка у музея и вход на набережную не проверены. Безбарьерность и лёгкая нагрузка не обещаются.",
+      "quest_id": "quest-city-code",
+      "sources": [
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://vladivostok-city.com/ru/places/all/all/934"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/35333479"
+        },
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://www.culture.ru/institutes/85002/pushkinskii-teatr-dalnevostochnogo-federalnogo-universiteta"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/35333854"
+        },
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/funikulyor"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/way/133436813"
+        },
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/voenno-istoricheskij-muzej-tihookeanskogo-flota"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/node/676375880"
+        },
+        {
+          "title": "Описание и историческая справка",
+          "url": "https://visit-primorye.ru/what-to-do/naberezhnaya-cesarevicha"
+        },
+        {
+          "title": "Координаты объекта OpenStreetMap",
+          "url": "https://www.openstreetmap.org/relation/2904784"
+        }
+      ],
+      "route_checked_at": null,
+      "checked_at": null
+    }
+  ],
+  "total": 4
+}

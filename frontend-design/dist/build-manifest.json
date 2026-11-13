@@ -1,0 +1,127 @@
+{
+  "project": "svoi-vladik",
+  "version": 1,
+  "generatedAt": "2026-11-13T08:16:16.210Z",
+  "files": [
+    {
+      "path": "app.js",
+      "bytes": 52571,
+      "sha256": "f2fed737ff92783df5651dd34069dd9ee835842a167abf46418c64f1119e1837"
+    },
+    {
+      "path": "assets/funicular.svg",
+      "bytes": 1529,
+      "sha256": "2b5cef5bb525b918993762705ee97d506c5dcee993f0218598214638fab19e1a"
+    },
+    {
+      "path": "assets/guide.svg",
+      "bytes": 1319,
+      "sha256": "a18f102168a9e5f458ab446aac0aca0f86c2e81902836f3747150e4062dfc5eb"
+    },
+    {
+      "path": "assets/lighthouse.svg",
+      "bytes": 825,
+      "sha256": "137b0ccd0d6980050a7e525ba433dcc121cc75cc9b7b83709e8fdef85340a70c"
+    },
+    {
+      "path": "assets/mascot/README.md",
+      "bytes": 4286,
+      "sha256": "53585f3efc7d94060a5041001ab3d052318c4ebd1fcb3cdbcdffe50dda0b74ca"
+    },
+    {
+      "path": "assets/mascot/directions.webp",
+      "bytes": 153626,
+      "sha256": "d342d57470b1cca019efeb859efef2de4f54b61b5e243e633510d538ffee3d7d"
+    },
+    {
+      "path": "assets/mascot/first-visit.webp",
+      "bytes": 167826,
+      "sha256": "d3950b35596415e49ba7f02cd5db14536c270957abc9fcbf99fba17d8c2e6757"
+    },
+    {
+      "path": "assets/mascot/interesting-places.webp",
+      "bytes": 120494,
+      "sha256": "7c042d515a48febda910305de3f2d31b0546727330fd377dc645c5df4930c754"
+    },
+    {
+      "path": "assets/mascot/location-unknown.webp",
+      "bytes": 120832,
+      "sha256": "68cd2ba72991f209e35857548c76bd856d21c9371dddc9a6fc991e63ed9cf3af"
+    },
+    {
+      "path": "assets/mascot/manifest.json",
+      "bytes": 1865,
+      "sha256": "3613e9ddda098632a01918b29d20660bc5c232eca9a93c9b59417e02def6dc22"
+    },
+    {
+      "path": "assets/mascot/surprised.webp",
+      "bytes": 167890,
+      "sha256": "817059e9380cb73ebc942223e594f27dfaec74239866e4f539f0ae08e2d4041b"
+    },
+    {
+      "path": "assets/mascot/talking.webp",
+      "bytes": 144172,
+      "sha256": "6bdb1e1299115af7ce9ca44e62a8ee74642f502ba99c64ee62cf4cc572a444ce"
+    },
+    {
+      "path": "assets/museum.svg",
+      "bytes": 1066,
+      "sha256": "3bc2ff76270dfb7ea5110d06cffc37897a0a212346ae07ce76b0235d788204b4"
+    },
+    {
+      "path": "assets/theatre.svg",
+      "bytes": 1185,
+      "sha256": "baef968afabc4f58083b976d5c85ee7beff89f4eb72b9be6bfe52da4201b9f03"
+    },
+    {
+      "path": "data/leninsky-boundary.geojson",
+      "bytes": 58892,
+      "sha256": "baa02dc133f4c5bdf842de5446ce2d016fbe1ea8d64811ebd8ad8c208dbe8071"
+    },
+    {
+      "path": "data/leninsky-poi-candidates.geojson",
+      "bytes": 3092,
+      "sha256": "38a45cd9a356d7771347ad657eabcb773e5811336ac56367b0ebf701a09b0111"
+    },
+    {
+      "path": "index.html",
+      "bytes": 11799,
+      "sha256": "79fd89a4634b2e6c7fc38767dbe6be387352e19750ad2c004aa0cf75dde86f72"
+    },
+    {
+      "path": "manifest.webmanifest",
+      "bytes": 510,
+      "sha256": "fdb8be54e59ea07c91fcf36bd8d50a872d9e6ea7d2ece0380ecd5be183b39148"
+    },
+    {
+      "path": "map-style.json",
+      "bytes": 23538,
+      "sha256": "3f543e9d8ce306ab12a98df6a13c4d0dce4ff400e2b259b4e803d4af22f651a2"
+    },
+    {
+      "path": "mascot.css",
+      "bytes": 4053,
+      "sha256": "aa343ede2c743e565c36980d302973037e3676a1cc6a4c9fb8e890180206b057"
+    },
+    {
+      "path": "mascot.js",
+      "bytes": 3387,
+      "sha256": "d1cfca6d4b98103785c47c6ede470c17b35ebcbe9bff4edb0aef36b44b27d82d"
+    },
+    {
+      "path": "polish.css",
+      "bytes": 10406,
+      "sha256": "3373a160a9a1faf9fac54cd23f005c30a1ea1f8f581afac0e1e8dea570bf2ba2"
+    },
+    {
+      "path": "styles.css",
+      "bytes": 31215,
+      "sha256": "e85c805d7cd28130d08a75f5c80889c8c0a0f633fef9da6323f0a9a43cb97107"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 1274,
+      "sha256": "9027485f14d9d7c0edd12f77d17f82bcf5fbaefd6103bae67d8454385bfadd38"
+    }
+  ]
+}

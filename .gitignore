@@ -36,3 +36,6 @@ tmp/
 credentials.json
 service-account*.json
 AGENTS.md
+
+# Server-only quest configuration
+/data/private/quest-answers.json

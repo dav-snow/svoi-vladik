@@ -1,0 +1,12 @@
+{
+  "name": "svoi-vladik",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Свой Владик — карта, прогулки и квест Ленинского района",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node scripts/start.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node scripts/start.mjs --test"
+  }
+}

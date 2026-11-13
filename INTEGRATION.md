@@ -1,318 +1,138 @@
-# API integration guide
+# Интеграция: один origin и демонстрационные данные
 
-Этот документ описывает публичные HTTP-эндпоинты бэкенда «Свой Владик» для демо
-P0. Контракт стабильный: фронтенд (У1) может верстать интерфейс, опираясь только
-на этот файл, без чтения `backend/main.py`.
+FastAPI обслуживает интерфейс из `frontend-design/dist/`, публичный JSON API и два разрешённых геослоя из `data/geo/`. Фронтенд обращается по относительным `/api/v1/...`; CORS middleware отсутствует, `Access-Control-Allow-Origin: *` не выдаётся.
 
-- Базовый адрес локально: `http://localhost:8000`.
-- Все ответы — `application/json; charset=utf-8`.
-- Все ручки — метод `GET`, без аутентификации.
-- Пустая коллекция не является ошибкой: сервер отвечает `200 OK` с
-  `{ "items": [], "total": 0 }`.
-- Swagger UI с интерактивной схемой: `GET /docs`. OpenAPI JSON: `GET /openapi.json`.
+**Это демонстрационная версия.** В каталоге разрешены явно обозначенные кандидаты `draft`; статус не превращается в `verified`. Принадлежность району означает проверенное положение точки, а не подтверждение цены, работы учреждения или доступа ко входу. `checked_at: null` и неизвестная стоимость сохраняются.
 
-## 1. Health
+## Запуск из корня репозитория
 
-```
-GET /health
+Локально требуется Python с поддержкой `venv`. Глобальные pip-установки, изменение ExecutionPolicy и активация PowerShell-скрипта не нужны. Для новой копии с доступным Python:
+
+```powershell
+python -m venv .venv
+& '.\.venv\Scripts\python.exe' -m pip install -r backend\requirements-dev.txt
 ```
 
-Ответ `200 OK`:
+Если Python не зарегистрирован в PATH, первую команду выполняют полным путём к имеющемуся Python. В текущем рабочем окружении `.venv` уже создана из bundled runtime; сама `.venv` в репозиторий не входит и не переносится между компьютерами.
 
-```json
-{ "status": "ok" }
+```powershell
+& '.\.venv\Scripts\python.exe' -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --no-access-log
 ```
 
-Секреты и окружение не раскрываются.
+Открыть `http://127.0.0.1:8000/`. Процесс должен оставаться работающим; Ctrl+C останавливает сайт. Файловый `index.html` и отдельный Node-предпросмотр не запускают API квеста. `--no-access-log` исключает стандартный HTTP access log с IP/полным URL; приложение не пишет историю посетителя, ответы и GPS. Порт можно изменить через `--port`.
 
-## 2. Места (Places)
+Для проверки: `/health`, `/docs` и `/openapi.json`. Если порт занят, используйте другой свободный порт либо остановите свой прежний процесс. Не завершайте неизвестный процесс автоматически.
 
-```
-GET /api/v1/places
-```
+## Публичные методы
 
-Ответ `200 OK`:
+| Метод | Ответ |
+| --- | --- |
+| `GET /health` | `{ "status": "ok" }` |
+| `GET /api/v1/places` | `{ "items": Place[], "total": N }` |
+| `GET /api/v1/places/{place_id}` | Один Place либо 404 |
+| `GET /api/v1/walks` | `{ "items": Walk[], "total": N }` |
+| `GET /api/v1/quest` | `{ "items": Quest[], "total": N }` |
+| `POST /api/v1/quest/{quest_id}/answer` | `{ "correct": boolean, "explanation": "…" }` |
+| `POST /api/v1/quest/{quest_id}/complete` | `{ "completed": boolean, "reward": object или null }` |
+| `GET /api/v1/map-data/{filename}` | Только `leninsky-boundary.geojson` или `leninsky-poi-candidates.geojson` |
 
-```json
-{
-  "items": [
-    {
-      "id": "osm-node-676375880",
-      "name": "Военно-исторический музей Тихоокеанского флота",
-      "category": "culture",
-      "coordinates": { "lat": 43.1144566, "lng": 131.9009151 },
-      "status": "draft",
-      "price_rub": null,
-      "checked_at": null,
-      "source_url": "https://www.openstreetmap.org/node/676375880",
-      "verification_note": "OSM candidate; access, current status and prices not checked",
-      "osm_tags": { "tourism": "museum" }
-    }
-  ],
-  "total": 1
-}
-```
+Совместимость: `/data/leninsky-boundary.geojson` и `/data/leninsky-poi-candidates.geojson` отдают те же исходники из `data/geo/`. Другие разрешённые файлы интерфейса остаются в `frontend-design/dist/`. `/data/private` и любой `/data/private/*` возвращают 404, в том числе при случайном копировании приватного каталога в статическую папку. Корневой `data/` целиком не раздаётся.
 
-Поля `Place`:
+`GET /api/v1/test-empty` возвращает `[]`, `/api/v1/test-error` — контролируемую 404 для проверки интерфейса. Старый `/api/places` не поддерживается.
 
-| Поле | Тип | Обязательное | Описание |
-|---|---|---|---|
-| `id` | string | да | Стабильный ID (`[A-Za-z0-9_-]`, 1–64). |
-| `name` | string | да | Отображаемое название. |
-| `category` | string | да | Редакционная категория (`culture`, `other`, …). |
-| `coordinates` | `{lat:number, lng:number}` | да | Диапазоны −90…90 / −180…180. |
-| `status` | string | да | `draft` / `verified` / `needs_review` / `expired` / `archived` / `demo`. |
-| `price_rub` | integer \| null | нет | Минимальная подтверждённая цена; `null` = неизвестно. |
-| `checked_at` | string \| null | нет | ISO 8601 с часовым поясом. |
-| `source_url` | string \| null | нет | Ссылка на источник (OSM). |
-| `verification_note` | string \| null | нет | Редакторская пометка. |
-| `osm_tags` | object | нет | Произвольные OSM-теги (может быть `{}`). |
+## Места и фильтры
 
-### Карточка одного места
+Основной набор — `data/places.json` с `{items:[...], total:N}`. Сервер пересчитывает total и возвращает только записи, где **`active: true`, `district_verified: true`, статус `draft` или `verified`**. Пока файл отсутствует, сохраняется совместимость с исходными OSM-кандидатами в GeoJSON; повреждённый существующий набор не подменяется моками.
 
-```
-GET /api/v1/places/{place_id}
-```
+Поля Place:
 
-`place_id` должен соответствовать `^[A-Za-z0-9_-]{1,64}$`.
+- `id`, `name`, `category`, `coordinates: {lat,lng}`;
+- `status`, `district_verified`, `active`;
+- `price_rub: integer | null`, `checked_at: string | null`;
+- `source_url`, `sources: [{title,url}]`, `verification_note`;
+- `description` (по умолчанию пустая строка), необязательные `address`, `image`, `osm_tags`.
 
-Ответ `200 OK` — объект `Place` того же вида, что в `items[*]`.
+ID — 1–64 символа `[A-Za-z0-9_-]`. Координаты конечные, широта −90…90, долгота −180…180. Неактивная редакционная запись может иметь `coordinates: null`, активная — нет. Допустимые категории: `culture`, `viewpoint`, `park`, `food`, `toilet`, `other`. Источники — HTTPS; API их не загружает.
 
-Ответ `404 Not Found` — неизвестный, но корректный по форме id:
+Допустимые query: `category` из этого списка, `max_price_rub` — целое 0…100000. Фильтры применяются совместно; неизвестная цена исключается из бюджетной подборки. Повторённые/неизвестные параметры отвергаются. GPS и радиус вычисляются клиентом, в этот API не передаются. Пустой результат — 200 с пустыми items.
 
-```json
-{ "error": { "code": "NOT_FOUND", "message": "Место не найдено" } }
-```
+## Прогулки и квесты
 
-Ответ `422 Unprocessable Entity` — id не по шаблону:
+Наборы — `data/routes.json` и `data/quests.json`, форма `{items:[...], total:N}`. Читаются при запросе: после обновления JSON перезапуск не требуется. Файлы-примеры из `data/examples/` автоматически не подставляются в публичную выдачу. Пустой, отсутствующий или невалидный набор даёт пустую коллекцию; отдельные невалидные записи исключаются.
 
-```json
-{ "error": { "code": "VALIDATION_ERROR", "message": "Неверный формат place_id" } }
-```
+Walk: `id`, `title`, `description`, `place_ids` (3–5 уникальных ID в порядке), **`estimated_minutes: integer | null`**, `route_note`, `route_checked_at`, `quest_id`, общие поля источников/статуса. При `estimated_minutes: null` интерфейс не рисует придуманную длительность. Draft-прогулка не заявляется как осмотренный и рассчитанный путь; направление к месту открывается во внешнем навигаторе.
 
-## 3. Прогулки (Walks)
+Quest: `id`, `title`, `description`, **`estimated_minutes: integer | null`**, `related_place_ids`, `stop_count` и `stops`. Поддерживаются **3–5 точек**, а не жёстко три. `stop_count` равен длине stops, ID точек уникальны, related_place_ids соответствует их местам. Выдача прогулок/квестов исключает записи со ссылками на отсутствующие или неактивные места.
 
-```
-GET /api/v1/walks
-```
+Точка: `id`, `place_id`, `title`, `fact_text`, `fiction_text`, `question`, `options:[{id,text}]`, `sources`, `checked_at`. Публичные модели явно перечисляют поля: `correct_option_id`, приватное `explanation`, дополнительные флаги правильности вариантов и другие неизвестные поля не выходят в GET.
 
-Пока реальных данных от У3 нет, сервер отдаёт моковый маршрут из
-`data/examples/route_mock.json`. Как только появится `data/routes.json`,
-ручка начнёт отдавать его автоматически. Формат ответа не меняется.
-
-Ответ `200 OK`:
+Ключи находятся только в `data/private/quest-answers.json`:
 
 ```json
 {
-  "items": [
-    {
-      "id": "route-leninsky-culture-001",
-      "title": "Культурная прогулка по Ленинскому району",
-      "description": "Короткий маршрут по трём знаковым точкам центра Владивостока…",
-      "place_ids": [
-        "osm-node-676375880",
-        "osm-way-26537156",
-        "osm-way-133436813"
-      ],
-      "estimated_minutes": 90,
-      "route_note": "Пешком по центру; на фуникулёр подъём платный.",
-      "route_checked_at": null,
-      "quest_id": "quest-leninsky-culture-001",
-      "source_url": "https://www.openstreetmap.org/relation/1686637",
-      "sources": [
-        { "title": "OpenStreetMap: Ленинский район", "url": "https://www.openstreetmap.org/relation/1686637" }
-      ],
-      "checked_at": null,
-      "status": "demo"
+  "quests": {
+    "quest-id": {
+      "stop-id": { "correct_option_id": "option-id", "explanation": "Редакторское пояснение" }
     }
-  ],
-  "total": 1
+  }
 }
 ```
 
-Поля `Route`:
+Этот файл читается сервером, не является статическим HTTP-ресурсом. Если нужных ключей нет или они несовместимы с вариантами квеста, проверка ответа возвращает 503; модель не угадывает ответ.
 
-| Поле | Тип | Обязательное |
-|---|---|---|
-| `id` | string | да |
-| `title` | string | да |
-| `description` | string | да |
-| `place_ids` | string[] | да (3 уникальных, в порядке прохождения) |
-| `estimated_minutes` | integer | да |
-| `route_note` | string \| null | нет |
-| `route_checked_at` | string \| null | нет |
-| `quest_id` | string \| null | нет (ссылка на `Quest.id`) |
-| `source_url` | string \| null | нет |
-| `sources` | `{title,url}[]` | нет (по умолчанию `[]`) |
-| `checked_at` | string \| null | нет |
-| `status` | string | да |
+## Ответ и завершение
 
-## 4. Квест (Quest)
+```http
+POST /api/v1/quest/quest-id/answer
+Content-Type: application/json
 
-```
-GET /api/v1/quest
+{"stop_id":"stop-id","option_id":"option-id"}
 ```
 
-Пока реальных данных нет — отдаётся моковый квест из
-`data/examples/quest_mock.json`; появится `data/quests.json` — сервер
-переключится автоматически.
+Корректный известный вариант даёт 200 с correct true/false и пояснением. Проверяется, что точка принадлежит квесту, вариант — этой точке. Неизвестный ID — 404, неверная форма — 422. Повтор ответа разрешён; история не хранится.
 
-Сокращённый пример ответа `200 OK`:
+```http
+POST /api/v1/quest/quest-id/complete
+Content-Type: application/json
+
+{"answers":[{"stop_id":"stop-id","option_id":"option-id"}]}
+```
+
+Передайте выбранные ответы всех точек. Сервер заново проверяет полноту, уникальность и правильность. Пропущенная точка или известный неверный ответ → 200 с `{ "completed": false, "reward": null }`. Дубликат stop_id → 422; неизвестная точка/вариант → 404. Только полный набор верных ответов возвращает:
 
 ```json
-{
-  "items": [
-    {
-      "id": "quest-leninsky-culture-001",
-      "title": "Три точки Ленинского: флот, театр и сопка",
-      "description": "Небольшой квест на 3 остановки.",
-      "estimated_minutes": 60,
-      "related_place_ids": [
-        "osm-node-676375880",
-        "osm-way-26537156",
-        "osm-way-133436813"
-      ],
-      "stop_count": 3,
-      "source_url": "https://www.openstreetmap.org/relation/1686637",
-      "sources": [
-        { "title": "OpenStreetMap: Ленинский район", "url": "https://www.openstreetmap.org/relation/1686637" }
-      ],
-      "checked_at": null,
-      "status": "demo",
-      "stops": [
-        {
-          "id": "stop-1",
-          "place_id": "osm-node-676375880",
-          "title": "Военно-исторический музей ТОФ",
-          "fact_text": "Музей посвящён истории Тихоокеанского флота России.",
-          "fiction_text": "Легенда: по ночам слышны корабельные склянки.",
-          "question": "Какому флоту посвящён музей?",
-          "options": [
-            { "id": "a", "text": "Тихоокеанскому" },
-            { "id": "b", "text": "Балтийскому" },
-            { "id": "c", "text": "Черноморскому" }
-          ],
-          "sources": [
-            { "title": "OSM node 676375880", "url": "https://www.openstreetmap.org/node/676375880" }
-          ],
-          "checked_at": null
-        }
-      ]
-    }
-  ],
-  "total": 1
-}
+{"completed":true,"reward":{"id":"explorer-hat","name":"Шапка исследователя"}}
 ```
 
-Поля `Quest`:
+Фронтенд сохраняет награду локально после успешного complete. Регистрации, защищённого достижения, проверки посещения и общего рейтинга нет. Локальные состояния можно сбросить или изменить в браузере; это честная игровая механика демо.
 
-| Поле | Тип | Обязательное |
-|---|---|---|
-| `id` | string | да |
-| `title` | string | да |
-| `description` | string | да |
-| `estimated_minutes` | integer | да |
-| `related_place_ids` | string[] | да |
-| `stop_count` | integer | да |
-| `source_url` | string \| null | нет |
-| `sources` | `{title,url}[]` | нет |
-| `checked_at` | string \| null | нет |
-| `status` | string | да |
-| `stops` | `QuestStop[]` | да |
+## Минимальные ограничения и ошибки
 
-Поля `QuestStop`:
+Ошибки: `{ "error": { "code": "SYMBOLIC_CODE", "message": "Понятный текст" } }`, без трассировки и ключей.
 
-| Поле | Тип |
-|---|---|
-| `id` | string |
-| `place_id` | string (ссылка на `Place.id`) |
-| `title` | string |
-| `fact_text` | string (подтверждённый источниками факт) |
-| `fiction_text` | string (явно маркированный художественный элемент) |
-| `question` | string |
-| `options` | `{id:string, text:string}[]` (правильный ответ в выдаче **не** передаётся) |
-| `sources` | `{title,url}[]` |
-| `checked_at` | string \| null |
+| HTTP | Когда |
+| --- | --- |
+| 404 | Неизвестный ID/путь, приватные данные |
+| 405 | Неподдерживаемый метод |
+| 413 | JSON тела answer/complete больше 16 КиБ, включая поток без Content-Length |
+| 414 | Query API больше 1024 байт |
+| 415 | Answer/complete не application/json либо сжатое тело |
+| 422 | Невалидный JSON/схема/ID/enum, лишние поля, дубликаты ответов |
+| 429 | Более 30 POST-проверок за минуту на IP, Retry-After: 60 |
+| 503 | Приватные ключи проверки не готовы |
+| 500 | Контролируемая внутренняя ошибка |
 
-## 5. Тестовые ручки для крайних случаев фронта
+Счётчик POST живёт только в памяти одного процесса, использует непрозрачный HMAC от IP со случайной солью процесса, очищает истёкшие записи и ограничивает число ключей. Не доверяет произвольному X-Forwarded-For. Это защита небольшого демо; несколько workers/публичная эксплуатация требуют лимита на доверенном прокси. Заголовки ответов: nosniff, strict-origin-when-cross-origin, Permissions-Policy geolocation=(self).
 
-- `GET /api/v1/test-empty` → `200 OK`, тело `[]` — пустой массив для проверки
-  состояния «ничего не найдено».
-- `GET /api/v1/test-error` → `404 Not Found` с телом ошибки в общем формате —
-  проверка обработки ошибок на клиенте.
+## Импорт и проверки
 
-## 6. Статика и один origin
-
-Бэкенд и фронтенд живут по одному адресу (`http://localhost:8000`), CORS в
-dev-режиме не требуется.
-
-- `GET /` — новый дизайн-прототип (`frontend-design/dist/`), статический
-  бандл без сборки; HTML-маркер `<title>Свой Владик — Ленинский район</title>`.
-- `GET /data/leninsky-boundary.geojson` и
-  `GET /data/leninsky-poi-candidates.geojson` — отдаются из `data/geo/`
-  (единственный источник правды), с типом `application/geo+json`. **Новые места
-  добавляются только в `data/geo/leninsky-poi-candidates.geojson`.**
-- Остальные файлы фронта по `/data/...` (например `map-style.json`, если
-  появится в `frontend-design/dist/data/`) отдаются из этой фронтовой папки.
-- `GET /docs`, `GET /openapi.json` — Swagger UI и схема. В OpenAPI присутствуют
-  только `/api/v1/*`, `/health` и два пути `/data/leninsky-*.geojson`; старый
-  префикс `/api/*` не поддерживается.
-
-Прежний прототип `prototypes/leninsky-map/` остаётся в репозитории как
-историческая справка, но по `/` больше не отдаётся.
-
-## 7. Общий формат ошибок
-
-Любая ошибка возвращается в виде:
-
-```json
-{ "error": { "code": "NOT_FOUND", "message": "Место не найдено" } }
+```powershell
+& '.\.venv\Scripts\python.exe' scripts\import_data.py places path\to\places.json
+& '.\.venv\Scripts\python.exe' scripts\import_data.py routes path\to\routes.json
+& '.\.venv\Scripts\python.exe' scripts\import_data.py quests path\to\quests.json
+& '.\.venv\Scripts\python.exe' -m pytest backend\tests -q
 ```
 
-`code` — стабильный символьный идентификатор, клиент может переключаться по
-нему. `message` — человекочитаемый русский текст, может меняться.
+Импорт проверяет схемы, конечность координат, enum и уникальность ID; пересчитывает total и сохраняет только нормализованные публичные поля. Сначала импортируют места, затем связанные прогулки/квесты; приватные ответы редактор готовит отдельно в согласованной структуре. Исходные unknown/draft не становятся проверенными автоматически. Автоматическая проверка структуры не заменяет редакторскую проверку фактов и условий.
 
-| HTTP | `error.code` | Когда возникает |
-|---|---|---|
-| 404 | `NOT_FOUND` | Неизвестный ресурс (например, `place_id`) или неизвестный путь, включая исчезнувшие старые ручки `/api/*`. |
-| 405 | `METHOD_NOT_ALLOWED` | Существующий путь, но неподдерживаемый метод (например, `POST /api/v1/places`). |
-| 415 | `UNSUPPORTED_MEDIA_TYPE` | POST без корректного `application/json` (на будущие POST-ручки). |
-| 422 | `VALIDATION_ERROR` | Параметр не прошёл валидацию (тип, формат, диапазон). |
-| 500 | `INTERNAL_ERROR` | Непойманное исключение на сервере. Текст исключения и трассировка **не** попадают в ответ, только в логи. |
-
-### Устойчивость к пустым и битым данным
-
-Если исходный JSON с прогулками или квестом отсутствует, пуст или сломан,
-сервер **не** возвращает `500`. Ответ — пустая коллекция:
-
-```json
-{ "items": [], "total": 0 }
-```
-
-То же поведение применяется к `/api/v1/places`, если исходный GeoJSON
-недоступен. Фронтенд может всегда полагаться на форму `{items: [...], total: N}`.
-
-## 8. Запуск и тесты
-
-```sh
-# Собрать и поднять контейнер (один origin на :8000).
-docker compose up -d --build
-
-# Прогнать автоматические тесты (не требуют сети):
-python3 -m venv .venv && . .venv/bin/activate
-pip install -r backend/requirements-dev.txt
-pytest backend/tests
-```
-
-Тесты покрывают контракт: форму ответа каждой ручки, валидацию `place_id`,
-единый JSON-формат ошибок для 404/405/422, факт исчезновения старых `/api/*`,
-отдачу HTML нового дизайна по `/` и статики по `/data/...`.
-
-## 9. Контракт на будущее
-
-- Поля/типы не удаляются и не переименовываются без согласования с У1.
-  Новые необязательные поля могут добавляться — клиент должен игнорировать
-  неизвестные поля.
-- Публичный ответ не содержит правильных ответов квеста, секретов и
-  отладочных трасс.
-- Актуальная схема всегда в `GET /openapi.json`.
+Тесты проверяют 3/5 точек, неизвестные ID и связи, верные/неверные ответы, полный/неполный complete, отсутствие приватных ключей в GET, статический запрет private, неверный JSON, конечные координаты, фильтры, лимит тела/частоты и один origin. На Windows sandbox может блокировать loopback socketpair, которым пользуется asyncio/TestClient: в обычном локальном терминале этот тестовый механизм не требует внешней сети.

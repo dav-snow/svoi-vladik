@@ -1,0 +1,13 @@
+{
+  "name": "Свой Владик — Ленинский район",
+  "short_name": "Свой Владик",
+  "lang": "ru",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f8fa",
+  "theme_color": "#ff8500",
+  "description": "Места, прогулки и городские истории Ленинского района Владивостока",
+  "icons": [{"src":"assets/lighthouse.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]
+}
