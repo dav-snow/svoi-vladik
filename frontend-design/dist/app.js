@@ -195,7 +195,7 @@ function showPlace(place) {
   const source = external("Посмотреть источник", sourceURL(place), "source-link");
   const address = el('p', 'place-address', place.address || 'Точное место входа уточняйте по источнику.');
   const manual = button('Выбрать как старт для поиска рядом', 'secondary-button', () => { setManualOrigin(place); closeDialog('detail-dialog'); revealPlaces(); });
-  openDialog("detail-dialog", [art, head, address, note, actions, source, manual]);
+  openDialog("detail-dialog", [art, head, address, socialBlock(place), note, actions, source, manual]);
 }
 function showWalk() {
   const cards = el('div', 'adventure-list');
@@ -237,15 +237,13 @@ function showGuide() {
   choices.append(button('Что рядом со мной', 'intent-button', () => { closeDialog('guide-dialog'); revealPlaces(); $('nearby-options').open = true; requestNearby(false); }, 'pin'), button('Старт вручную', 'intent-button', showManualOrigin, 'compass'), button('Прогулки', 'intent-button', showWalk, 'walk'), button('Квесты', 'intent-button', showQuest, 'book'));
   const categories = el('div', 'helper-category-row');
   for (const [label, category] of [['Поесть', 'food'], ['Туалет', 'toilet'], ['Досуг', 'culture']]) categories.append(button(label, 'secondary-button', () => { closeDialog('guide-dialog'); chooseCategory(category); }));
-  openDialog("guide-dialog", [head, choices, categories]);
+  const session = auth.user
+    ? button(`Выйти (${auth.user.login})`, 'text-button', () => { closeDialog('guide-dialog'); logoutUser(); })
+    : button('Войти в демо-аккаунт', 'text-button', () => showAuthDialog('login'));
+  openDialog("guide-dialog", [head, choices, categories, session]);
 }
-function showAvatar() {
-  const head = dialogHeading("ТВОЙ МАЛЕНЬКИЙ ПРОФИЛЬ", "Какой ты сегодня?", "Выбор останется только в этом браузере. Начнём без регистрации.");
-  const choices = el("div", "avatar-options");
-  [["lighthouse", "Маяк", "☀"], ["boat", "Кораблик", "⛵"], ["sun", "Солнце", "☀"]].forEach(([id, label, glyph]) => { const b = button("", "avatar-option", () => { writeStorage(id); $("avatar-open").dataset.avatar = id; notify("Образ выбран"); closeDialog("detail-dialog"); }); b.append(id === "lighthouse" ? image("lighthouse.svg", "") : el("span", "avatar-glyph", glyph), el("span", "", label)); choices.append(b); });
-  const reward = el('div', 'reward-card', progress.rewards.includes('explorer-hat') ? '🎓 Шапка исследователя открыта! Награда остаётся на этом устройстве.' : '🎓 Пройди любой квест, чтобы открыть шапку исследователя.');
-  openDialog("detail-dialog", [head, choices, reward]);
-}
+// Аватары и кастомизация исключены из продукта (b88a6d4): вместо локального
+// аватара в шапке живёт демо-вход, профиль открывается через showProfile.
 async function getJSON(url) {
   const response = await fetch(url, { signal: AbortSignal.timeout(12000) });
   if (!response.ok) throw new Error("Unable to read local map data"); return response.json();
@@ -397,18 +395,196 @@ async function finishQuest(quest) {
     const saved = questProgress(quest);
     const result = await postJSON(`/api/v1/quest/${encodeURIComponent(quest.id)}/complete`, { answers: Object.entries(saved.answers).map(([stop_id, option_id]) => ({ stop_id, option_id })) });
     if (!result.completed) { saved.completed = false; feedback.textContent = 'Не все задания подтверждены. Начните квест заново или продолжите ответы.'; feedback.after(button('Начать заново', 'secondary-button', () => resetQuest(quest))); return; }
-    saved.completed = true; progress.rewards = ['explorer-hat']; saveProgress(); $('avatar-open').classList.add('has-reward'); state.activeQuest = null;
+    saved.completed = true; progress.rewards = ['explorer-hat']; saveProgress(); state.activeQuest = null;
     if (revision === dialogRevision) showQuestReward(quest); renderJourney();
   } catch { if (revision === dialogRevision) { feedback.textContent = 'Не удалось завершить проверку. Прогресс сохранён, попробуйте ещё раз.'; feedback.after(button('Повторить', 'primary-button', () => finishQuest(quest))); } }
 }
 function resetQuest(quest) { progress.quests[quest.id] = { answers: {}, completed: false }; saveProgress(); showQuestStep(quest, 0); renderJourney(); }
 function showQuestReward(quest) {
-  openDialog('detail-dialog', [guideCard('surprised', 'Ты уже свой!', 'Все задания пройдены. Шапка городского исследователя открыта в твоём профиле.'), el('div', 'reward-celebration', '🎓'), el('p', 'info-note', 'Это локальная игровая награда, а не подтверждение посещения. Она сохранится на этом устройстве.'), button('Мой профиль', 'primary-button', showAvatar), button('Пройти заново', 'secondary-button', () => resetQuest(quest))]);
+  openDialog('detail-dialog', [guideCard('surprised', 'Ты уже свой!', 'Все задания пройдены. Шапка городского исследователя открыта в твоём профиле.'), el('div', 'reward-celebration', '🎓'), el('p', 'info-note', 'Это локальная игровая награда, а не подтверждение посещения. Она сохранится на этом устройстве.'), button('Мой профиль', 'primary-button', () => auth.user ? showProfile() : showAuthDialog('login')), button('Пройти заново', 'secondary-button', () => resetQuest(quest))]);
 }
 async function postJSON(url, body) {
   const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(15000) });
   if (!response.ok) throw new Error('Не удалось выполнить запрос');
   return response.json();
+}
+// --- Задача 013: демо-вход, отметки «был здесь» и «нравится», профиль и топ.
+// Сессия живёт только в HttpOnly-куке: JS не видит токен и ничего не хранит в
+// localStorage; same-origin запросы несут куку сами. Пароль существует только
+// внутри обработчика отправки формы. ---
+const auth = { user: null };
+const AUTH_ERRORS = {
+  401: 'Неверный логин или пароль',
+  409: 'Такой логин уже занят',
+  422: 'Логин 3–32 символа: латиница, цифры, _ . - Пароль — от 8 до 128 символов.',
+  429: 'Слишком много попыток. Подождите минуту и попробуйте снова.'
+};
+async function apiSend(url, method = 'GET', body) {
+  const options = { method, signal: AbortSignal.timeout(15000) };
+  if (body !== undefined) { options.headers = { 'Content-Type': 'application/json' }; options.body = JSON.stringify(body); }
+  const response = await fetch(url, options);
+  let data = null;
+  if (response.status !== 204) { try { data = await response.json(); } catch {} }
+  if (!response.ok) { const error = new Error(data?.error?.message || 'Запрос не выполнен'); error.status = response.status; throw error; }
+  return data;
+}
+function renderAuthButton() {
+  const toggle = $('auth-open'); if (!toggle) return;
+  toggle.textContent = auth.user ? auth.user.login : 'Войти';
+  toggle.classList.toggle('is-authed', Boolean(auth.user));
+  toggle.setAttribute('aria-label', auth.user ? 'Мой профиль: ' + auth.user.login : 'Войти в демо-аккаунт');
+  toggle.title = auth.user ? 'Мой профиль' : 'Войти';
+}
+async function refreshMe() {
+  // 401 — обычный гость, не ошибка; сетевой сбой тоже не блокирует карту.
+  try { auth.user = (await apiSend('/api/v1/me'))?.user || null; } catch { auth.user = null; }
+  renderAuthButton();
+}
+async function refreshSocial() {
+  // Единственный источник счётчиков и личных отметок — ответ API.
+  try {
+    const payload = await getJSON('/api/v1/places');
+    const fresh = new Map((payload.items || []).map(p => [p.id, p]));
+    for (const place of state.places) {
+      const next = fresh.get(place.id); if (!next) continue;
+      place.visits = next.visits; place.likes = next.likes;
+      place.visited_by_me = next.visited_by_me; place.liked_by_me = next.liked_by_me;
+    }
+  } catch {}
+}
+function authField(labelText, type, autocomplete) {
+  const label = el('label', 'auth-field');
+  const input = el('input');
+  input.type = type; input.autocomplete = autocomplete; input.required = true;
+  if (type === 'password') { input.minLength = 8; input.maxLength = 128; }
+  else { input.minLength = 3; input.maxLength = 32; input.pattern = '[A-Za-z0-9_.\\-]+'; input.autocapitalize = 'none'; input.spellcheck = false; }
+  label.append(el('span', 'auth-label', labelText), input);
+  return { label, input };
+}
+function showAuthDialog(mode = 'login', message = '', afterLogin = null) {
+  const head = dialogHeading('ДЕМО-АККАУНТ', mode === 'login' ? 'С возвращением' : 'Создать аккаунт', message || 'Достаточно логина и пароля.');
+  const form = el('form', 'auth-form');
+  const login = authField('Логин', 'text', 'username');
+  const password = authField('Пароль', 'password', mode === 'login' ? 'current-password' : 'new-password');
+  const error = el('p', 'auth-error'); error.setAttribute('role', 'alert'); error.hidden = true;
+  const submit = button(mode === 'login' ? 'Войти' : 'Создать аккаунт', 'primary-button', null); submit.type = 'submit';
+  form.append(login.label, password.label, error, submit);
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const loginValue = login.input.value.trim();
+    if (!/^[A-Za-z0-9_.-]{3,32}$/.test(loginValue) || password.input.value.length < 8 || password.input.value.length > 128) {
+      error.hidden = false; error.textContent = AUTH_ERRORS[422]; return;
+    }
+    submit.disabled = true; error.hidden = true;
+    try {
+      const result = await apiSend('/api/v1/auth/' + (mode === 'login' ? 'login' : 'register'), 'POST', { login: loginValue, password: password.input.value });
+      password.input.value = '';
+      auth.user = result.user; renderAuthButton();
+      await closeDialog('auth-dialog');
+      notify(mode === 'login' ? 'Вы вошли как ' + auth.user.login : 'Аккаунт создан. Привет, ' + auth.user.login + '!');
+      await refreshSocial(); renderPlaces();
+      if (afterLogin) afterLogin();
+    } catch (requestError) {
+      submit.disabled = false; error.hidden = false;
+      error.textContent = AUTH_ERRORS[requestError.status] || 'Не удалось связаться с сервером. Проверьте соединение и попробуйте снова.';
+    }
+  });
+  const switchMode = button(mode === 'login' ? 'Нет аккаунта? Создать' : 'Уже есть аккаунт? Войти', 'text-button', () => showAuthDialog(mode === 'login' ? 'register' : 'login', '', afterLogin));
+  const note = el('p', 'info-note', 'Демо-вход без email: пароль не восстановить. Не используйте реальные пароли от других сервисов. Логин видно всем в топе исследователей.');
+  openDialog('auth-dialog', [head, form, switchMode, note]);
+}
+async function logoutUser() {
+  try { await apiSend('/api/v1/auth/logout', 'POST'); } catch {}
+  auth.user = null; renderAuthButton();
+  await closeDialog('detail-dialog');
+  await refreshSocial(); renderPlaces();
+  notify('Вы вышли. Отметки остались в аккаунте.');
+}
+function sessionExpired(afterLogin) {
+  auth.user = null; renderAuthButton();
+  showAuthDialog('login', 'Сессия закончилась — войдите снова.', afterLogin);
+}
+function socialBlock(place) {
+  const box = el('div', 'social-box');
+  const counters = el('p', 'social-counters');
+  const visit = button('Я был здесь', 'social-toggle', () => toggleMark(visit, 'visit'));
+  const like = button('Нравится', 'social-toggle', () => toggleMark(like, 'like'));
+  const sync = () => {
+    counters.textContent = `Посетили: ${place.visits ?? 0} · Нравится: ${place.likes ?? 0}`;
+    visit.textContent = place.visited_by_me ? 'Я был здесь ✓' : 'Я был здесь';
+    visit.setAttribute('aria-pressed', String(Boolean(place.visited_by_me)));
+    like.textContent = place.liked_by_me ? 'Нравится ✓' : 'Нравится';
+    like.setAttribute('aria-pressed', String(Boolean(place.liked_by_me)));
+  };
+  async function toggleMark(toggle, kind) {
+    if (!auth.user) { showAuthDialog('login', 'Войдите, чтобы отметить место.', () => showPlace(place)); return; }
+    const active = kind === 'visit' ? place.visited_by_me : place.liked_by_me;
+    toggle.disabled = true;
+    try {
+      const result = await apiSend(`/api/v1/places/${encodeURIComponent(place.id)}/${kind}`, active ? 'DELETE' : 'POST');
+      if (kind === 'visit') { place.visited_by_me = result.visited; place.visits = result.visits; }
+      else { place.liked_by_me = result.liked; place.likes = result.likes; }
+    } catch (requestError) {
+      if (requestError.status === 401) { toggle.disabled = false; sessionExpired(() => showPlace(place)); return; }
+      notify('Не удалось сохранить отметку. Проверьте соединение и попробуйте ещё раз.');
+    }
+    toggle.disabled = false; sync();
+  }
+  const actions = el('div', 'social-actions'); actions.append(visit, like);
+  box.append(counters, actions, el('p', 'micro-copy', '«Посетили» — отметки пользователей демо, не подтверждённые визиты.'));
+  sync(); return box;
+}
+async function showProfile() {
+  if (!auth.user) { showAuthDialog('login'); return; }
+  const body = el('div', 'profile-body'); body.append(el('p', 'info-note', 'Загружаем профиль…'));
+  const opening = openDialog('detail-dialog', [dialogHeading('МОЙ ПРОФИЛЬ', auth.user.login, 'Отметки живут в демо-аккаунте.'), body]);
+  const revision = dialogRevision;
+  await opening;
+  try {
+    const profile = await apiSend('/api/v1/me/profile');
+    if (revision !== dialogRevision || !$('detail-dialog').open) return;
+    const stats = el('div', 'profile-stats');
+    for (const [value, caption] of [[profile.stats.visits, 'посетил'], [profile.stats.likes, 'понравилось']]) {
+      const cell = el('div', 'profile-stat'); cell.append(el('strong', '', String(value)), el('span', '', caption)); stats.append(cell);
+    }
+    const lists = el('div', 'profile-lists');
+    for (const [title, ids] of [['Посетил', profile.visited_place_ids], ['Понравились', profile.liked_place_ids]]) {
+      const section = el('div', 'profile-list'); section.append(el('h3', '', `${title}: ${ids.length}`));
+      const names = el('ul', 'profile-places');
+      for (const id of ids.slice(0, 30)) names.append(el('li', '', state.places.find(p => p.id === id)?.title || 'Место вне текущего каталога'));
+      if (!ids.length) names.append(el('li', 'profile-empty', 'Пока пусто'));
+      section.append(names); lists.append(section);
+    }
+    const actions = el('div', 'dialog-actions');
+    actions.append(button('Мой топ', 'primary-button', showLeaderboard, 'arrow'), button('Выйти', 'secondary-button', logoutUser));
+    body.replaceChildren(stats, lists, el('p', 'micro-copy', '«Посетил» — это ваши отметки, а не подтверждённые визиты.'), actions);
+  } catch (requestError) {
+    if (revision !== dialogRevision || !$('detail-dialog').open) return;
+    if (requestError.status === 401) { sessionExpired(); return; }
+    body.replaceChildren(el('p', 'info-note', 'Не удалось загрузить профиль. Проверьте соединение.'), button('Повторить', 'primary-button', showProfile));
+  }
+}
+async function showLeaderboard() {
+  const body = el('div', 'board-body'); body.append(el('p', 'info-note', 'Загружаем топ…'));
+  const opening = openDialog('detail-dialog', [dialogHeading('ТОП ИССЛЕДОВАТЕЛЕЙ', 'Кто отметил больше мест', 'По отметкам посещений. Демо-данные: визит не подтверждается, лайки на место в топе не влияют.'), body]);
+  const revision = dialogRevision;
+  await opening;
+  try {
+    const board = await apiSend('/api/v1/leaderboard?limit=10');
+    if (revision !== dialogRevision || !$('detail-dialog').open) return;
+    if (!board.items.length) { body.replaceChildren(el('p', 'info-note', 'Пока никто не отметил ни одного места. Станьте первым!')); return; }
+    const list = el('ol', 'board-list');
+    board.items.forEach((row, index) => {
+      const item = el('li', 'board-row' + (auth.user && row.login === auth.user.login ? ' is-me' : ''));
+      item.append(el('span', 'board-rank', String(index + 1)), el('span', 'board-login', row.login), el('span', 'board-count', `посещений: ${row.visits}`), el('span', 'board-likes', `лайков: ${row.likes}`));
+      list.append(item);
+    });
+    body.replaceChildren(list);
+    if (board.total > board.items.length) body.append(el('p', 'micro-copy', `Показаны первые ${board.items.length} из ${board.total}.`));
+  } catch {
+    if (revision !== dialogRevision || !$('detail-dialog').open) return;
+    body.replaceChildren(el('p', 'info-note', 'Не удалось загрузить топ. Проверьте соединение.'), button('Повторить', 'primary-button', showLeaderboard));
+  }
 }
 function showManualOrigin() {
   const select = el('select', 'manual-select'); select.setAttribute('aria-label', 'Начальная точка');
@@ -581,7 +757,7 @@ $("first-time").addEventListener("click",showFirstTime);
 $("guide-open").addEventListener("click",showGuide);
 $("walk-promo")?.addEventListener("click",showWalk);
 $("bookmarks-open")?.addEventListener("click",()=>{state.savedOnly=!state.savedOnly;renderPlaces();if(isMobileLayout())revealPlaces();});
-$("avatar-open")?.addEventListener("click",showAvatar);
+$("auth-open")?.addEventListener("click", () => auth.user ? showProfile() : showAuthDialog('login'));
 $("mobile-sheet-toggle")?.addEventListener("click",()=>{ const sheet=document.querySelector('.sidebar');sheet.classList.toggle('is-collapsed');$('mobile-sheet-toggle').setAttribute('aria-expanded',String(!sheet.classList.contains('is-collapsed'))); });
 document.querySelectorAll('[data-close-dialog]').forEach(b => b.addEventListener('click', () => closeDialog(b.closest('dialog'))));
 document.querySelectorAll('dialog').forEach(d => {
@@ -601,8 +777,8 @@ async function loadCity() {
     const ids = new Set(state.places.map(p => p.id));
     state.walks = (walks.items || []).filter(w => w.place_ids?.length && w.place_ids.every(id => ids.has(id)));
     state.quests = (quests.items || []).filter(q => q.stops?.length && q.stops.every(stop => ids.has(stop.place_id)));
-    const avatar = readStorage(); $('avatar-open').dataset.avatar = avatar;
-    $('avatar-open').classList.toggle('has-reward', progress.rewards.includes('explorer-hat'));
+    readStorage();
+    refreshMe();
     if (progress.walk) { state.activeWalk = state.walks.find(w => w.id === progress.walk.id) || null; state.walkStep = state.activeWalk ? Math.min(Math.max(0, Number(progress.walk.step) || 0), state.activeWalk.place_ids.length - 1) : 0; }
     $('catalog-note').textContent = `${state.places.length} мест из районного каталога. Условия посещения уточняются; перед выходом проверьте источник.`;
     renderPlaces(); renderJourney(); initialiseMap();

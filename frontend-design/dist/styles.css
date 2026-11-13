@@ -330,3 +330,34 @@ button svg, .search-field svg { width: 20px; height: 20px; stroke: currentColor;
 .you-marker { display: flex; flex-direction: column; align-items: center; gap: 5px; }
 .you-dot { width: 18px; height: 18px; border-radius: 50%; background: #2b7fff; border: 3px solid #fff; box-shadow: 0 0 0 4px #2b7fff33, 0 2px 8px #24362b40; }
 .you-label { border: 1px solid #fff; border-radius: 6px; padding: 3px 8px; background: #2b7fff; color: #fff; font-size: 11px; font-weight: 750; white-space: nowrap; box-shadow: 0 2px 8px #2b7fff33; }
+
+/* --- Задача 013: демо-вход, отметки, профиль и топ --- */
+.auth-button { display: inline-flex; align-items: center; min-height: 36px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 7px 14px; border: 1px solid #e4e8df; border-radius: 999px; background: #fff; font-size: 13px; font-weight: 800; }
+.auth-button:hover { background: #f7f8f3; border-color: #d5dccb; }
+.auth-button.is-authed { background: var(--cream); border-color: #f0ddba; color: #6f5038; }
+.auth-form { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.auth-field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 700; color: #6f786b; }
+.auth-field input { min-height: 40px; padding: 8px 11px; border: 1px solid #e6eae2; border-radius: 10px; background: #fafbf8; font-size: 14px; color: var(--graphite); }
+.auth-field input:focus { border-color: #c7cfbd; background: #fff; }
+.auth-error { margin: 0; color: #b4231f; font-size: 12.5px; font-weight: 700; }
+.social-box { margin-top: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: #fafbf8; display: flex; flex-direction: column; gap: 9px; }
+.social-counters { margin: 0; font-size: 12.5px; font-weight: 750; color: #6f786b; }
+.social-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.social-toggle { flex: 1 1 130px; min-height: 38px; padding: 7px 10px; border: 1px solid #e4e8df; border-radius: 10px; background: #fff; font-size: 13px; font-weight: 750; }
+.social-toggle:hover { background: #f7f8f3; }
+.social-toggle[aria-pressed="true"] { background: var(--cream); border-color: var(--orange); color: var(--orange-dark); }
+.profile-stats { display: flex; gap: 10px; margin-top: 12px; }
+.profile-stat { flex: 1; padding: 12px; border: 1px solid var(--line); border-radius: 12px; text-align: center; display: flex; flex-direction: column; gap: 2px; }
+.profile-stat strong { font-size: 22px; letter-spacing: -.4px; }
+.profile-stat span { font-size: 11.5px; color: var(--muted); font-weight: 750; }
+.profile-lists { display: grid; gap: 12px; margin-top: 12px; }
+.profile-list h3 { margin: 0 0 6px; font-size: 13px; }
+.profile-places { margin: 0; padding-left: 18px; font-size: 12.5px; color: #555c55; display: flex; flex-direction: column; gap: 3px; }
+.profile-empty { list-style: none; margin-left: -18px; color: var(--muted); }
+.board-list { margin: 12px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.board-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 13px; }
+.board-row.is-me { border-color: var(--orange); background: var(--cream); }
+.board-rank { font-weight: 800; min-width: 20px; color: #7b8479; }
+.board-login { font-weight: 750; flex: 1; overflow-wrap: anywhere; }
+.board-count { font-weight: 750; white-space: nowrap; }
+.board-likes { color: var(--muted); font-size: 12px; white-space: nowrap; }
