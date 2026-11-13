@@ -1,0 +1,25 @@
+.sv-motion-dialog {
+  scrollbar-gutter: stable;
+  overflow-x: hidden;
+}
+.sv-motion-dialog[data-motion-phase="opening"],
+.sv-motion-dialog[data-motion-phase="closing"] {
+  will-change: transform, opacity, filter;
+  overflow: hidden;
+}
+.sv-motion-dialog::backdrop {
+  opacity: 1;
+  transition: opacity 200ms ease;
+}
+.sv-motion-dialog[data-motion-phase="closing"]::backdrop { opacity: 0; }
+.sv-motion-dialog[data-motion-kind="replace"]:not([data-motion-phase="closing"])::backdrop {
+  opacity: 1;
+  transition: none;
+}
+@starting-style {
+  .sv-motion-dialog[data-motion-kind="enter"][data-motion-phase="opening"]::backdrop { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sv-motion-dialog::backdrop { transition: none; }
+  .sv-motion-dialog[data-motion-phase] { will-change: auto; }
+}

@@ -13,6 +13,13 @@ const isMobileLayout = () => matchMedia("(max-width: 760px)").matches;
 const progressKey = 'svoi-vladik-progress-v1';
 let progress = { quests: {}, rewards: [] };
 let dialogRevision = 0;
+let activeDialogTrigger = null;
+// iOS taps and accessibility clicks do not always focus the pressed button.
+document.addEventListener?.('click', event => {
+  const target = event.target instanceof Element ? event.target.closest('button, a, [role="button"]') : null;
+  activeDialogTrigger = target;
+  queueMicrotask(() => { if (activeDialogTrigger === target) activeDialogTrigger = null; });
+}, true);
 try {
   const saved = JSON.parse(localStorage.getItem(progressKey) || '{}');
   if (saved?.quests && typeof saved.quests === 'object' && !Array.isArray(saved.quests)) progress.quests = saved.quests;
@@ -91,8 +98,19 @@ function external(text, href, cls) {
 function openDialog(id, content) {
   dialogRevision++;
   const dialog = $(id); const body = $(id.replace("-dialog", "-content"));
-  for (const d of document.querySelectorAll("dialog[open]")) d.close();
-  body.replaceChildren(...content); dialog.showModal();
+  const trigger = activeDialogTrigger || document.activeElement;
+  activeDialogTrigger = null;
+  if (window.SvoiMotion) return window.SvoiMotion.open(dialog, () => { body.replaceChildren(...content); dialog.scrollTop = 0; }, trigger);
+  for (const d of document.querySelectorAll("dialog[open]")) if (d !== dialog) d.close();
+  body.replaceChildren(...content); if (!dialog.open) dialog.showModal();
+  return Promise.resolve();
+}
+function closeDialog(id) {
+  dialogRevision++;
+  const dialog = typeof id === 'string' ? $(id) : id;
+  if (window.SvoiMotion) return window.SvoiMotion.close(dialog);
+  if (dialog?.open) dialog.close();
+  return Promise.resolve();
 }
 function dialogHeading(eyebrow, title, copy) {
   const box = el("div", "detail-heading");
@@ -176,7 +194,7 @@ function showPlace(place) {
   actions.append(external("Пешком в 2ГИС", routeURL(place), "primary-button"), button(state.saved.has(place.id) ? "Сохранено" : "Сохранить", "secondary-button", () => { setSaved(place); showPlace(place); }, "bookmark"));
   const source = external("Посмотреть источник", sourceURL(place), "source-link");
   const address = el('p', 'place-address', place.address || 'Точное место входа уточняйте по источнику.');
-  const manual = button('Выбрать как старт для поиска рядом', 'secondary-button', () => { setManualOrigin(place); $('detail-dialog').close(); revealPlaces(); });
+  const manual = button('Выбрать как старт для поиска рядом', 'secondary-button', () => { setManualOrigin(place); closeDialog('detail-dialog'); revealPlaces(); });
   openDialog("detail-dialog", [art, head, address, note, actions, source, manual]);
 }
 function showWalk() {
@@ -204,8 +222,8 @@ function showFirstTime() {
   const steps = el("div", "welcome-steps");
   ["Выберите место по настроению", "Откройте карточку и проверьте условия", "Отправляйтесь гулять с навигатором"].forEach((text, i) => { const row = el("div", "step-row"); row.append(el("span", "step-number", String(i + 1)), el("p", "", text)); steps.append(row); });
   const actions = el("div", "intent-grid");
-  [["За культурой", "culture", "book"], ["Просто погулять", "all", "walk"]].forEach(([title, cat, name]) => actions.append(button(title, "intent-button", () => { $("firsttime-dialog").close(); chooseCategory(cat); }, name)));
-  actions.append(button('Что рядом со мной', 'intent-button', () => { $('firsttime-dialog').close(); revealPlaces(); $('nearby-options').open = true; requestNearby(false); }, 'pin'), button('Выбрать старт вручную', 'intent-button', showManualOrigin, 'compass'));
+  [["За культурой", "culture", "book"], ["Просто погулять", "all", "walk"]].forEach(([title, cat, name]) => actions.append(button(title, "intent-button", () => { closeDialog("firsttime-dialog"); chooseCategory(cat); }, name)));
+  actions.append(button('Что рядом со мной', 'intent-button', () => { closeDialog('firsttime-dialog'); revealPlaces(); $('nearby-options').open = true; requestNearby(false); }, 'pin'), button('Выбрать старт вручную', 'intent-button', showManualOrigin, 'compass'));
   openDialog("firsttime-dialog", [intro, steps, actions]);
 }
 function chooseCategory(category) {
@@ -216,15 +234,15 @@ function chooseCategory(category) {
 function showGuide() {
   const head = guideCard(geo.origin ? 'talking' : 'location-unknown', 'Привет! Я твоя помощница', geo.origin ? 'Можем найти место, выбрать прогулку или продолжить историю.' : 'Пока не знаю, где ты. Разреши геолокацию или выбери старт вручную.');
   const choices = el("div", "intent-grid");
-  choices.append(button('Что рядом со мной', 'intent-button', () => { $('guide-dialog').close(); revealPlaces(); $('nearby-options').open = true; requestNearby(false); }, 'pin'), button('Старт вручную', 'intent-button', showManualOrigin, 'compass'), button('Прогулки', 'intent-button', showWalk, 'walk'), button('Квесты', 'intent-button', showQuest, 'book'));
+  choices.append(button('Что рядом со мной', 'intent-button', () => { closeDialog('guide-dialog'); revealPlaces(); $('nearby-options').open = true; requestNearby(false); }, 'pin'), button('Старт вручную', 'intent-button', showManualOrigin, 'compass'), button('Прогулки', 'intent-button', showWalk, 'walk'), button('Квесты', 'intent-button', showQuest, 'book'));
   const categories = el('div', 'helper-category-row');
-  for (const [label, category] of [['Поесть', 'food'], ['Туалет', 'toilet'], ['Досуг', 'culture']]) categories.append(button(label, 'secondary-button', () => { $('guide-dialog').close(); chooseCategory(category); }));
+  for (const [label, category] of [['Поесть', 'food'], ['Туалет', 'toilet'], ['Досуг', 'culture']]) categories.append(button(label, 'secondary-button', () => { closeDialog('guide-dialog'); chooseCategory(category); }));
   openDialog("guide-dialog", [head, choices, categories]);
 }
 function showAvatar() {
   const head = dialogHeading("ТВОЙ МАЛЕНЬКИЙ ПРОФИЛЬ", "Какой ты сегодня?", "Выбор останется только в этом браузере. Начнём без регистрации.");
   const choices = el("div", "avatar-options");
-  [["lighthouse", "Маяк", "☀"], ["boat", "Кораблик", "⛵"], ["sun", "Солнце", "☀"]].forEach(([id, label, glyph]) => { const b = button("", "avatar-option", () => { writeStorage(id); $("avatar-open").dataset.avatar = id; notify("Образ выбран"); $("detail-dialog").close(); }); b.append(id === "lighthouse" ? image("lighthouse.svg", "") : el("span", "avatar-glyph", glyph), el("span", "", label)); choices.append(b); });
+  [["lighthouse", "Маяк", "☀"], ["boat", "Кораблик", "⛵"], ["sun", "Солнце", "☀"]].forEach(([id, label, glyph]) => { const b = button("", "avatar-option", () => { writeStorage(id); $("avatar-open").dataset.avatar = id; notify("Образ выбран"); closeDialog("detail-dialog"); }); b.append(id === "lighthouse" ? image("lighthouse.svg", "") : el("span", "avatar-glyph", glyph), el("span", "", label)); choices.append(b); });
   const reward = el('div', 'reward-card', progress.rewards.includes('explorer-hat') ? '🎓 Шапка исследователя открыта! Награда остаётся на этом устройстве.' : '🎓 Пройди любой квест, чтобы открыть шапку исследователя.');
   openDialog("detail-dialog", [head, choices, reward]);
 }
@@ -280,7 +298,7 @@ function startWalk(walk, index = 0) {
   $('nearby-options').open = false;
   progress.walk = { id: walk.id, step: index }; saveProgress();
   resetFilters(); updateWalkLine(); renderJourney();
-  $('detail-dialog').close();
+  closeDialog('detail-dialog');
   const place = state.places.find(p => p.id === walk.place_ids[index]); if (place) selectPlace(place);
 }
 function stopWalk() { state.activeWalk = null; state.walkStep = 0; delete progress.walk; saveProgress(); updateWalkLine(); renderJourney(); }
@@ -319,7 +337,7 @@ function renderJourney() {
 }
 function showArrival(walk) {
   const isLast = state.walkStep >= walk.place_ids.length - 1;
-  openDialog('detail-dialog', [guideCard('surprised', isLast ? 'Прогулка собрана!' : 'Уже здесь? Вот это темп!', 'Это твоя отметка о прибытии. GPS её не проверяет.', [{ label: isLast ? 'Закончить прогулку' : 'К следующей остановке', primary: true, run: () => { if (isLast) { stopWalk(); $('detail-dialog').close(); notify('Прогулка завершена на этом устройстве'); } else startWalk(walk, state.walkStep + 1); } }])]);
+  openDialog('detail-dialog', [guideCard('surprised', isLast ? 'Прогулка собрана!' : 'Уже здесь? Вот это темп!', 'Это твоя отметка о прибытии. GPS её не проверяет.', [{ label: isLast ? 'Закончить прогулку' : 'К следующей остановке', primary: true, run: () => { if (isLast) { stopWalk(); closeDialog('detail-dialog'); notify('Прогулка завершена на этом устройстве'); } else startWalk(walk, state.walkStep + 1); } }])]);
 }
 function questProgress(quest) {
   let saved = progress.quests[quest.id];
@@ -366,13 +384,15 @@ function showQuestStep(quest, index) {
     }); options.append(choice);
   }
   const navigation = el('div', 'dialog-actions');
-  if (place) navigation.append(external('К остановке в 2ГИС', routeURL(place), 'secondary-button'), button('Показать место', 'secondary-button', () => { $('detail-dialog').close(); selectPlace(place); }));
+  if (place) navigation.append(external('К остановке в 2ГИС', routeURL(place), 'secondary-button'), button('Показать место', 'secondary-button', () => { closeDialog('detail-dialog'); selectPlace(place); }));
   openDialog('detail-dialog', [el('p', 'eyebrow', `${quest.title} · ${index + 1}/${quest.stops.length}`), meter, guideCard('interesting-places', stop.title, ''), fiction, fact, el('h3', 'quest-question', stop.question), options, feedback, next, navigation]);
 }
 async function finishQuest(quest) {
   const feedback = el('p', 'info-note', 'Проверяем все задания…');
-  openDialog('detail-dialog', [guideCard('talking', 'История почти собрана', 'Остался последний шаг.'), feedback]);
+  const opening = openDialog('detail-dialog', [guideCard('talking', 'История почти собрана', 'Остался последний шаг.'), feedback]);
   const revision = dialogRevision;
+  await opening;
+  if (revision !== dialogRevision || !$('detail-dialog').open) return;
   try {
     const saved = questProgress(quest);
     const result = await postJSON(`/api/v1/quest/${encodeURIComponent(quest.id)}/complete`, { answers: Object.entries(saved.answers).map(([stop_id, option_id]) => ({ stop_id, option_id })) });
@@ -393,7 +413,7 @@ async function postJSON(url, body) {
 function showManualOrigin() {
   const select = el('select', 'manual-select'); select.setAttribute('aria-label', 'Начальная точка');
   for (const place of state.places) { const option = el('option', '', place.title); option.value = place.id; select.append(option); }
-  const use = button('Искать рядом с этой точкой', 'primary-button', () => { const place = state.places.find(p => p.id === select.value); if (place) setManualOrigin(place); $('firsttime-dialog').close(); $('nearby-options').open = true; revealPlaces(); });
+  const use = button('Искать рядом с этой точкой', 'primary-button', () => { const place = state.places.find(p => p.id === select.value); if (place) setManualOrigin(place); closeDialog('firsttime-dialog'); $('nearby-options').open = true; revealPlaces(); });
   openDialog('firsttime-dialog', [guideCard('location-unknown', 'Выбери старт вручную', 'Это выбранная точка, а не местоположение устройства.'), select, use]);
 }
 function setManualOrigin(place) {
@@ -438,7 +458,9 @@ function showFallback() {
 function initialiseMap() {
   if (!window.maplibregl) { showFallback(); return; }
   try {
-    const map = new maplibregl.Map({ container: "map", style: "map-style.json", center: [131.901,43.119], zoom: 14.6, minZoom: 11.3, maxZoom: 18, maxBounds: [[131.87,43.08],[132.06,43.17]], attributionControl: false, dragRotate: false, pitchWithRotate: false, touchPitch: false });
+    // Camera buffer lets fitBounds place POIs above the mobile sheet without
+    // clamping the padded viewport north. The catalogue remains Leninsky only.
+    const map = new maplibregl.Map({ container: "map", style: "map-style.json", center: [131.901,43.119], zoom: 14.6, minZoom: 11.3, maxZoom: 18, maxBounds: [[131.72,42.94],[132.22,43.30]], attributionControl: false, dragRotate: false, pitchWithRotate: false, touchPitch: false });
     state.map = map;
     map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
     let loaded = false;
@@ -561,8 +583,15 @@ $("walk-promo")?.addEventListener("click",showWalk);
 $("bookmarks-open")?.addEventListener("click",()=>{state.savedOnly=!state.savedOnly;renderPlaces();if(isMobileLayout())revealPlaces();});
 $("avatar-open")?.addEventListener("click",showAvatar);
 $("mobile-sheet-toggle")?.addEventListener("click",()=>{ const sheet=document.querySelector('.sidebar');sheet.classList.toggle('is-collapsed');$('mobile-sheet-toggle').setAttribute('aria-expanded',String(!sheet.classList.contains('is-collapsed'))); });
-document.querySelectorAll("[data-close-dialog]").forEach(b=>b.addEventListener("click",()=>b.closest('dialog').close()));
-document.querySelectorAll("dialog").forEach(d=>d.addEventListener("click",e=>{if(e.target===d)d.close();}));
+document.querySelectorAll('[data-close-dialog]').forEach(b => b.addEventListener('click', () => closeDialog(b.closest('dialog'))));
+document.querySelectorAll('dialog').forEach(d => {
+  d.addEventListener('cancel', event => { event.preventDefault(); closeDialog(d); });
+  d.addEventListener('click', event => {
+    if (event.target !== d) return;
+    const rect = d.getBoundingClientRect();
+    if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeDialog(d);
+  });
+});
 let mobileViewport=isMobileLayout();
 window.addEventListener('resize',()=>{const mobile=isMobileLayout();if(state.map){state.map.resize();if(mobile&&!state.selected)frameMobilePlaces();else if(mobile!==mobileViewport)state.map.setPadding({top:0,bottom:0,left:0,right:0});}mobileViewport=mobile;});
 async function loadCity() {
