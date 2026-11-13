@@ -16,7 +16,7 @@ from typing import Any, Optional
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -25,14 +25,16 @@ logger = logging.getLogger("svoi-vladik")
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 POI_FILE = REPO_ROOT / "data" / "geo" / "leninsky-poi-candidates.geojson"
+BOUNDARY_FILE = REPO_ROOT / "data" / "geo" / "leninsky-boundary.geojson"
 # New design frontend; the legacy prototypes/leninsky-map/ is kept in the repo
 # but no longer mounted at /.
 FRONTEND_DIR = REPO_ROOT / "frontend-design" / "dist"
 # The frontend fetches its map data via relative paths like
-# "data/leninsky-boundary.geojson", so /data must point at the frontend's own
-# data folder. The repo-level data/geo and data/examples are not served: no
-# client uses them.
+# "data/leninsky-boundary.geojson". The two Leninsky GeoJSON files are served
+# from data/geo/ (single source of truth) via explicit routes below; the rest
+# of /data (e.g. map-style.json) is served from this frontend data folder.
 DATA_DIR = REPO_ROOT / "frontend-design" / "dist" / "data"
+GEO_JSON_MEDIA_TYPE = "application/geo+json"
 
 # Stable place_id shape, matches docs/API.md.
 PLACE_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
@@ -310,10 +312,26 @@ async def test_error():
     _raise_api_error(404, "NOT_FOUND", "Место не найдено")
 
 
+# --- Map data: single source of truth in data/geo/ ---
+# These explicit routes must precede the /data mount so the StaticFiles mount
+# does not intercept them. Serving from data/geo/ keeps one source of truth:
+# new places are added only to data/geo/leninsky-poi-candidates.geojson.
+
+@app.get("/data/leninsky-boundary.geojson")
+async def data_boundary():
+    return FileResponse(BOUNDARY_FILE, media_type=GEO_JSON_MEDIA_TYPE)
+
+
+@app.get("/data/leninsky-poi-candidates.geojson")
+async def data_pois():
+    return FileResponse(POI_FILE, media_type=GEO_JSON_MEDIA_TYPE)
+
+
 # --- Static files ---
 # Serve the new design frontend (frontend-design/dist) at "/" with html=True.
 # The legacy prototype under prototypes/leninsky-map/ is kept in the repo but
-# no longer mounted. Mount /data so the frontend can fetch bundled GeoJSON.
+# no longer mounted. Mount /data for the remaining frontend data files (e.g.
+# map-style.json); the two Leninsky GeoJSON files above come from data/geo/.
 # Mounts are declared last so /api/v1/*, /health, /docs, /openapi.json match
 # first.
 

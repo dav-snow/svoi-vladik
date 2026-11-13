@@ -86,6 +86,10 @@ curl -s http://localhost:8000/api/v1/places | head
 docker compose down
 ```
 
+Новые места добавляются только в `data/geo/leninsky-poi-candidates.geojson` —
+это единственный источник правды; `frontend-design/dist/data/` для границы и
+точек-кандидатов больше не источник (сервер отдаёт эти два файла из `data/geo/`).
+
 Автоматические тесты бэкенда (pytest + httpx TestClient, без сети) — в
 одноразовом контейнере, без установки Python на хост:
 

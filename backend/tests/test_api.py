@@ -112,13 +112,19 @@ def test_quest_endpoint_shape(client: TestClient) -> None:
     "leninsky-boundary.geojson",
     "leninsky-poi-candidates.geojson",
 ])
-def test_data_mount_serves_frontend_geojson(client: TestClient, name: str) -> None:
-    # /data must point at the frontend's own data folder: these are the exact
-    # paths app.js fetches. The test fails if /data is remounted elsewhere.
+def test_data_geojson_served_from_data_geo(client: TestClient, name: str) -> None:
+    # The two Leninsky GeoJSON files are served from data/geo/ (single source of
+    # truth), not from the frontend data folder. The test fails if these routes
+    # disappear or point elsewhere.
     resp = client.get(f"/data/{name}")
     assert resp.status_code == 200
+    assert resp.headers["content-type"].startswith("application/geo+json")
     body = json.loads(resp.content)
     assert body.get("type") == "FeatureCollection", body.get("type")
+    # Content matches data/geo/... (compare by feature count).
+    source = main.REPO_ROOT / "data" / "geo" / name
+    expected = json.loads(source.read_text(encoding="utf-8"))
+    assert len(body["features"]) == len(expected["features"])
 
 
 def test_openapi_exposes_exact_path_set(client: TestClient) -> None:
@@ -133,6 +139,8 @@ def test_openapi_exposes_exact_path_set(client: TestClient) -> None:
         "/api/v1/quest",
         "/api/v1/test-empty",
         "/api/v1/test-error",
+        "/data/leninsky-boundary.geojson",
+        "/data/leninsky-poi-candidates.geojson",
     }, paths
 
 

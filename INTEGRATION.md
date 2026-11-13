@@ -248,11 +248,15 @@ dev-режиме не требуется.
 
 - `GET /` — новый дизайн-прототип (`frontend-design/dist/`), статический
   бандл без сборки; HTML-маркер `<title>Свой Владик — Ленинский район</title>`.
-- `GET /data/...` — данные дизайн-фронта из `frontend-design/dist/data/`:
-  граница района `data/leninsky-boundary.geojson` и точки-кандидаты
-  `data/leninsky-poi-candidates.geojson`. Именно эти пути запрашивает `app.js`.
+- `GET /data/leninsky-boundary.geojson` и
+  `GET /data/leninsky-poi-candidates.geojson` — отдаются из `data/geo/`
+  (единственный источник правды), с типом `application/geo+json`. **Новые места
+  добавляются только в `data/geo/leninsky-poi-candidates.geojson`.**
+- Остальные файлы фронта по `/data/...` (например `map-style.json`, если
+  появится в `frontend-design/dist/data/`) отдаются из этой фронтовой папки.
 - `GET /docs`, `GET /openapi.json` — Swagger UI и схема. В OpenAPI присутствуют
-  только `/api/v1/*` и `/health`; старый префикс `/api/*` не поддерживается.
+  только `/api/v1/*`, `/health` и два пути `/data/leninsky-*.geojson`; старый
+  префикс `/api/*` не поддерживается.
 
 Прежний прототип `prototypes/leninsky-map/` остаётся в репозитории как
 историческая справка, но по `/` больше не отдаётся.
