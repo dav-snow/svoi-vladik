@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "route-leninsky-culture-001",
+      "title": "Культурная прогулка по Ленинскому району",
+      "description": "Короткий маршрут по трём знаковым точкам центра Владивостока: от военно-морской истории к драматической сцене и смотровой площадке сопки Орлиное гнездо.",
+      "place_ids": [
+        "osm-node-676375880",
+        "osm-way-26537156",
+        "osm-way-133436813"
+      ],
+      "estimated_minutes": 90,
+      "route_note": "Пешком по центру; на фуникулёр подъём платный, расписание уточняйте на месте.",
+      "route_checked_at": null,
+      "quest_id": "quest-leninsky-culture-001",
+      "source_url": "https://www.openstreetmap.org/relation/1686637",
+      "sources": [
+        {
+          "title": "OpenStreetMap: Ленинский район Владивостока",
+          "url": "https://www.openstreetmap.org/relation/1686637"
+        }
+      ],
+      "checked_at": null,
+      "status": "demo"
+    }
+  ],
+  "total": 1
+}

@@ -3,6 +3,10 @@
 const $ = id => document.getElementById(id);
 const ui = { map: $("map"), fallback: $("map-fallback"), status: $("map-status"), list: $("place-list"), count: $("place-count"), search: $("search"), selected: $("selected-place"), toast: $("toast") };
 const state = { places: [], boundary: null, map: null, markers: new Map(), filter: "all", query: "", selected: null, savedOnly: false, saved: new Set(), view: "map" };
+// Geolocation lives only in page memory (never persisted): origin device|manual|null,
+// lat/lng/accuracyM/capturedAt, radiusM, phase (idle|requesting|ready|denied|unavailable|timeout),
+// reqId guards against stale async callbacks, youMarker is the "Вы здесь" map marker.
+const geo = { origin: null, lat: null, lng: null, accuracyM: null, capturedAt: null, radiusM: 1000, radiusFilter: true, phase: "idle", reqId: 0, youMarker: null };
 const storageKey = "svoi-vladik-design-v1";
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isMobileLayout = () => matchMedia("(max-width: 760px)").matches;
@@ -89,6 +93,7 @@ function placeCard(place) {
   main.append(image(place.image, "place-thumb"));
   const body = el("span", "place-body");
   body.append(el("span", "place-kind", place.kind), el("span", "place-title", place.title));
+  if (Number.isFinite(place.distanceM)) body.append(el("span", "place-distance", "≈" + formatDistance(place.distanceM) + " по прямой"));
   main.append(body);
   const save = button("", "save-place" + (state.saved.has(place.id) ? " is-saved" : ""), () => setSaved(place), "bookmark");
   save.setAttribute("aria-label", state.saved.has(place.id) ? "Убрать из сохранённого" : "Сохранить место");
@@ -97,11 +102,25 @@ function placeCard(place) {
 }
 function renderPlaces() {
   const q = state.query.toLocaleLowerCase("ru");
-  const found = state.places.filter(p => (!state.savedOnly || state.saved.has(p.id)) && (state.filter === "all" || p.category === state.filter) && (p.title + " " + p.originalName).toLocaleLowerCase("ru").includes(q));
+  const located = geo.origin && Number.isFinite(geo.lat) && Number.isFinite(geo.lng);
+  let found = state.places.filter(p => (!state.savedOnly || state.saved.has(p.id)) && (state.filter === "all" || p.category === state.filter) && (p.title + " " + p.originalName).toLocaleLowerCase("ru").includes(q));
+  if (located) {
+    // Always compute distances and sort ascending (stable tie-break by id).
+    // The radius only filters the list when geo.radiusFilter is on.
+    for (const p of state.places) p.distanceM = haversineM(geo.lat, geo.lng, p.lat, p.lng);
+    if (geo.radiusFilter) found = found.filter(p => p.distanceM <= geo.radiusM);
+    found.sort((a, b) => a.distanceM - b.distanceM || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  } else {
+    for (const p of state.places) p.distanceM = undefined;
+  }
   ui.list.replaceChildren(...found.map(placeCard)); ui.count.textContent = String(found.length).padStart(2, "0");
   if (!found.length) {
     const empty = el("li", "empty-state");
-    empty.append(el("h3", "", state.savedOnly ? "Сохраним что-нибудь?" : "Пока ничего не нашлось"), el("p", "", state.savedOnly ? "Нажмите на закладку у места, к которому хочется вернуться." : "Попробуйте другое название или сбросьте фильтры."));
+    if (located && geo.radiusFilter) {
+      empty.append(el("h3", "", "В выбранном радиусе нет мест из нашего каталога Ленинского района"), el("p", "", "Увеличьте радиус, измените фильтр или выберите старт вручную."));
+    } else {
+      empty.append(el("h3", "", state.savedOnly ? "Сохраним что-нибудь?" : "Пока ничего не нашлось"), el("p", "", state.savedOnly ? "Нажмите на закладку у места, к которому хочется вернуться." : "Попробуйте другое название или сбросьте фильтры."));
+    }
     empty.append(button("Показать все места", "secondary-button", resetFilters)); ui.list.append(empty);
   }
   for (const [id, marker] of state.markers) marker.getElement().hidden = !found.some(p => p.id === id);
@@ -188,12 +207,22 @@ async function getJSON(url) {
   const response = await fetch(url, { signal: AbortSignal.timeout(12000) });
   if (!response.ok) throw new Error("Unable to read local map data"); return response.json();
 }
-function preparePlaces(geo) {
-  if (geo.type !== "FeatureCollection") throw new Error("Invalid geographic data");
-  return geo.features.filter(f => META[f.id] && f.geometry?.type === "Point").map(f => {
-    const p = f.properties, m = META[f.id], [lng, lat] = f.geometry.coordinates;
+function preparePlaces(collection) {
+  if (collection.type !== "FeatureCollection") throw new Error("Invalid geographic data");
+  // META is now an optional editorial override: any Point feature renders, even
+  // without a META entry. Coordinates and category come from properties.
+  return collection.features.filter(f => f.geometry?.type === "Point").map(f => {
+    const p = f.properties || {}, m = META[f.id], [lng, lat] = f.geometry.coordinates;
     if (!Number.isFinite(lng) || !Number.isFinite(lat)) throw new Error("Invalid point coordinates");
-    return { id: f.id, title: m.short, originalName: p.name, lng, lat, category: p.category, osmType: p.osm_type, osmId: p.osm_id, ...m };
+    const title = m?.short || p.name || "Место без названия";
+    return {
+      id: f.id, title, originalName: p.name || title, lng, lat, category: p.category,
+      osmType: p.osm_type, osmId: p.osm_id,
+      label: m?.label || title,
+      kind: m?.kind || p.category || "Ленинский район",
+      description: m?.description || "Точка из каталога Ленинского района. Условия посещения проверьте по источнику.",
+      image: m?.image || "guide.svg"
+    };
   });
 }
 function mapStatus(text) { ui.status.textContent = text; ui.status.hidden = false; }
@@ -211,7 +240,7 @@ function frameMobilePlaces() {
 function showFallback() {
   if (!state.boundary || !ui.fallback.hidden) return;
   ui.fallback.hidden = false; ui.map.hidden = true;
-  const oldMap=state.map;state.map=null;state.markers.clear();
+  const oldMap=state.map;state.map=null;state.markers.clear();geo.youMarker=null;
   if(oldMap)oldMap.remove();
   const ns = "http://www.w3.org/2000/svg", svg = document.createElementNS(ns, "svg");
   svg.setAttribute("viewBox", "0 0 1000 650"); svg.setAttribute("preserveAspectRatio", "xMidYMid slice"); svg.setAttribute("role", "img"); svg.setAttribute("aria-label", "Схема границы Ленинского района по настоящим координатам");
@@ -258,6 +287,86 @@ function initialiseMap() {
     map.on("webglcontextlost", showFallback);
   } catch { showFallback(); }
 }
+// --- Geolocation: "Что рядом со мной". Position is kept only in memory (geo
+// object), never written to storage/URL/network/logs. ---
+const RAD = Math.PI / 180;
+function haversineM(lat1, lng1, lat2, lng2) {
+  const dLat = (lat2 - lat1) * RAD, dLng = (lng2 - lng1) * RAD;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * RAD) * Math.cos(lat2 * RAD) * Math.sin(dLng / 2) ** 2;
+  return 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+function formatDistance(m) { return m < 950 ? Math.round(m / 10) * 10 + " м" : (m / 1000).toFixed(m < 9500 ? 1 : 0) + " км"; }
+function formatTime(ts) { return new Date(ts).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }); }
+function nearbyStatus(text, show = true) { const s = $("nearby-status"); if (!s) return; s.textContent = text || ""; s.hidden = !show || !text; }
+function setGeoPhase(phase) {
+  geo.phase = phase;
+  const btn = $("nearby-request"); if (btn) btn.disabled = phase === "requesting";
+  const actions = $("nearby-actions"); if (actions) actions.hidden = geo.origin !== "device";
+}
+function clearYouMarker() { if (geo.youMarker) { geo.youMarker.remove(); geo.youMarker = null; } }
+function placeYouMarker() {
+  clearYouMarker();
+  if (!state.map || geo.origin !== "device") return;
+  const pin = el("div", "you-marker"); pin.setAttribute("aria-hidden", "true");
+  pin.append(el("span", "you-dot"), el("span", "you-label", "Вы здесь"));
+  geo.youMarker = new maplibregl.Marker({ element: pin, anchor: "center" }).setLngLat([geo.lng, geo.lat]).addTo(state.map);
+}
+function nearbyWithinRadius() {
+  // Count catalogue places within the current radius (list filters also apply
+  // to the rendered list, but the status counter reflects the radius scope).
+  return state.places.filter(p => haversineM(geo.lat, geo.lng, p.lat, p.lng) <= geo.radiusM).length;
+}
+function syncShowAllButton() {
+  const b = $("nearby-show-all"); if (b) b.textContent = geo.radiusFilter ? "Показать все места" : "Только рядом";
+}
+function radiusLabel() { return geo.radiusM < 1000 ? geo.radiusM + " м" : (geo.radiusM / 1000) + " км"; }
+function updateNearbyStatus() {
+  if (geo.origin !== "device") return;
+  const total = state.places.length, within = nearbyWithinRadius();
+  const shown = geo.radiusFilter ? within : total;
+  let text = "Рядом со мной · " + radiusLabel() + " · показано " + shown + " из " + total + " мест";
+  text += " · точность около " + Math.round(geo.accuracyM) + " м · определено в " + formatTime(geo.capturedAt);
+  if (geo.radiusFilter && Number.isFinite(geo.accuracyM) && geo.accuracyM > geo.radiusM) text += ". Точность ниже радиуса — результат приблизительный, обновите позицию или выберите точку вручную.";
+  nearbyStatus(text);
+}
+function afterPositionSet() {
+  // Shared result for list and map; status carries counter, accuracy and time.
+  placeYouMarker(); renderPlaces(); syncShowAllButton(); updateNearbyStatus();
+  if (state.map) state.map.flyTo({ center: [geo.lng, geo.lat], zoom: Math.max(state.map.getZoom(), 14.6), duration: reducedMotion ? 0 : 600 });
+}
+function requestNearby(fresh) {
+  if (!("geolocation" in navigator)) { setGeoPhase("unavailable"); nearbyStatus("Браузер не поддерживает геолокацию. Выберите место в списке или на карте вручную."); return; }
+  const reqId = ++geo.reqId; setGeoPhase("requesting"); nearbyStatus("Определяем местоположение…");
+  navigator.geolocation.getCurrentPosition(pos => {
+    if (reqId !== geo.reqId) return; // stale callback: a newer request or a clear happened
+    const { latitude, longitude, accuracy } = pos.coords;
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) { setGeoPhase("unavailable"); nearbyStatus("Не удалось определить координаты. Попробуйте обновить позицию или выбрать точку вручную."); return; }
+    geo.origin = "device"; geo.lat = latitude; geo.lng = longitude; geo.accuracyM = accuracy; geo.capturedAt = Date.now();
+    setGeoPhase("ready"); afterPositionSet();
+  }, err => {
+    if (reqId !== geo.reqId) return;
+    if (err.code === err.PERMISSION_DENIED) { setGeoPhase("denied"); nearbyStatus("Доступ к геолокации отклонён. Выберите стартовую точку вручную в списке или на карте."); }
+    else if (err.code === err.TIMEOUT) { setGeoPhase("timeout"); nearbyStatus("Не успели определить местоположение. Обновите позицию или выберите точку вручную."); }
+    else { setGeoPhase("unavailable"); nearbyStatus("Не удалось определить местоположение. Обновите позицию или выберите точку вручную."); }
+  }, { enableHighAccuracy: false, timeout: 10000, maximumAge: fresh ? 0 : 60000 });
+}
+function clearNearby() {
+  geo.reqId++; // invalidate any in-flight callback
+  geo.origin = null; geo.lat = geo.lng = geo.accuracyM = geo.capturedAt = null; geo.radiusFilter = true;
+  clearYouMarker(); setGeoPhase("idle"); nearbyStatus("", false); syncShowAllButton(); renderPlaces();
+}
+function toggleRadiusFilter() {
+  if (geo.origin !== "device") return;
+  geo.radiusFilter = !geo.radiusFilter;
+  renderPlaces(); syncShowAllButton(); updateNearbyStatus();
+}
+$("nearby-request")?.addEventListener("click", () => requestNearby(false));
+$("nearby-refresh")?.addEventListener("click", () => requestNearby(true));
+$("nearby-clear")?.addEventListener("click", clearNearby);
+$("nearby-show-all")?.addEventListener("click", toggleRadiusFilter);
+// Changing the radius never force-enables the filter; it only recomputes the
+// list/counter. If the filter was off, it stays off.
+$("nearby-radius")?.addEventListener("change", e => { const v = parseInt(e.target.value, 10); if (v >= 100 && v <= 5000) { geo.radiusM = v; renderPlaces(); if (geo.origin === "device") updateNearbyStatus(); } });
 $("zoom-in").addEventListener("click", () => state.map ? state.map.zoomIn({duration:200}) : notify("Масштабирование доступно при загрузке карты"));
 $("zoom-out").addEventListener("click", () => state.map ? state.map.zoomOut({duration:200}) : notify("Масштабирование доступно при загрузке карты"));
 $("fit-district").addEventListener("click", () => state.map ? state.map.fitBounds([[131.8843306,43.0974826],[132.0481927,43.1499040]],{padding:55,duration:reducedMotion?0:700}) : notify("На схеме показан весь район"));

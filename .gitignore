@@ -35,3 +35,4 @@ tmp/
 *.bak
 credentials.json
 service-account*.json
+AGENTS.md
