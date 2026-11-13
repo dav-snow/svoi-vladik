@@ -405,3 +405,9 @@ button svg, .search-field svg { width: 20px; height: 20px; stroke: currentColor;
 .board-login { font-weight: 750; flex: 1; overflow-wrap: anywhere; }
 .board-count { font-weight: 750; white-space: nowrap; }
 .board-likes { color: var(--muted); font-size: 12px; white-space: nowrap; }
+
+/* --- Задача 014: ручной ввод координат старта --- */
+.manual-coords { display: flex; flex-direction: column; gap: 9px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+.manual-coord { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 700; color: #6f786b; }
+.manual-coord input { min-height: 40px; padding: 8px 11px; border: 1px solid #e6eae2; border-radius: 10px; background: #fafbf8; font-size: 14px; color: var(--graphite); }
+.manual-coord input:focus { border-color: #c7cfbd; background: #fff; }

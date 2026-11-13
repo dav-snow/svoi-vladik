@@ -8,7 +8,8 @@ const source = readFileSync(new URL('../dist/app.js', import.meta.url), 'utf8');
 
 function harness() {
   const elements = new Map(), requests = [], notices = [];
-  const node = () => ({
+  const node = (tagName = 'div') => ({
+    tagName,
     hidden: false, disabled: false, textContent: '', value: '', children: [], listeners: new Map(),
     classList: { add() {}, remove() {}, toggle() {} },
     setAttribute() {}, toggleAttribute() {}, addEventListener(type, fn) { this.listeners.set(type, fn); },
@@ -73,4 +74,21 @@ test('concurrent logout clicks send one request until the server responds', asyn
   finish({ ok: true, status: 204 });
   await pending;
   assert.equal(h.run('auth.user'), null);
+});
+
+test('manual coordinates reject blank input and accept zero and decimal comma', () => {
+  const h = harness();
+  h.run("guideCard = () => document.createElement('div'); openDialog = (id, content) => { globalThis.dialogContent = content; }; revealPlaces = () => {}; setManualPoint = (lat, lng) => { globalThis.appliedPoint = [lat, lng]; };");
+  h.run('showManualOrigin()');
+  const form = h.run("dialogContent.find(node => node.className === 'manual-coords')");
+  const fields = form.children.filter(node => node.className === 'manual-coord').map(label => label.children[1]);
+  const error = form.children.find(node => node.className === 'auth-error');
+  const submit = () => form.listeners.get('submit')({ preventDefault() {} });
+  fields[0].value = '  '; fields[1].value = '   ';
+  submit();
+  assert.equal(h.run('typeof appliedPoint'), 'undefined');
+  assert.equal(error.hidden, false);
+  fields[0].value = '0'; fields[1].value = '131,9';
+  submit();
+  assert.deepEqual(Array.from(h.run('appliedPoint')), [0, 131.9]);
 });

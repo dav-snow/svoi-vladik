@@ -87,11 +87,16 @@ function setSaved(place) {
   notify(added ? "Место сохранено на этом устройстве" : "Место удалено из сохранённого");
 }
 function sourceURL(place) { return place.source_url || `https://www.openstreetmap.org/${place.osmType}/${place.osmId}`; }
-function routeURL(place) { return `https://2gis.ru/directions/tab/pedestrian/points/%7C${place.lng},${place.lat}`; }
+// Задача 014: ссылку в 2ГИС собирает сервер (route_url, с литеральным «|»).
+// Клиент её не строит и не кодирует; без route_url кнопка не показывается.
+function routeURL(place) { return place.route_url || null; }
+function routeButton(text, place, cls) { return routeURL(place) ? [external(text, routeURL(place), cls)] : []; }
 function external(text, href, cls) {
   let url; try { url = new URL(href); } catch { return el('span', cls, text); }
   if (url.protocol !== 'https:' || url.username || url.password) return el('span', cls, text);
-  const a = el("a", cls, text); a.href = url.href; a.target = "_blank"; a.rel = "noopener noreferrer"; a.append(icon("arrow")); return a;
+  // href присваиваем исходной строкой: сериализация URL закодировала бы «|»
+  // в %7C, а 2ГИС ждёт сырой разделитель «старт|финиш».
+  const a = el("a", cls, text); a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer"; a.append(icon("arrow")); return a;
 }
 function openDialog(id, content) {
   dialogRevision++;
@@ -123,7 +128,7 @@ function placeCard(place) {
   main.append(image(place.image, "place-thumb"));
   const body = el("span", "place-body");
   body.append(el("span", "place-kind", place.kind), el("span", "place-title", place.title));
-  if (Number.isFinite(place.distanceM)) body.append(el("span", "place-distance", "≈" + formatDistance(place.distanceM) + " по прямой"));
+  if (Number.isFinite(place.distanceM)) body.append(el("span", "place-distance", "≈" + formatDistance(place.distanceM) + " по прямой · ~" + walkMinutes(place.distanceM) + " мин пешком"));
   main.append(body);
   const save = button("", "save-place" + (state.saved.has(place.id) ? " is-saved" : ""), () => setSaved(place), "bookmark");
   save.setAttribute("aria-label", state.saved.has(place.id) ? "Убрать из сохранённого" : "Сохранить место");
@@ -189,7 +194,7 @@ function showPlace(place) {
   const head = dialogHeading(place.kind, place.title, place.description);
   const note = el("p", "info-note", "Условия посещения ещё уточняем. Перед выходом проверьте режим работы и доступность входа. Геометка может не совпадать со входом.");
   const actions = el("div", "dialog-actions");
-  actions.append(external("Пешком в 2ГИС", routeURL(place), "primary-button"), button(state.saved.has(place.id) ? "Сохранено" : "Сохранить", "secondary-button", () => { setSaved(place); showPlace(place); }, "bookmark"));
+  actions.append(...routeButton("Пешком в 2ГИС", place, "primary-button"), button(state.saved.has(place.id) ? "Сохранено" : "Сохранить", "secondary-button", () => { setSaved(place); showPlace(place); }, "bookmark"));
   const source = external("Посмотреть источник", sourceURL(place), "source-link");
   const address = el('p', 'place-address', place.address || 'Точное место входа уточняйте по источнику.');
   const manual = button('Выбрать как старт для поиска рядом', 'secondary-button', () => { setManualOrigin(place); closeDialog('detail-dialog'); revealPlaces(); });
@@ -390,7 +395,7 @@ function updateArrivalControls(box) {
   mark.disabled = !['near', 'fallback', 'idle'].includes(presence.mode);
   actions.append(mark);
   if (presence.mode !== 'near' && presence.mode !== 'requesting') actions.append(button(presence.mode === 'idle' ? 'Проверить GPS' : 'Обновить GPS', 'secondary-button', () => requestNearby(true), 'pin'));
-  if (presence.mode === 'far') actions.append(external('Идти в 2ГИС', routeURL(stop.place), 'secondary-button'));
+  if (presence.mode === 'far') actions.append(...routeButton('Идти в 2ГИС', stop.place, 'secondary-button'));
   if (presence.mode === 'requesting') actions.append(button('Продолжить без GPS', 'text-button', () => { clearNearby(false); setGeoPhase('unavailable'); }));
   box.replaceChildren(status, actions);
   if (hadFocus) (actions.querySelector('button:not(:disabled)') || mark).focus({ preventScroll: true });
@@ -454,7 +459,7 @@ function renderJourney() {
   const controls = el('div', 'journey-actions');
   if (index >= 0) {
     const view = button('История остановки', 'secondary-button', () => showJourneyStop(journey, index)); view.dataset.focusKey = 'story'; controls.append(view);
-    controls.append(external('Идти в 2ГИС', routeURL(journey.stops[index].place), 'secondary-button'));
+    controls.append(...routeButton('Идти в 2ГИС', journey.stops[index].place, 'secondary-button'));
   }
   controls.append(button('Сбросить прогресс', 'text-button', () => journey.kind === 'quest' ? resetQuest(journey.item) : resetWalk(journey.item)));
   if (journey.kind === 'quest') controls.append(button('К другим квестам', 'text-button', leaveQuest));
@@ -473,7 +478,7 @@ function showJourneyStop(journey, index) {
     if (stop.fiction_text) content.push(el('p', 'fiction-copy', 'Проводница · художественная история: ' + stop.fiction_text));
     const fact = el('section', 'fact-card'); fact.append(el('p', 'eyebrow', 'ИСТОРИЧЕСКАЯ СПРАВКА'), el('p', '', stop.fact_text), renderSources(stop.sources)); content.push(fact);
   } else content.push(el('p', 'dialog-copy', stop.place.description), renderSources(journey.item.sources));
-  content.push(external('Идти в 2ГИС', routeURL(stop.place), 'secondary-button'));
+  content.push(...routeButton('Идти в 2ГИС', stop.place, 'secondary-button'));
   if (done.includes(stop.id)) content.push(el('p', 'info-note', journey.saved.verifiedByGps[stop.id] ? 'Остановка отмечена: вы были рядом с точкой по GPS.' : 'Остановка отмечена без проверки рядом.'));
   else content.push(arrivalControls(journey, stop));
   content.push(button('Вернуться к карте', 'secondary-button', () => { closeDialog('detail-dialog'); selectPlace(stop.place, true); }));
@@ -775,13 +780,40 @@ function showManualOrigin() {
   const select = el('select', 'manual-select'); select.setAttribute('aria-label', 'Начальная точка');
   for (const place of state.places) { const option = el('option', '', place.title); option.value = place.id; select.append(option); }
   const use = button('Искать рядом с этой точкой', 'primary-button', () => { const place = state.places.find(p => p.id === select.value); if (place) setManualOrigin(place); closeDialog('firsttime-dialog'); $('nearby-options').open = true; revealPlaces(); });
-  openDialog('firsttime-dialog', [guideCard('location-unknown', 'Выбери старт вручную', 'Это выбранная точка, а не местоположение устройства.'), select, use]);
+  // Задача 014: свои координаты вручную — для плохой геолокации. Значения
+  // валидируются и живут только в памяти страницы (geo), никуда не уходят.
+  const coords = el('form', 'manual-coords');
+  const coordInput = labelText => {
+    const label = el('label', 'manual-coord');
+    const input = el('input'); input.type = 'text'; input.inputMode = 'decimal'; input.autocomplete = 'off'; input.spellcheck = false; input.required = true;
+    label.append(el('span', '', labelText), input);
+    return { label, input };
+  };
+  const lat = coordInput('Широта (−90…90)');
+  const lng = coordInput('Долгота (−180…180)');
+  const coordError = el('p', 'auth-error'); coordError.setAttribute('role', 'alert'); coordError.hidden = true;
+  const applyCoords = button('Использовать координаты', 'secondary-button', null); applyCoords.type = 'submit';
+  coords.append(el('p', 'eyebrow', 'ИЛИ ВВЕДИТЕ КООРДИНАТЫ'), lat.label, lng.label, coordError, applyCoords);
+  coords.addEventListener('submit', event => {
+    event.preventDefault();
+    const latText = lat.input.value.trim().replace(',', '.');
+    const lngText = lng.input.value.trim().replace(',', '.');
+    const latValue = Number(latText);
+    const lngValue = Number(lngText);
+    if (!latText || !lngText || !Number.isFinite(latValue) || Math.abs(latValue) > 90 || !Number.isFinite(lngValue) || Math.abs(lngValue) > 180) {
+      coordError.hidden = false; coordError.textContent = 'Нужны числа: широта от −90 до 90, долгота от −180 до 180.'; return;
+    }
+    setManualPoint(latValue, lngValue);
+    closeDialog('firsttime-dialog'); $('nearby-options').open = true; revealPlaces();
+  });
+  openDialog('firsttime-dialog', [guideCard('location-unknown', 'Выбери старт вручную', 'Это выбранная точка, а не местоположение устройства.'), select, use, coords]);
 }
-function setManualOrigin(place) {
-  geo.reqId++; geo.origin = 'manual'; geo.lat = place.lat; geo.lng = place.lng; geo.accuracyM = null; geo.capturedAt = null;
+function setManualPoint(lat, lng) {
+  geo.reqId++; geo.origin = 'manual'; geo.lat = lat; geo.lng = lng; geo.accuracyM = null; geo.capturedAt = null;
   geo.radiusFilter = true;
   setGeoPhase('ready'); afterPositionSet();
 }
+function setManualOrigin(place) { setManualPoint(place.lat, place.lng); }
 function mapStatus(text) { ui.status.textContent = text; ui.status.hidden = false; }
 function frameMobilePlaces() {
   if (!state.map || !state.places.length || !isMobileLayout()) return;
@@ -857,6 +889,8 @@ function haversineM(lat1, lng1, lat2, lng2) {
   return 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 function formatDistance(m) { return m < 950 ? Math.round(m / 10) * 10 + " м" : (m / 1000).toFixed(m < 9500 ? 1 : 0) + " км"; }
+// Оценочное время пешком: ~80 м/мин (≈4.8 км/ч), по прямой, без учёта маршрута.
+function walkMinutes(m) { return Math.max(1, Math.round(m / 80)); }
 function formatTime(ts) { return new Date(ts).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }); }
 function nearbyStatus(text, show = true) { const s = $("nearby-status"); if (!s) return; s.textContent = text || ""; s.hidden = !show || !text; }
 function setGeoPhase(phase) {
