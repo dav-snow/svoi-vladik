@@ -73,3 +73,12 @@ def test_places_endpoint_includes_images_list() -> None:
 def test_media_mount_serves_files() -> None:
     response = _client().get("/media/README.md")
     assert response.status_code == 200
+
+
+def test_place_photo_pack_is_served() -> None:
+    # The content team's licensed pack lives at repo-root assets/places and is
+    # mounted at /assets/places, ahead of the frontend root mount.
+    response = _client().get("/assets/places/manifest.json")
+    assert response.status_code == 200
+    body = response.json()
+    assert body.get("items")

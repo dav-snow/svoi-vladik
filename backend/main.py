@@ -37,6 +37,8 @@ FRONTEND_DIR = REPO_ROOT / "frontend-design/dist"
 DATA_DIR = FRONTEND_DIR / "data"
 # Editorial place photos, referenced in data as /media/...
 MEDIA_DIR = REPO_ROOT / "data" / "media"
+# Content team's licensed photo pack (manifest + jpgs), served at /assets/places.
+PLACE_PHOTOS_DIR = REPO_ROOT / "assets" / "places"
 # Kept for callers of the old loader; public endpoints no longer substitute mocks.
 ROUTES_MOCK_FILE = REPO_ROOT / "data/examples/route_mock.json"
 QUESTS_MOCK_FILE = REPO_ROOT / "data/examples/quest_mock.json"
@@ -975,5 +977,9 @@ if DATA_DIR.is_dir():
 # Place photos live in the repo (not gitignored); served read-only at /media.
 if MEDIA_DIR.is_dir():
     app.mount("/media", StaticFiles(directory=MEDIA_DIR), name="media")
+# Licensed place photo pack lives at repo-root assets/places (manifest + jpgs);
+# mount it explicitly so it is served alongside the frontend's own /assets.
+if PLACE_PHOTOS_DIR.is_dir():
+    app.mount("/assets/places", StaticFiles(directory=PLACE_PHOTOS_DIR), name="place-photos")
 if FRONTEND_DIR.is_dir():
     app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")

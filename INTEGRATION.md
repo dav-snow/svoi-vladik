@@ -89,8 +89,10 @@ API отвечает только за прогресс.
 - `description` (по умолчанию пустая строка), необязательные `address`, `image`, `osm_tags`;
 - `images: [{url, alt, caption, source_url}]` — галерея места (первый элемент —
   обложка). `url` — `/media/...` (или `/assets/...`) либо публичный `https://`.
-  Фото кладутся в `data/media/places/<place_id>/`, раздаются по `/media/...`;
-  подробности — `data/media/README.md`. Если фото нет — пустой массив;
+  Свои фото можно класть в `data/media/places/<place_id>/` (раздаётся по
+  `/media/...`, см. `data/media/README.md`); готовый лицензированный контент-пак
+  лежит в `assets/places/` и раздаётся по `/assets/places/...`
+  (манифест — `/assets/places/manifest.json`). Если фото нет — пустой массив;
 - `route_url` — готовая ссылка пешеходного маршрута в 2ГИС с подставленным
   финишем: `https://2gis.ru/directions/tab/pedestrian/points/|<lng>,<lat>`
   (разделитель `|` — литеральный, **не** `%7C`; для мест без координат `null`).
