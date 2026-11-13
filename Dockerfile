@@ -11,6 +11,8 @@ COPY prototypes/ ./prototypes/
 COPY scripts/ ./scripts/
 # New design frontend served at "/"; built-less static bundle.
 COPY frontend-design/dist/ ./frontend-design/dist/
+# Licensed place photo pack (manifest + jpgs), served at /assets/places.
+COPY assets/ ./assets/
 
 WORKDIR /app/backend
 
