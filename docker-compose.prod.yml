@@ -18,8 +18,8 @@ services:
         "--forwarded-allow-ips", "172.16.0.0/12",
       ]
     environment:
-      # Поддержка ветки с SQLite: файл базы живёт на named volume и переживает
-      # пересборку. Пока ветка не влита, лишние переменные безвредны.
+      # SQLite-база демо-аккаунтов и отметок живёт на named volume и переживает
+      # пересборку. COOKIE_SECURE=1 включает Secure-куку (нужно для HTTPS).
       - DB_PATH=/app/storage/demo.sqlite3
       - COOKIE_SECURE=1
     volumes:
