@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" role="img" aria-labelledby="lighthouse-title">
+  <title id="lighthouse-title">Авторский знак маяка</title>
+  <g stroke="#272727" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 35.5c5.5-3.7 11.6-3.7 17 0s11.5 3.7 19 0" fill="none" stroke="#cbe9eb" stroke-width="5"/>
+    <path d="m19.5 22-4 17h17l-4-17" fill="#fff8ed"/>
+    <path d="m17.5 30.5 13 3.5-1.2-5.1L18.7 26Z" fill="#ff8500" stroke="none"/>
+    <rect x="17.5" y="12.5" width="13" height="11" rx="2" fill="#cbe9eb"/>
+    <path d="M15.5 12.5 24 6l8.5 6.5Z" fill="#ff8500"/>
+    <path d="M24 5.5V3.8M15.5 24h17M13.5 39.5h21M10.5 44h27" fill="none"/>
+    <path d="M24 15.5v5M10.5 16.5l-4-1M37.5 16.5l4-1" fill="none"/>
+  </g>
+</svg>

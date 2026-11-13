@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="90" viewBox="0 0 120 90" role="img" aria-labelledby="funicular-title">
+  <title id="funicular-title">Условная авторская виньетка фуникулёра</title>
+  <rect width="120" height="90" rx="12" fill="#fff8ed"/>
+  <circle cx="96" cy="24" r="12" fill="#cbe9eb"/>
+  <path d="M0 65C24 60 34 35 56 36c22 1 28-19 64-17v71H0Z" fill="#d5e3ce"/>
+  <path d="M0 82c21-7 35-1 53-8s40-11 67-9v25H0Z" fill="#cbe9eb"/>
+  <g stroke="#272727" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m15 76 90-49M17 80l90-49M12 76l8 4M29 67l8 4M46 58l8 4M63 49l8 4M80 40l8 4M97 31l8 4" fill="none"/>
+    <g transform="translate(29 49)">
+      <path d="M0 3.5 23 0v16L0 20Z" fill="#ff8500"/>
+      <path d="m3 6 7-1v6l-7 1Zm10-1.5 7-1v6l-7 1Z" fill="#fff8ed"/>
+      <path d="m-1 21 25-4" fill="none"/>
+      <circle cx="4" cy="22" r="1.5" fill="#272727" stroke="none"/>
+      <circle cx="19" cy="19.5" r="1.5" fill="#272727" stroke="none"/>
+    </g>
+    <g transform="translate(70 25)">
+      <path d="M0 3.5 23 0v16L0 20Z" fill="#fff8ed"/>
+      <path d="m0 13 23-4v7L0 20Z" fill="#ff8500" stroke="none"/>
+      <path d="m3 6 7-1v5l-7 1Zm10-1.5 7-1v5l-7 1Z" fill="#cbe9eb"/>
+      <path d="m-1 21 25-4" fill="none"/>
+      <circle cx="4" cy="22" r="1.5" fill="#272727" stroke="none"/>
+      <circle cx="19" cy="19.5" r="1.5" fill="#272727" stroke="none"/>
+    </g>
+    <path d="M10 56h8M14 52v8M105 53h7" fill="none"/>
+  </g>
+</svg>
