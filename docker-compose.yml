@@ -4,5 +4,13 @@ services:
     ports:
       - "127.0.0.1:8000:8000"
     restart: unless-stopped
+    environment:
+      # SQLite demo database lives on a named volume so accounts and marks
+      # survive rebuilds. Set COOKIE_SECURE=1 when serving over HTTPS.
+      - DB_PATH=/app/db/demo.sqlite3
     volumes:
       - "./data/private/quest-answers.json:/app/data/private/quest-answers.json:ro"
+      - "sv-db:/app/db"
+
+volumes:
+  sv-db:

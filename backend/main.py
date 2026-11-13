@@ -5,14 +5,18 @@ import hashlib
 import hmac
 import json
 import logging
+import os
 import secrets
+import sqlite3
 import time
 from collections import deque
+from contextlib import asynccontextmanager, closing
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Annotated, Any, Literal
 from urllib.parse import urlsplit
 
-from fastapi import FastAPI, HTTPException, Path as ApiPath, Query, Request
+from fastapi import FastAPI, HTTPException, Path as ApiPath, Query, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -34,8 +38,14 @@ DATA_DIR = FRONTEND_DIR / "data"
 ROUTES_MOCK_FILE = REPO_ROOT / "data/examples/route_mock.json"
 QUESTS_MOCK_FILE = REPO_ROOT / "data/examples/quest_mock.json"
 GEO_JSON_MEDIA_TYPE = "application/geo+json"
+DEFAULT_DB_FILE = REPO_ROOT / "data/demo.sqlite3"
+SESSION_COOKIE = "sv_session"
+SESSION_TTL_SECONDS = 7 * 24 * 3600
+SCRYPT_N, SCRYPT_R, SCRYPT_P, SCRYPT_DKLEN = 2**14, 8, 1, 32
 ID_PATTERN = r"^[A-Za-z0-9_-]{1,64}$"
+LOGIN_PATTERN = r"^[A-Za-z0-9_.-]+$"
 Id = Annotated[str, StringConstraints(strict=True, min_length=1, max_length=64, pattern=ID_PATTERN)]
+Login = Annotated[str, StringConstraints(strict=True, min_length=3, max_length=32, pattern=LOGIN_PATTERN)]
 Status = Literal["draft", "verified", "needs_review", "expired", "archived", "demo"]
 Category = Literal["culture", "viewpoint", "park", "food", "toilet", "other"]
 Need = Literal["eat", "toilet", "fun", "lodging"]
@@ -175,6 +185,148 @@ class PrivateAnswer(BaseModel):
     correct_option_id: Id
     explanation: str = Field(min_length=1)
 
+class Credentials(BaseModel):
+    """Demo auth: a password never leaves this model as plain text."""
+    model_config = ConfigDict(extra="forbid", strict=True)
+    login: Login
+    password: str = Field(min_length=8, max_length=128)
+
+    def __repr__(self) -> str:  # keep the password out of logs and traces
+        return f"Credentials(login={self.login!r})"
+
+    __str__ = __repr__
+
+# --- SQLite demo database: users, sessions, visits, likes -------------------
+# Stdlib sqlite3 only, one short-lived connection per request, parameterized
+# queries. The file path comes from DB_PATH; a broken database must degrade
+# (zero counters on GET, 503 on writes), never crash the API.
+
+_DB_SCHEMA = """
+CREATE TABLE IF NOT EXISTS users(
+    id TEXT PRIMARY KEY,
+    login TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS sessions(
+    token_hash TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    expires_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS visits(
+    user_id TEXT NOT NULL,
+    place_id TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    PRIMARY KEY (user_id, place_id)
+);
+CREATE TABLE IF NOT EXISTS likes(
+    user_id TEXT NOT NULL,
+    place_id TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    PRIMARY KEY (user_id, place_id)
+);
+"""
+
+def db_path() -> Path:
+    return Path(os.environ.get("DB_PATH") or DEFAULT_DB_FILE)
+
+def open_db() -> sqlite3.Connection:
+    path = db_path()
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise sqlite3.OperationalError(str(exc)) from exc
+    conn = sqlite3.connect(path, timeout=5)
+    try:
+        conn.execute("PRAGMA busy_timeout = 5000")
+        conn.execute("PRAGMA journal_mode = WAL")
+        conn.executescript(_DB_SCHEMA)
+        conn.commit()
+    except sqlite3.Error:
+        conn.close()
+        raise
+    return conn
+
+def _db_or_503() -> sqlite3.Connection:
+    try:
+        return open_db()
+    except sqlite3.Error:
+        _raise_api_error(503, message="База данных временно недоступна")
+
+def _utc_now() -> datetime:
+    return datetime.now(timezone.utc)
+
+def _iso(moment: datetime) -> str:
+    return moment.isoformat(timespec="seconds")
+
+def hash_password(password: str) -> str:
+    salt = secrets.token_bytes(16)
+    digest = hashlib.scrypt(password.encode("utf-8"), salt=salt, n=SCRYPT_N, r=SCRYPT_R, p=SCRYPT_P, dklen=SCRYPT_DKLEN, maxmem=64 * 1024 * 1024)
+    return f"scrypt${SCRYPT_N}${SCRYPT_R}${SCRYPT_P}${salt.hex()}${digest.hex()}"
+
+def verify_password(password: str, stored: str) -> bool:
+    try:
+        scheme, n_raw, r_raw, p_raw, salt_hex, hash_hex = stored.split("$")
+        n, r, p = int(n_raw), int(r_raw), int(p_raw)
+        salt, expected = bytes.fromhex(salt_hex), bytes.fromhex(hash_hex)
+        # Sanity bounds so a tampered row cannot demand unbounded memory.
+        if scheme != "scrypt" or not (2 <= n <= 2**20) or not (1 <= r <= 32) or not (1 <= p <= 16) or not (16 <= len(expected) <= 64) or len(salt) < 8:
+            return False
+        digest = hashlib.scrypt(password.encode("utf-8"), salt=salt, n=n, r=r, p=p, dklen=len(expected), maxmem=256 * 1024 * 1024)
+    except (TypeError, ValueError):
+        return False
+    return hmac.compare_digest(digest, expected)
+
+# Verified against unknown logins too, so both failures cost the same time.
+_DUMMY_HASH = hash_password(secrets.token_hex(16))
+
+def _token_hash(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+def create_session(conn: sqlite3.Connection, user_id: str) -> str:
+    token = secrets.token_urlsafe(32)
+    now = _utc_now()
+    conn.execute(
+        "INSERT INTO sessions(token_hash, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)",
+        (_token_hash(token), user_id, _iso(now), _iso(now + timedelta(seconds=SESSION_TTL_SECONDS))),
+    )
+    conn.commit()
+    return token
+
+def set_session_cookie(response: Response, token: str) -> None:
+    response.set_cookie(SESSION_COOKIE, token, max_age=SESSION_TTL_SECONDS, path="/", httponly=True, samesite="lax", secure=os.environ.get("COOKIE_SECURE") == "1")
+
+def clear_session_cookie(response: Response) -> None:
+    response.delete_cookie(SESSION_COOKIE, path="/", httponly=True, samesite="lax", secure=os.environ.get("COOKIE_SECURE") == "1")
+
+def session_user(conn: sqlite3.Connection, request: Request) -> dict[str, str] | None:
+    token = request.cookies.get(SESSION_COOKIE)
+    if not token or len(token) > 256:
+        return None
+    row = conn.execute(
+        "SELECT s.token_hash, s.expires_at, u.id, u.login FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ?",
+        (_token_hash(token),),
+    ).fetchone()
+    if row is None:
+        return None
+    token_hash, expires_at, user_id, login = row
+    try:
+        expired = datetime.fromisoformat(expires_at) <= _utc_now()
+    except ValueError:
+        expired = True
+    if expired:
+        conn.execute("DELETE FROM sessions WHERE token_hash = ?", (token_hash,))
+        conn.commit()
+        return None
+    return {"id": user_id, "login": login}
+
+def require_user(conn: sqlite3.Connection, request: Request) -> dict[str, str]:
+    user = session_user(conn, request)
+    if user is None:
+        _raise_api_error(401)
+    return user
+
 
 def _read_json_safely(path: Path) -> Any | None:
     try:
@@ -243,8 +395,9 @@ def load_guides() -> list[Guide]:
 PLACES = load_places()
 
 _DEFAULT_ERRORS = {
-    400: ("BAD_REQUEST", "Неверный запрос"), 404: ("NOT_FOUND", "Ресурс не найден"),
-    405: ("METHOD_NOT_ALLOWED", "Метод не поддерживается"), 413: ("PAYLOAD_TOO_LARGE", "Запрос слишком большой"),
+    400: ("BAD_REQUEST", "Неверный запрос"), 401: ("UNAUTHORIZED", "Требуется вход"),
+    404: ("NOT_FOUND", "Ресурс не найден"), 405: ("METHOD_NOT_ALLOWED", "Метод не поддерживается"),
+    409: ("CONFLICT", "Логин уже занят"), 413: ("PAYLOAD_TOO_LARGE", "Запрос слишком большой"),
     414: ("URI_TOO_LONG", "Строка запроса слишком длинная"), 415: ("UNSUPPORTED_MEDIA_TYPE", "Ожидается JSON"),
     422: ("VALIDATION_ERROR", "Неверные параметры запроса"), 429: ("RATE_LIMITED", "Слишком много запросов; попробуйте позже"),
     500: ("INTERNAL_ERROR", "Внутренняя ошибка сервера"), 503: ("UNAVAILABLE", "Данные временно недоступны"),
@@ -252,7 +405,10 @@ _DEFAULT_ERRORS = {
 
 def _error_response(status_code, code=None, message=None):
     default_code, default_message = _DEFAULT_ERRORS.get(status_code, ("ERROR", "Ошибка"))
-    return JSONResponse(status_code=status_code, content={"error": {"code": code or default_code, "message": message or default_message}}, headers=SECURITY_HEADERS)
+    headers = dict(SECURITY_HEADERS)
+    if status_code == 429:
+        headers["Retry-After"] = "60"
+    return JSONResponse(status_code=status_code, content={"error": {"code": code or default_code, "message": message or default_message}}, headers=headers)
 
 def _raise_api_error(status_code, code=None, message=None):
     default_code, default_message = _DEFAULT_ERRORS[status_code]
@@ -260,10 +416,10 @@ def _raise_api_error(status_code, code=None, message=None):
 
 class PostLimiter:
     """Single-process demo limit. Salted opaque keys, no persistent IP log."""
-    def __init__(self):
+    def __init__(self, limit: int = 30):
         self.salt = secrets.token_bytes(32)
         self.events: dict[str, deque] = {}
-        self.limit = 30
+        self.limit = limit
 
     def allow(self, host):
         now = time.monotonic()
@@ -283,6 +439,10 @@ class PostLimiter:
         return True
 
 POST_LIMITER = PostLimiter()
+# Register/login: 10 attempts per minute per IP and, separately, per login.
+AUTH_IP_LIMITER = PostLimiter(limit=10)
+AUTH_LOGIN_LIMITER = PostLimiter(limit=10)
+AUTH_BODY_PATHS = {"/api/v1/auth/register", "/api/v1/auth/login"}
 
 class DemoSafetyMiddleware:
     def __init__(self, app):
@@ -305,13 +465,19 @@ class DemoSafetyMiddleware:
             return await _error_response(404)(scope, receive, send_safe)
         if path.startswith("/api/") and len(scope.get("query_string", b"")) > 1024:
             return await _error_response(414)(scope, receive, send_safe)
-        is_answer = scope["method"] == "POST" and path.startswith("/api/v1/quest/") and path.rsplit("/", 1)[-1] in {"answer", "complete"}
-        if is_answer:
+        method = scope["method"]
+        last_segment = path.rsplit("/", 1)[-1]
+        is_answer = method == "POST" and path.startswith("/api/v1/quest/") and last_segment in {"answer", "complete"}
+        is_auth = method == "POST" and path in AUTH_BODY_PATHS
+        # DELETE is limited together with POST so flipping a mark on and off
+        # does not become a free write loop.
+        is_social = method in {"POST", "DELETE"} and path.startswith("/api/v1/places/") and last_segment in {"visit", "like"}
+        if is_answer or is_auth or is_social:
             host = (scope.get("client") or ("unknown", 0))[0]
-            if not POST_LIMITER.allow(host):
-                response = _error_response(429)
-                response.headers["Retry-After"] = "60"
-                return await response(scope, receive, send_safe)
+            limiter = AUTH_IP_LIMITER if is_auth else POST_LIMITER
+            if not limiter.allow(host):
+                return await _error_response(429)(scope, receive, send_safe)
+        if is_answer or is_auth:
             headers = {k.lower(): v for k, v in scope.get("headers", [])}
             if headers.get(b"content-type", b"").split(b";", 1)[0].strip().lower() != b"application/json" or headers.get(b"content-encoding", b"identity") != b"identity":
                 return await _error_response(415)(scope, receive, send_safe)
@@ -335,7 +501,17 @@ class DemoSafetyMiddleware:
             return await self.app(scope, replay, send_safe)
         await self.app(scope, receive, send_safe)
 
-app = FastAPI(title="Svoi Vladik API", version="0.2.0")
+@asynccontextmanager
+async def _lifespan(app: FastAPI):
+    # Idempotent schema creation at startup; connections re-ensure it anyway,
+    # so a database that appears later still works without a restart.
+    try:
+        open_db().close()
+    except sqlite3.Error:
+        logger.warning("Demo database unavailable at startup; social endpoints degrade")
+    yield
+
+app = FastAPI(title="Svoi Vladik API", version="0.3.0", lifespan=_lifespan)
 app.add_middleware(DemoSafetyMiddleware)
 # Same-origin UI: no permissive CORS middleware is necessary.
 
@@ -360,19 +536,41 @@ async def unhandled_exception_handler(request, exc):
 async def health():
     return {"status": "ok"}
 
+def _social_snapshot(request: Request) -> tuple[dict[str, int], dict[str, int], set[str], set[str]]:
+    """Visit/like counters plus the current user's marks; zeros when the DB is down."""
+    try:
+        with closing(open_db()) as conn:
+            user = session_user(conn, request)
+            visit_counts = dict(conn.execute("SELECT place_id, COUNT(*) FROM visits GROUP BY place_id").fetchall())
+            like_counts = dict(conn.execute("SELECT place_id, COUNT(*) FROM likes GROUP BY place_id").fetchall())
+            my_visits = {r[0] for r in conn.execute("SELECT place_id FROM visits WHERE user_id = ?", (user["id"],))} if user else set()
+            my_likes = {r[0] for r in conn.execute("SELECT place_id FROM likes WHERE user_id = ?", (user["id"],))} if user else set()
+    except sqlite3.Error:
+        return {}, {}, set(), set()
+    return visit_counts, like_counts, my_visits, my_likes
+
+def _with_social(place: dict, snapshot) -> dict:
+    visit_counts, like_counts, my_visits, my_likes = snapshot
+    place["visits"] = visit_counts.get(place["id"], 0)
+    place["likes"] = like_counts.get(place["id"], 0)
+    place["visited_by_me"] = place["id"] in my_visits
+    place["liked_by_me"] = place["id"] in my_likes
+    return place
+
 @app.get("/api/v1/places")
 async def get_places(request: Request, category: Category | None = None, max_price_rub: Annotated[int | None, Query(ge=0, le=100000)] = None):
     params = list(request.query_params.multi_items())
     if any(k not in {"category", "max_price_rub"} for k, _ in params) or len({k for k, _ in params}) != len(params):
         _raise_api_error(422)
-    places = [p.model_dump() for p in load_places() if (category is None or p.category == category) and (max_price_rub is None or p.price_rub is not None and p.price_rub <= max_price_rub)]
+    snapshot = _social_snapshot(request)
+    places = [_with_social(p.model_dump(), snapshot) for p in load_places() if (category is None or p.category == category) and (max_price_rub is None or p.price_rub is not None and p.price_rub <= max_price_rub)]
     return {"items": places, "total": len(places)}
 
 @app.get("/api/v1/places/{place_id}")
-async def get_place(place_id: Annotated[str, ApiPath(pattern=ID_PATTERN, min_length=1, max_length=64)]):
+async def get_place(request: Request, place_id: Annotated[str, ApiPath(pattern=ID_PATTERN, min_length=1, max_length=64)]):
     for p in load_places():
         if p.id == place_id:
-            return p.model_dump()
+            return _with_social(p.model_dump(), _social_snapshot(request))
     _raise_api_error(404, message="Место не найдено")
 
 @app.get("/api/v1/guides")
@@ -443,6 +641,159 @@ async def complete_quest(quest_id: Annotated[str, ApiPath(pattern=ID_PATTERN, ma
     if not completed:
         return {"completed": False, "reward": None}
     return {"completed": True, "reward": {"id": "explorer-hat", "name": "Шапка исследователя"}}
+
+# --- Demo auth, visits, likes, profile and leaderboard ----------------------
+
+PlaceIdPath = Annotated[str, ApiPath(pattern=ID_PATTERN, min_length=1, max_length=64)]
+
+def _place_or_404(place_id: str) -> None:
+    if all(p.id != place_id for p in load_places()):
+        _raise_api_error(404, message="Место не найдено")
+
+@app.post("/api/v1/auth/register", status_code=201)
+async def register(credentials: Credentials, response: Response):
+    if not AUTH_LOGIN_LIMITER.allow(credentials.login):
+        _raise_api_error(429)
+    user_id = secrets.token_hex(16)
+    password_hash = hash_password(credentials.password)
+    conn = _db_or_503()
+    try:
+        try:
+            conn.execute(
+                "INSERT INTO users(id, login, password_hash, created_at) VALUES (?, ?, ?, ?)",
+                (user_id, credentials.login, password_hash, _iso(_utc_now())),
+            )
+            conn.commit()
+        except sqlite3.IntegrityError:
+            _raise_api_error(409)
+        token = create_session(conn, user_id)
+    except sqlite3.Error:
+        _raise_api_error(503, message="База данных временно недоступна")
+    finally:
+        conn.close()
+    set_session_cookie(response, token)
+    return {"user": {"id": user_id, "login": credentials.login}}
+
+@app.post("/api/v1/auth/login")
+async def login(credentials: Credentials, response: Response):
+    if not AUTH_LOGIN_LIMITER.allow(credentials.login):
+        _raise_api_error(429)
+    conn = _db_or_503()
+    try:
+        try:
+            row = conn.execute("SELECT id, login, password_hash FROM users WHERE login = ?", (credentials.login,)).fetchone()
+            # Same scrypt cost for unknown logins: the reply does not say which part failed.
+            valid = verify_password(credentials.password, row[2] if row else _DUMMY_HASH)
+            if row is None or not valid:
+                _raise_api_error(401, message="Неверный логин или пароль")
+            token = create_session(conn, row[0])
+        except sqlite3.Error:
+            _raise_api_error(503, message="База данных временно недоступна")
+    finally:
+        conn.close()
+    set_session_cookie(response, token)
+    return {"user": {"id": row[0], "login": row[1]}}
+
+@app.post("/api/v1/auth/logout", status_code=204)
+async def logout(request: Request):
+    response = Response(status_code=204)
+    token = request.cookies.get(SESSION_COOKIE)
+    if token and len(token) <= 256:
+        try:
+            with closing(open_db()) as conn:
+                conn.execute("DELETE FROM sessions WHERE token_hash = ?", (_token_hash(token),))
+                conn.commit()
+        except sqlite3.Error:
+            logger.warning("Logout could not reach the database; cookie is cleared anyway")
+    clear_session_cookie(response)
+    return response
+
+@app.get("/api/v1/me")
+async def me(request: Request):
+    conn = _db_or_503()
+    try:
+        try:
+            user = require_user(conn, request)
+        except sqlite3.Error:
+            _raise_api_error(503, message="База данных временно недоступна")
+    finally:
+        conn.close()
+    return {"user": user}
+
+@app.get("/api/v1/me/profile")
+async def my_profile(request: Request):
+    conn = _db_or_503()
+    try:
+        try:
+            user = require_user(conn, request)
+            visited = [r[0] for r in conn.execute("SELECT place_id FROM visits WHERE user_id = ? ORDER BY created_at, place_id", (user["id"],))]
+            liked = [r[0] for r in conn.execute("SELECT place_id FROM likes WHERE user_id = ? ORDER BY created_at, place_id", (user["id"],))]
+        except sqlite3.Error:
+            _raise_api_error(503, message="База данных временно недоступна")
+    finally:
+        conn.close()
+    return {"user": user, "stats": {"visits": len(visited), "likes": len(liked)}, "visited_place_ids": visited, "liked_place_ids": liked}
+
+def _toggle_mark(request: Request, place_id: str, table: str, add: bool) -> int:
+    """Idempotent set/unset of a (user, place) mark; returns the place counter."""
+    if table not in {"visits", "likes"}:  # internal names only, never user input
+        raise ValueError(table)
+    conn = _db_or_503()
+    try:
+        try:
+            user = require_user(conn, request)
+            _place_or_404(place_id)
+            if add:
+                conn.execute(f"INSERT OR IGNORE INTO {table}(user_id, place_id, created_at) VALUES (?, ?, ?)", (user["id"], place_id, _iso(_utc_now())))
+            else:
+                conn.execute(f"DELETE FROM {table} WHERE user_id = ? AND place_id = ?", (user["id"], place_id))
+            conn.commit()
+            return conn.execute(f"SELECT COUNT(*) FROM {table} WHERE place_id = ?", (place_id,)).fetchone()[0]
+        except sqlite3.Error:
+            _raise_api_error(503, message="База данных временно недоступна")
+    finally:
+        conn.close()
+
+@app.post("/api/v1/places/{place_id}/visit")
+async def add_visit(request: Request, place_id: PlaceIdPath):
+    return {"visited": True, "visits": _toggle_mark(request, place_id, "visits", True)}
+
+@app.delete("/api/v1/places/{place_id}/visit")
+async def remove_visit(request: Request, place_id: PlaceIdPath):
+    return {"visited": False, "visits": _toggle_mark(request, place_id, "visits", False)}
+
+@app.post("/api/v1/places/{place_id}/like")
+async def add_like(request: Request, place_id: PlaceIdPath):
+    return {"liked": True, "likes": _toggle_mark(request, place_id, "likes", True)}
+
+@app.delete("/api/v1/places/{place_id}/like")
+async def remove_like(request: Request, place_id: PlaceIdPath):
+    return {"liked": False, "likes": _toggle_mark(request, place_id, "likes", False)}
+
+@app.get("/api/v1/leaderboard")
+async def leaderboard(request: Request, limit: Annotated[int | None, Query(ge=1, le=20)] = None):
+    params = list(request.query_params.multi_items())
+    if any(k != "limit" for k, _ in params) or len({k for k, _ in params}) != len(params):
+        _raise_api_error(422)
+    size = 10 if limit is None else limit
+    try:
+        with closing(open_db()) as conn:
+            rows = conn.execute(
+                """
+                SELECT u.login,
+                       COUNT(v.place_id) AS visit_count,
+                       (SELECT COUNT(*) FROM likes l WHERE l.user_id = u.id) AS like_count
+                FROM users u
+                JOIN visits v ON v.user_id = u.id
+                GROUP BY u.id, u.login
+                ORDER BY visit_count DESC, u.login ASC
+                """
+            ).fetchall()
+    except sqlite3.Error:
+        return {"items": [], "total": 0}
+    # Likes are displayed but never affect ranking; only login/visits/likes leave the server.
+    items = [{"login": login, "visits": visit_count, "likes": like_count} for login, visit_count, like_count in rows[:size]]
+    return {"items": items, "total": len(rows)}
 
 @app.get("/api/v1/test-empty")
 async def test_empty():

@@ -38,6 +38,17 @@ python -m venv .venv
 | `POST /api/v1/quest/{quest_id}/answer` | `{ "correct": boolean, "explanation": "…" }` |
 | `POST /api/v1/quest/{quest_id}/complete` | `{ "completed": boolean, "reward": object или null }` |
 | `GET /api/v1/map-data/{filename}` | Только `leninsky-boundary.geojson` или `leninsky-poi-candidates.geojson` |
+| `POST /api/v1/auth/register` | 201, HttpOnly-кука `sv_session`, `{ "user": { "id", "login" } }`; занятый логин → 409 |
+| `POST /api/v1/auth/login` | 200, кука; неверная пара → одинаковый 401 |
+| `POST /api/v1/auth/logout` | 204, кука сбрасывается |
+| `GET /api/v1/me` | `{ "user": … }` либо 401 |
+| `GET /api/v1/me/profile` | Свой профиль: stats и списки ID мест; 401 без сессии |
+| `POST/DELETE /api/v1/places/{place_id}/visit` | `{ "visited": bool, "visits": N }`; идемпотентно, 401 без сессии, 404 для неизвестного места |
+| `POST/DELETE /api/v1/places/{place_id}/like` | `{ "liked": bool, "likes": N }`; идемпотентно |
+| `GET /api/v1/leaderboard?limit=10` | `{ "items": [{ "login", "visits", "likes" }], "total": N }`; рейтинг только по посещениям |
+
+Карточки Place дополнительно несут вычисляемые `visits`, `likes`,
+`visited_by_me`, `liked_by_me`; подробности и правила — в [docs/API.md](docs/API.md).
 
 Совместимость: `/data/leninsky-boundary.geojson` и `/data/leninsky-poi-candidates.geojson` отдают те же исходники из `data/geo/`. Другие разрешённые файлы интерфейса остаются в `frontend-design/dist/`. `/data/private` и любой `/data/private/*` возвращают 404, в том числе при случайном копировании приватного каталога в статическую папку. Корневой `data/` целиком не раздаётся.
 
@@ -118,14 +129,39 @@ Content-Type: application/json
 | 404 | Неизвестный ID/путь, приватные данные |
 | 405 | Неподдерживаемый метод |
 | 413 | JSON тела answer/complete больше 16 КиБ, включая поток без Content-Length |
+| 401 | Нет или просрочена сессия; неверная пара логин/пароль |
+| 409 | Логин уже занят при регистрации |
 | 414 | Query API больше 1024 байт |
-| 415 | Answer/complete не application/json либо сжатое тело |
+| 415 | Answer/complete/register/login не application/json либо сжатое тело |
 | 422 | Невалидный JSON/схема/ID/enum, лишние поля, дубликаты ответов |
-| 429 | Более 30 POST-проверок за минуту на IP, Retry-After: 60 |
-| 503 | Приватные ключи проверки не готовы |
+| 429 | Более 30 POST-проверок или отметок за минуту на IP; более 10 попыток регистрации/входа в минуту на IP или на логин. Retry-After: 60 |
+| 503 | Приватные ключи проверки не готовы; база данных недоступна |
 | 500 | Контролируемая внутренняя ошибка |
 
-Счётчик POST живёт только в памяти одного процесса, использует непрозрачный HMAC от IP со случайной солью процесса, очищает истёкшие записи и ограничивает число ключей. Не доверяет произвольному X-Forwarded-For. Это защита небольшого демо; несколько workers/публичная эксплуатация требуют лимита на доверенном прокси. Заголовки ответов: nosniff, strict-origin-when-cross-origin, Permissions-Policy geolocation=(self).
+Счётчик POST живёт только в памяти одного процесса, использует непрозрачный HMAC от IP со случайной солью процесса, очищает истёкшие записи и ограничивает число ключей. Не доверяет произвольному X-Forwarded-For. Это защита небольшого демо; несколько workers/публичная эксплуатация требуют лимита на доверенном прокси. Заголовки ответов: nosniff, strict-origin-when-cross-origin, Permissions-Policy geolocation=(self). DELETE отметок разделяет лимит с POST, чтобы цикл «поставил/снял» не был бесплатным.
+
+## Демо-база SQLite: вход, посещения, лайки
+
+Хранилище социального слоя — один файл SQLite (stdlib `sqlite3`, WAL,
+busy_timeout, подключение на запрос, только параметризованные запросы).
+
+- `DB_PATH` — путь к файлу базы; по умолчанию `data/demo.sqlite3`. Файл в
+  `.gitignore` и **создаётся сам при старте** вместе с таблицами
+  (`CREATE TABLE IF NOT EXISTS`); отдельная миграция не нужна.
+- `COOKIE_SECURE=1` обязателен на HTTPS: добавляет флаг Secure к куке
+  `sv_session` (HttpOnly, SameSite=Lax, 7 дней). Без него кука подходит
+  только для локального http://127.0.0.1.
+- В Docker файл базы должен жить на volume, иначе аккаунты и отметки
+  пропадают при пересборке: volume `sv-db` монтируется в `/app/db`,
+  а `DB_PATH=/app/db/demo.sqlite3` (см. `docker-compose.yml`).
+- Пароли хранятся только как scrypt-хэши с солью, сессии — как SHA-256
+  токена. В базе нет IP, координат и истории перемещений.
+- Недоступная или битая база не роняет API: каталог отдаётся со счётчиками
+  0, рейтинг пуст, записывающие ручки отвечают 503.
+
+Это осознанная рамка демо: нет email, восстановления пароля, 2FA и
+модерации; не используйте реальные пароли. Подробные правила и форматы —
+в [docs/API.md](docs/API.md).
 
 ## Импорт и проверки
 
