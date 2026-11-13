@@ -1,27 +1,27 @@
 {
   "project": "svoi-vladik",
   "version": 1,
-  "generatedAt": "2026-11-13T08:57:56.005Z",
+  "generatedAt": "2026-11-13T16:19:20.103Z",
   "files": [
     {
       "path": "app.js",
-      "bytes": 54124,
-      "sha256": "05c1076bd6d808260ed3c3a0ea5bfe4d9dc16a2000e99eeb9e7d11fc7c6d00b9"
+      "bytes": 81339,
+      "sha256": "9a6f82b8b3dc6cc1dbc0259865ee2e8a2dfa1a3c8aec8e3c88e9edd5d0e1c113"
     },
     {
       "path": "assets/funicular.svg",
-      "bytes": 1529,
-      "sha256": "2b5cef5bb525b918993762705ee97d506c5dcee993f0218598214638fab19e1a"
+      "bytes": 1555,
+      "sha256": "da997e59cb38e30ab8546022012758002e6eb8c459957863c8ac8dbb6e655a9b"
     },
     {
       "path": "assets/guide.svg",
-      "bytes": 1319,
-      "sha256": "a18f102168a9e5f458ab446aac0aca0f86c2e81902836f3747150e4062dfc5eb"
+      "bytes": 1338,
+      "sha256": "235ca05958a98b9fecd29541e62a08f6f28ebe3228334340346d9fccdb146d6a"
     },
     {
       "path": "assets/lighthouse.svg",
-      "bytes": 825,
-      "sha256": "137b0ccd0d6980050a7e525ba433dcc121cc75cc9b7b83709e8fdef85340a70c"
+      "bytes": 837,
+      "sha256": "07526239cc3ba433f97dc32d315b2146e551b662fd22f419001dd262b3f36f72"
     },
     {
       "path": "assets/mascot/README.md",
@@ -65,13 +65,13 @@
     },
     {
       "path": "assets/museum.svg",
-      "bytes": 1066,
-      "sha256": "3bc2ff76270dfb7ea5110d06cffc37897a0a212346ae07ce76b0235d788204b4"
+      "bytes": 1083,
+      "sha256": "efd7c3db77bed55e5b2a07a0ef7b6fcc442fe757e7ada876ff84d953931e8624"
     },
     {
       "path": "assets/theatre.svg",
-      "bytes": 1185,
-      "sha256": "baef968afabc4f58083b976d5c85ee7beff89f4eb72b9be6bfe52da4201b9f03"
+      "bytes": 1205,
+      "sha256": "31b365941d9b814b2e1e7375f5456fddb35792b5e75db7a9c19aca4d5104a4a7"
     },
     {
       "path": "data/leninsky-boundary.geojson",
@@ -85,13 +85,13 @@
     },
     {
       "path": "glass.css",
-      "bytes": 8056,
-      "sha256": "bbab3ef83643b9e0a803f29bf1ae455cfd415ad214bf5ec8957f2d93ceb18805"
+      "bytes": 8205,
+      "sha256": "36e3ac46bd18058c5612ef0b0c9a2dcae088a3e14a9f6cd40145582fd6c416ea"
     },
     {
       "path": "index.html",
-      "bytes": 11931,
-      "sha256": "85b2206252329561a9a75488cc8240bbed8387a76754d4086c39044ec7e7c43d"
+      "bytes": 12190,
+      "sha256": "15be3b385cc208330c564aa6dcaac4c00f90e6962d7eb191538a26f3c2c16d72"
     },
     {
       "path": "manifest.webmanifest",
@@ -115,13 +115,13 @@
     },
     {
       "path": "motion.css",
-      "bytes": 795,
-      "sha256": "db3f830b42ab3b43b1925cb67aa1f7ece768f5b4a67b81817c82ebfa8dc2b379"
+      "bytes": 820,
+      "sha256": "e8e8ec110b0ba9e80ea13af523e9a511d1299d6b82975f6aca1156eda33f4a6b"
     },
     {
       "path": "motion.js",
-      "bytes": 8081,
-      "sha256": "93f8b8bcac3111ba33c2f49eb7cc64bf92873a457f516e6a626b330de3f85de5"
+      "bytes": 8236,
+      "sha256": "8032fd54e4468e8afc361719cfcd3ef5420b18488c58c7ee224b6b51201db696"
     },
     {
       "path": "polish.css",
@@ -130,8 +130,8 @@
     },
     {
       "path": "styles.css",
-      "bytes": 31215,
-      "sha256": "e85c805d7cd28130d08a75f5c80889c8c0a0f633fef9da6323f0a9a43cb97107"
+      "bytes": 40151,
+      "sha256": "970c600341eec99c5afa9be477d9f925aefa6e860c66ba5c5088969bb9414185"
     },
     {
       "path": "sw.js",
