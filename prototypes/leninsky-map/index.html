@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ff8a00">
+  <title>Ленинский район · Владивосток</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="map.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script defer src="map.js"></script>
+</head>
+<body>
+  <header class="page-header">
+    <div class="brand-mark" aria-hidden="true">СВ<span>•</span></div>
+    <div class="heading">
+      <p class="eyebrow">СВОЙ ВЛАДИК / ПРЕДПРОСМОТР КАРТЫ</p>
+      <h1>Ленинский район · Владивосток</h1>
+    </div>
+    <span class="source-badge">OSM · точки-кандидаты</span>
+  </header>
+
+  <main class="workspace">
+    <section class="map-pane" aria-label="Карта Ленинского района">
+      <div id="map" aria-label="Граница района и точки-кандидаты OpenStreetMap"></div>
+      <p id="map-notice" class="map-notice" role="status" hidden></p>
+      <div class="map-key"><span aria-hidden="true"></span>Граница района по OSM</div>
+    </section>
+
+    <aside class="sidebar" aria-label="Поиск и список точек">
+      <div class="sidebar-intro">
+        <p class="eyebrow">ПОСМОТРЕТЬ РЯДОМ</p>
+        <h2>Знакомимся с районом</h2>
+        <p>Выберите точку на карте или в списке. Это исходные данные для будущего каталога.</p>
+      </div>
+      <div class="filters">
+        <label for="search">Поиск в загруженных точках</label>
+        <input id="search" type="search" placeholder="Название места" autocomplete="off">
+        <label for="category">Категория</label>
+        <select id="category">
+          <option value="all">Все категории</option>
+          <option value="study">Учёба</option>
+          <option value="culture">Культура</option>
+          <option value="history">История</option>
+          <option value="park">Парки и скверы</option>
+          <option value="food">Еда</option>
+          <option value="viewpoint">Смотровые площадки</option>
+          <option value="other">Другое</option>
+        </select>
+      </div>
+      <div class="results-heading">
+        <h3>Точки района</h3>
+        <span id="result-count" role="status">Загрузка…</span>
+      </div>
+      <p id="data-notice" class="data-notice" role="status" hidden></p>
+      <ul id="places" class="places" aria-label="Точки-кандидаты"></ul>
+      <p id="empty-state" class="empty-state" hidden></p>
+      <footer class="sidebar-footer">
+        <p><strong>Кандидаты, а не рекомендации.</strong> Условия посещения и актуальность ещё не проверены.</p>
+        <p>GPS не запрашивается и не собирается. Поиск работает только по загруженному списку. Пешая навигация открывается во внешнем 2ГИС по нажатию.</p>
+        <a href="https://www.openstreetmap.org/relation/1933824" target="_blank" rel="noopener noreferrer">Источник границы: OpenStreetMap ↗</a>
+      </footer>
+    </aside>
+  </main>
+</body>
+</html>
