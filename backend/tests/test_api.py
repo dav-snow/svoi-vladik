@@ -5,9 +5,12 @@ require network access, the Docker build or a running uvicorn.
 """
 from __future__ import annotations
 
+import json
+
 import pytest
 from fastapi.testclient import TestClient
 
+import main
 from main import PLACES, app
 
 
@@ -105,20 +108,48 @@ def test_quest_endpoint_shape(client: TestClient) -> None:
     assert set(data.keys()) >= {"items", "total"}
 
 
-def test_data_mount_serves_geojson(client: TestClient) -> None:
-    resp = client.get("/data/geo/leninsky-boundary.geojson")
+@pytest.mark.parametrize("name", [
+    "leninsky-boundary.geojson",
+    "leninsky-poi-candidates.geojson",
+])
+def test_data_mount_serves_frontend_geojson(client: TestClient, name: str) -> None:
+    # /data must point at the frontend's own data folder: these are the exact
+    # paths app.js fetches. The test fails if /data is remounted elsewhere.
+    resp = client.get(f"/data/{name}")
     assert resp.status_code == 200
-    # FastAPI/Starlette serves .geojson as application/octet-stream by default,
-    # so check content rather than Content-Type.
-    assert resp.content.lstrip().startswith(b"{")
+    body = json.loads(resp.content)
+    assert body.get("type") == "FeatureCollection", body.get("type")
 
 
-def test_openapi_has_no_legacy_api_paths(client: TestClient) -> None:
+def test_openapi_exposes_exact_path_set(client: TestClient) -> None:
     resp = client.get("/openapi.json")
     assert resp.status_code == 200
-    paths = resp.json().get("paths", {})
-    for path in paths:
-        if path.startswith("/api/"):
-            assert path.startswith("/api/v1/"), (
-                f"Unexpected non-v1 API path in OpenAPI: {path}"
-            )
+    paths = set(resp.json().get("paths", {}))
+    assert paths == {
+        "/health",
+        "/api/v1/places",
+        "/api/v1/places/{place_id}",
+        "/api/v1/walks",
+        "/api/v1/quest",
+        "/api/v1/test-empty",
+        "/api/v1/test-error",
+    }, paths
+
+
+def test_internal_error_is_sanitised(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Force an unexpected exception inside the /api/v1/walks handler. With
+    # raise_server_exceptions=False the TestClient returns the app's 500
+    # response instead of re-raising, so we can assert the sanitised body.
+    secret = "leaky-internal-detail-xyz"
+
+    def boom(*args, **kwargs):
+        raise RuntimeError(secret)
+
+    monkeypatch.setattr(main, "load_collection", boom)
+    client = TestClient(app, raise_server_exceptions=False)
+    resp = client.get("/api/v1/walks")
+    assert resp.status_code == 500
+    _assert_error_shape(resp.json(), "INTERNAL_ERROR")
+    assert secret not in resp.text
+    assert "Traceback" not in resp.text
+    assert "RuntimeError" not in resp.text

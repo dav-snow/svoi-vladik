@@ -80,18 +80,18 @@ docker compose up -d --build
 # Быстрая проверка.
 curl -s http://localhost:8000/health
 curl -s http://localhost:8000/api/v1/places | head
-open http://localhost:8000/        # откроет новый дизайн
+# затем открыть http://localhost:8000/ в браузере — откроется новый дизайн
 
 # Остановить.
 docker compose down
 ```
 
-Автоматические тесты бэкенда (pytest + httpx TestClient, без сети и Docker):
+Автоматические тесты бэкенда (pytest + httpx TestClient, без сети) — в
+одноразовом контейнере, без установки Python на хост:
 
 ```sh
-python3 -m venv .venv && . .venv/bin/activate
-pip install -r backend/requirements-dev.txt
-pytest backend/tests
+docker run --rm -v "$PWD":/src -w /src/backend python:3.11-slim \
+  sh -c "pip install -q -r requirements-dev.txt && python -m pytest -q"
 ```
 
 Отдельный исторический предпросмотр карты открывается по [инструкции](docs/MAP_LENINSKY.md). Меры безопасности продукта в документах — требования, а не отчёт о внедрённых защитах всего приложения. Сейчас в репозитории есть `.gitignore`, шаблоны задач/PR, предпросмотр карты, дизайн-прототип и минимальный бэкенд; CI, защита ветки и продуктовая инфраструктура не настроены. Открытая лицензия кода пока не выбрана; геоданные OSM имеют отдельные [условия ODbL](data/geo/README.md).

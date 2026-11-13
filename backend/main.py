@@ -28,7 +28,11 @@ POI_FILE = REPO_ROOT / "data" / "geo" / "leninsky-poi-candidates.geojson"
 # New design frontend; the legacy prototypes/leninsky-map/ is kept in the repo
 # but no longer mounted at /.
 FRONTEND_DIR = REPO_ROOT / "frontend-design" / "dist"
-DATA_DIR = REPO_ROOT / "data"
+# The frontend fetches its map data via relative paths like
+# "data/leninsky-boundary.geojson", so /data must point at the frontend's own
+# data folder. The repo-level data/geo and data/examples are not served: no
+# client uses them.
+DATA_DIR = REPO_ROOT / "frontend-design" / "dist" / "data"
 
 # Stable place_id shape, matches docs/API.md.
 PLACE_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
@@ -238,12 +242,12 @@ def _raise_api_error(status_code: int, code: str, message: str) -> None:
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     # If a route raised HTTPException(detail={"code":..., "message":...}),
-    # honour those symbolic values. Otherwise fall back to defaults by status.
+    # honour those symbolic values. Otherwise (e.g. Starlette's plain-string
+    # "Not Found" / "Method Not Allowed") fall back to the localized default
+    # from _DEFAULT_ERRORS by status, instead of leaking the English string.
     detail = exc.detail
     if isinstance(detail, dict) and "code" in detail and "message" in detail:
         return _error_response(exc.status_code, detail["code"], detail["message"])
-    if isinstance(detail, str) and detail:
-        return _error_response(exc.status_code, message=detail)
     return _error_response(exc.status_code)
 
 
