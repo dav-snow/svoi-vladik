@@ -53,8 +53,6 @@ button svg, .search-field svg { width: 20px; height: 20px; stroke: currentColor;
 .icon-button { display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 9px; background: transparent; }
 .icon-button:hover { background: #f6f7f3; }
 .icon-button svg { width: 20px; height: 20px; }
-.avatar-button { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 3px solid white; background: #fce9c9; box-shadow: 0 0 0 1px #f0e6d7; font-weight: 800; font-size: 17px; color: #6f5038; }
-.avatar-button span { transform: rotate(90deg); }
 .app-shell { flex: 1; min-height: 0; display: grid; grid-template-columns: var(--sidebar-width) minmax(0, 1fr); position: relative; }
 .sidebar { grid-column: 1; min-height: 0; background: #fff; border-right: 1px solid #e8ece4; display: flex; flex-direction: column; position: relative; z-index: 10; }
 .sidebar-scroll { flex: 1; min-height: 0; min-width: 0; overflow-y: auto; overscroll-behavior: contain; padding: 18px 18px max(18px, var(--safe-bottom)) max(18px, var(--safe-left)); scrollbar-width: thin; scrollbar-color: #d9ddd4 transparent; scroll-padding-block: 12px; }
@@ -119,8 +117,49 @@ button svg, .search-field svg { width: 20px; height: 20px; stroke: currentColor;
 .district-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); }
 .map-caption { margin: 0; font-size: 12px; font-weight: 600; color: #6d7d65; text-align: right; text-shadow: 0 1px 4px white, 0 0 10px white; }
 .map-caption span { color: #92a083; margin-left: 5px; }
-.map-messages { position: absolute; z-index: 5; top: 62px; left: max(16px, var(--safe-left)); right: max(76px, calc(var(--safe-right) + 60px)); max-width: 440px; max-height: calc(100% - 124px); display: flex; flex-direction: column; gap: 8px; overflow-y: auto; scrollbar-width: thin; }
+.map-context { position: absolute; z-index: 5; top: 62px; left: max(16px, var(--safe-left)); right: max(76px, calc(var(--safe-right) + 60px)); max-width: 440px; max-height: calc(100% - 104px); display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.map-context > :not([hidden]) { pointer-events: auto; }
+.map-context > .map-messages { position: static; min-height: 0; max-width: none; max-height: none; flex: 0 1 auto; }
+.map-context > .map-messages:not(:has(> :not([hidden]))) { display: none; }
+.map-context:has(#journey-progress:not([hidden])) .selected-place { display: none; }
+.map-context:has(#journey-progress:not([hidden])) > .map-messages:not(:has(#map-status:not([hidden]))) { display: none; }
+.map-context:has(#journey-progress:not([hidden])) > .map-messages { max-height: 96px; }
+.map-messages { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; scrollbar-width: thin; }
 .map-messages:has(> :not([hidden])) { padding: 2px; }
+#journey-progress { min-height: 0; min-width: 0; flex: 0 1 auto; overflow-y: auto; overscroll-behavior: contain; border-radius: 18px; scrollbar-width: thin; scrollbar-color: #cab9a1 transparent; scroll-padding-block: 10px; }
+#journey-progress .journey-card { display: grid; gap: 11px; margin: 0; padding: 16px; border: 1px solid #fff; border-radius: 18px; background: linear-gradient(145deg, #fffffffa, #fff8edee); box-shadow: var(--shadow); -webkit-backdrop-filter: blur(22px) saturate(1.2); backdrop-filter: blur(22px) saturate(1.2); }
+#journey-progress .journey-heading { position: sticky; top: 0; z-index: 2; min-width: 0; padding-block: 4px; border-radius: 9px; background: #fffaf2f5; }
+#journey-progress .journey-heading .eyebrow { margin: 0 0 5px; color: #9a6020; font-size: 12px; letter-spacing: .3px; }
+#journey-progress .journey-heading h3 { margin: 0; font-size: 17px; line-height: 1.35; letter-spacing: -.35px; font-weight: 800; }
+#journey-progress .journey-meter { display: block; width: 100%; height: 6px; margin: 0; border: 0; border-radius: 10px; overflow: hidden; appearance: none; -webkit-appearance: none; background: #eee8dc; color: var(--orange); }
+#journey-progress .journey-meter::-webkit-progress-bar { border-radius: 10px; background: #eee8dc; }
+#journey-progress .journey-meter::-webkit-progress-value { border-radius: 10px; background: #ff9b2d; }
+#journey-progress .journey-meter::-moz-progress-bar { border-radius: 10px; background: #ff9b2d; }
+#journey-progress .journey-current { margin: 0; font-size: 14px; line-height: 1.5; font-weight: 700; color: var(--graphite); }
+#journey-progress .journey-presence { display: grid; gap: 8px; padding-block: 10px; border-block: 1px solid #ece7dc; }
+#journey-progress .journey-presence > p { margin: 0; font-size: 12px; line-height: 1.55; color: #6f7866; }
+#journey-progress .journey-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; }
+#journey-progress .journey-actions > button, #journey-progress .journey-actions > a { flex: 1 1 110px; min-width: 0; min-height: 38px; margin: 0; padding: 8px 11px; font-size: 13px; line-height: 1.4; text-align: center; }
+#journey-progress .journey-actions .text-button { background: transparent; border: 0; color: #756c60; text-decoration: underline; text-underline-offset: 3px; }
+#journey-progress .journey-details { min-width: 0; border: 1px solid #ebe7dc; border-radius: 11px; background: #ffffff80; }
+#journey-progress .journey-details > summary { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 36px; padding: 8px 11px; font-size: 12px; font-weight: 700; color: #6c725f; list-style: none; cursor: pointer; }
+#journey-progress .journey-details > summary::-webkit-details-marker { display: none; }
+#journey-progress .journey-details > summary::after { content: "⌄"; flex-shrink: 0; font-size: 18px; line-height: 1; }
+#journey-progress .journey-details[open] > summary::after { transform: rotate(180deg); }
+#journey-progress .journey-checklist { display: grid; gap: 4px; max-height: 160px; overflow-y: auto; overscroll-behavior: contain; counter-reset: journey-stop; list-style: none; padding: 0 8px 8px; margin: 0; scrollbar-width: thin; }
+#journey-progress .journey-checklist > li { counter-increment: journey-stop; display: grid; grid-template-columns: 25px minmax(0, 1fr); align-items: center; gap: 9px; min-height: 37px; padding: 5px; border-radius: 8px; font-size: 13px; line-height: 1.45; color: #7c8273; }
+#journey-progress .journey-checklist > li::before { content: counter(journey-stop); display: grid; place-items: center; width: 25px; height: 25px; border: 1px solid #e5e5dc; border-radius: 50%; background: white; color: #8a8e80; font-size: 11px; font-weight: 700; }
+#journey-progress .journey-checklist > li.is-current { color: var(--graphite); background: #fff3df; font-weight: 750; }
+#journey-progress .journey-checklist > li.is-current::before { background: #ff981f; color: #32281b; border-color: #ff981f; }
+#journey-progress .journey-checklist > li.is-done::before { content: "✓"; color: #81632b; background: #f7eddb; border-color: #e8dbc2; }
+#journey-progress .journey-checklist > li::before { grid-row: 1 / span 2; }
+#journey-progress .journey-checkpoint { grid-column: 2; border: 0; background: transparent; padding: 0; text-align: left; font: inherit; color: inherit; line-height: 1.45; }
+#journey-progress .journey-checkpoint:disabled { cursor: default; opacity: .65; }
+#journey-progress .journey-verification { grid-column: 2; margin-top: -5px; font-size: 11px; line-height: 1.4; color: #737b69; }
+.survey-reference { margin-top: 16px; padding: 12px; border: 1px solid #e7e6de; border-radius: 14px; background: #ffffff66; font-size: 13px; }
+.survey-reference summary { cursor: pointer; font-weight: 700; }
+#journey-progress .journey-details > .journey-actions { padding: 5px 10px 10px; border-top: 1px solid #eee9df; }
+#journey-progress .micro-copy { margin: 0; font-size: 12px !important; line-height: 1.5; color: #7d8174; }
 .map-status { flex-shrink: 0; background: #fffffff2; border: 1px solid #e0e5d8; border-radius: 9px; padding: 10px 12px; margin: 0; font-size: 12px; line-height: 1.5; color: #64705c; box-shadow: var(--shadow); }
 .map-controls { position: absolute; z-index: 4; right: 22px; top: 43%; display: flex; flex-direction: column; align-items: center; background: white; border: 1px solid #e2e7dc; border-radius: 10px; padding: 4px; box-shadow: var(--shadow); }
 .map-controls button { display: grid; place-items: center; border: 0; border-radius: 6px; background: white; width: 34px; height: 34px; font-size: 22px; font-weight: 400; }
@@ -183,15 +222,6 @@ button svg, .search-field svg { width: 20px; height: 20px; stroke: currentColor;
 .walk-thumb { width: 58px; height: 52px; object-fit: cover; border-radius: 7px; }
 .walk-stop > svg { width: 16px; height: 16px; color: #93a082; }
 .step-number { display: grid; place-items: center; min-width: 28px; min-height: 28px; border-radius: 8px; background: #fff0d6; color: #ad660c; font-size: 12px; font-weight: 800; }
-.avatar-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 16px 0 6px; }
-.avatar-option { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 13px; min-height: 120px; padding: 18px 9px; border: 1px solid #e4eadb; border-radius: 12px; background: #fbfcf8; font-size: 12px; font-weight: 700; }
-.avatar-option:hover { background: #fff6e6; border-color: #ffbf6a; }
-.avatar-option img { width: 45px; height: 45px; object-fit: contain; }
-.avatar-glyph { font-size: 33px; line-height: 45px; }
-#avatar-open[data-avatar] > span { display: none; }
-#avatar-open[data-avatar="lighthouse"] { background-image: url("assets/lighthouse.svg"); background-size: 25px 25px; background-repeat: no-repeat; background-position: center; }
-#avatar-open[data-avatar="boat"]::before { content: "⛵"; font-size: 20px; line-height: 1; }
-#avatar-open[data-avatar="sun"]::before { content: "☀"; font-size: 25px; line-height: 1; color: #e99a10; }
 .empty-state { padding: 18px 14px; border: 1px dashed #dce3d3; border-radius: 11px; background: #fafbf7; text-align: center; color: #7e8975; font-size: 13px; line-height: 1.6; }
 .empty-state h3 { color: var(--graphite); font-size: 14px; margin: 0 0 8px; }
 .empty-state p { margin: 0; }
@@ -222,13 +252,13 @@ button svg, .search-field svg { width: 20px; height: 20px; stroke: currentColor;
   .brand-copy strong { font-size: 19px; letter-spacing: -.7px; }
   .brand-copy > span { font-size: 12px; letter-spacing: 0; }
   .header-actions { gap: 6px; }
-  .avatar-button { width: 32px; height: 32px; font-size: 15px; }
   .icon-button { width: 30px; height: 32px; }
   .main-nav { position: fixed; z-index: 25; inset: auto 0 0; min-height: var(--nav-height); padding: 0 max(12px, var(--safe-right)) var(--safe-bottom) max(12px, var(--safe-left)); gap: 0; justify-content: space-around; background: white; border-top: 1px solid #e8ede2; margin: 0; }
   .nav-button { flex: 1; min-width: 0; max-width: 140px; flex-direction: column; justify-content: center; gap: 3px; padding: 7px 4px 6px; border-bottom: 0; border-top: 2px solid transparent; font-size: 12px; line-height: 1.35; }
   .nav-button svg { width: 20px; height: 20px; }
   .nav-button.is-active, .nav-button[aria-pressed="true"] { border-top-color: var(--orange); color: #a85b05; }
   .app-shell { display: block; margin-bottom: var(--nav-height); }
+  .app-shell:has(#journey-progress:not([hidden])) { --sheet-height: min(40dvh, 48%); }
   .map-stage { position: absolute; inset: 0; }
   .sidebar { position: absolute; bottom: 0; left: 0; right: 0; height: var(--sheet-height); border: 0; border-top: 1px solid #e7eadd; border-radius: 18px 18px 0 0; box-shadow: 0 -5px 25px #30452412; overflow: hidden; transition: height .2s; }
   .sheet-toggle { flex-shrink: 0; position: relative; display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; min-height: 42px; border: 0; padding: 12px max(16px, var(--safe-right)) 4px max(16px, var(--safe-left)); background: #fff; }
@@ -258,8 +288,17 @@ button svg, .search-field svg { width: 20px; height: 20px; stroke: currentColor;
   .map-topline { top: 12px; left: max(12px, var(--safe-left)); right: max(64px, calc(var(--safe-right) + 52px)); }
   .district-badge { min-height: 32px; padding: 6px 9px; font-size: 12px; }
   .map-caption { display: none; }
-  .map-messages { top: 54px; left: max(12px, var(--safe-left)); right: max(64px, calc(var(--safe-right) + 52px)); max-height: max(0px, calc(100% - 164px)); }
-  .sidebar:not(.is-collapsed) ~ .map-stage .map-messages { max-height: max(0px, calc(100% - var(--sheet-height) - 114px)); }
+  .map-context { top: 54px; left: max(12px, var(--safe-left)); right: max(64px, calc(var(--safe-right) + 52px)); max-height: max(0px, calc(100% - var(--sheet-height) - 104px)); }
+  .sidebar.is-collapsed ~ .map-stage .map-context, .app-shell.is-sheet-collapsed .map-context { max-height: max(0px, calc(100% - 144px)); }
+  .map-context:has(#journey-progress:not([hidden])) > .map-messages { max-height: 70px; }
+  #journey-progress .journey-card { padding: 12px; gap: 9px; border-radius: 16px; }
+  #journey-progress .journey-heading h3 { font-size: 15px; line-height: 1.35; }
+  #journey-progress .journey-heading .eyebrow { font-size: 12px; margin-bottom: 3px; }
+  #journey-progress .journey-current { font-size: 13px; line-height: 1.45; }
+  #journey-progress .journey-presence { padding-block: 8px; gap: 7px; }
+  #journey-progress .journey-actions { gap: 7px; }
+  #journey-progress .journey-actions > button, #journey-progress .journey-actions > a { flex-basis: 100px; min-height: 37px; padding: 7px 9px; font-size: 12px; }
+  #journey-progress .journey-checklist { max-height: 135px; }
   .sidebar:not(.is-collapsed) ~ .map-stage .selected-place { display: none; }
   .map-status { font-size: 12px; padding: 8px 10px; }
   .map-controls { right: max(12px, var(--safe-right)); top: 64px; padding: 3px; border-radius: 9px; }
@@ -289,9 +328,6 @@ button svg, .search-field svg { width: 20px; height: 20px; stroke: currentColor;
   .walk-stop { grid-template-columns: 24px 43px minmax(0, 1fr) 14px; gap: 8px; padding: 10px; font-size: 12px; }
   .walk-thumb { width: 43px; height: 46px; }
   .walk-stop .step-number { min-width: 24px; min-height: 27px; }
-  .avatar-options { gap: 7px; }
-  .avatar-option { min-height: 100px; padding: 12px 5px; font-size: 12px; overflow-wrap: anywhere; }
-  .avatar-option img { width: 37px; height: 37px; }
   .toast { bottom: calc(var(--nav-height) + 12px); font-size: 13px; }
 }
 @media (max-width: 359px) {

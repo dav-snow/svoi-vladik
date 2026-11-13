@@ -11,7 +11,7 @@ const storageKey = "svoi-vladik-design-v1";
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isMobileLayout = () => matchMedia("(max-width: 760px)").matches;
 const progressKey = 'svoi-vladik-progress-v1';
-let progress = { quests: {}, rewards: [] };
+let progress = { quests: {} };
 let dialogRevision = 0;
 let activeDialogTrigger = null;
 // iOS taps and accessibility clicks do not always focus the pressed button.
@@ -23,8 +23,8 @@ document.addEventListener?.('click', event => {
 try {
   const saved = JSON.parse(localStorage.getItem(progressKey) || '{}');
   if (saved?.quests && typeof saved.quests === 'object' && !Array.isArray(saved.quests)) progress.quests = saved.quests;
-  if (Array.isArray(saved?.rewards)) progress.rewards = saved.rewards.filter(x => x === 'explorer-hat');
-  if (saved?.walk && typeof saved.walk.id === 'string' && Number.isInteger(saved.walk.step)) progress.walk = { id: saved.walk.id, step: saved.walk.step };
+  if (saved?.walk && typeof saved.walk.id === 'string') progress.walk = { id: saved.walk.id, done: Array.isArray(saved.walk.done) ? saved.walk.done : [], verifiedByGps: saved.walk.verifiedByGps };
+  if (saved?.activeQuest && typeof saved.activeQuest.id === 'string') progress.activeQuest = { id: saved.activeQuest.id, surveyStarted: saved.activeQuest.surveyStarted === true };
 } catch {}
 function saveProgress() { try { localStorage.setItem(progressKey, JSON.stringify(progress)); } catch { notify('Не удалось сохранить прогресс на этом устройстве'); } }
 function guideCard(pose, title, copy, actions = []) { return window.SvoiMascot.show(pose, title, copy, actions); }
@@ -72,13 +72,11 @@ function readStorage() {
   try {
     const data = JSON.parse(localStorage.getItem(storageKey) || "{}");
     state.saved = new Set(Array.isArray(data.saved) ? data.saved.filter(id => state.places.some(p => p.id === id)) : []);
-    return ["lighthouse", "boat", "sun"].includes(data.avatar) ? data.avatar : "lighthouse";
-  } catch { return "lighthouse"; }
+  } catch { state.saved = new Set(); }
 }
-function writeStorage(avatar) {
+function writeStorage() {
   try {
-    const old = JSON.parse(localStorage.getItem(storageKey) || "{}");
-    localStorage.setItem(storageKey, JSON.stringify({ saved: [...state.saved], avatar: avatar || old.avatar || "lighthouse" }));
+    localStorage.setItem(storageKey, JSON.stringify({ saved: [...state.saved] }));
   } catch { notify("Браузер не разрешил сохранить выбор"); }
 }
 function setSaved(place) {
@@ -159,9 +157,9 @@ function renderPlaces() {
   for (const point of ui.fallback.querySelectorAll("[data-place-id]")) point.toggleAttribute('hidden', !found.some(p => p.id === point.dataset.placeId));
   $("bookmarks-open")?.setAttribute("aria-pressed", String(state.savedOnly));
 }
-function resetFilters() {
+function resetFilters(keepPosition = false) {
   revealPlaces();
-  clearNearby(false);
+  if (keepPosition === true) geo.radiusFilter = false; else clearNearby(false);
   state.filter = "all"; state.query = ""; state.savedOnly = false; ui.search.value = "";
   document.querySelectorAll("[data-category]").forEach(b => {b.setAttribute("aria-pressed", String(b.dataset.category === "all"));b.classList.toggle("is-active",b.dataset.category==='all');});
   renderPlaces();
@@ -181,10 +179,10 @@ function renderSelected(place) {
 function updateSelectedMarkers() {
   for (const [id, marker] of state.markers) marker.getElement().classList.toggle("is-selected", state.selected?.id === id);
 }
-function selectPlace(place) {
+function selectPlace(place, keepSidebar = false) {
   state.selected = place; renderPlaces(); renderSelected(place); updateSelectedMarkers();
   if (state.map) state.map.flyTo({ center: [place.lng, place.lat], zoom: Math.max(state.map.getZoom(), 15.7), duration: reducedMotion ? 0 : 650, padding: { bottom: isMobileLayout() ? Math.min(innerHeight * .26, 180) : 100, top: 60, left: 40, right: 40 } });
-  if (isMobileLayout()) {document.querySelector(".sidebar")?.classList.add("is-collapsed");$('mobile-sheet-toggle')?.setAttribute('aria-expanded','false');}
+  if (isMobileLayout() && !keepSidebar) {document.querySelector(".sidebar")?.classList.add("is-collapsed");$('mobile-sheet-toggle')?.setAttribute('aria-expanded','false');}
 }
 function showPlace(place) {
   const art = image(place.image, "detail-art");
@@ -212,10 +210,10 @@ function showQuest() {
     const saved = questProgress(quest);
     const card = el('article', 'adventure-card');
     const descriptions = { 'quest-leninsky-culture-001': 'Начни с трёх историй: морской музей, театр и фуникулёр.', 'quest-three-keys': 'Собери три ключа: люди, архитектура и культура.', 'quest-letter-vladivostok': 'Собери пять фрагментов воображаемой открытки из Владивостока.', 'quest-city-code': 'Открой пять смыслов города: форму, творчество, движение, историю и отдых.' };
-    card.append(el('p', 'eyebrow', `ЗАДАНИЙ: ${quest.stops.length} · ПРОЙДЕНО: ${Object.keys(saved.answers).length}`), el('h3', '', quest.title), el('p', '', descriptions[quest.id] || quest.description.replace(/draft/g, 'предварительный')), button(saved.completed ? 'Посмотреть награду' : Object.keys(saved.answers).length ? 'Продолжить квест' : 'Начать квест', 'primary-button', () => openQuest(quest), 'arrow'));
+    card.append(el('p', 'eyebrow', `ОСТАНОВОК: ${quest.stops.length} · ПРОЙДЕНО: ${saved.visited.length}`), el('h3', '', quest.title), el('p', '', descriptions[quest.id] || quest.description.replace(/draft/g, 'предварительный')), button(saved.completed ? 'Квест завершён' : saved.visited.length ? 'Продолжить квест' : 'Начать квест', 'primary-button', () => openQuest(quest), 'arrow'));
     cards.append(card);
   }
-  openDialog('detail-dialog', [guideCard('interesting-places', 'У города есть истории', 'В квесте будут короткие истории и вопросы. Никакого экзамена.'), el('p', 'info-note', 'Можно играть из дома. Ответы и отметки не подтверждают физическое посещение; прогресс хранится только в этом браузере.'), cards]);
+  openDialog('detail-dialog', [guideCard('interesting-places', 'У города есть истории', 'Сначала обойди остановки и прочитай истории, затем пройди один итоговый опрос.'), el('p', 'info-note', 'GPS помогает понять, что вы рядом с точкой. Без геолокации доступна отдельная ручная отметка. Прогресс хранится только в этом браузере.'), cards]);
 }
 function showFirstTime() {
   const intro = guideCard('first-visit', 'Впервые во Владике?', 'У нас тут море, истории и внезапная тренировка ног. Что тебе интереснее?');
@@ -238,13 +236,6 @@ function showGuide() {
   const categories = el('div', 'helper-category-row');
   for (const [label, category] of [['Поесть', 'food'], ['Туалет', 'toilet'], ['Досуг', 'culture']]) categories.append(button(label, 'secondary-button', () => { closeDialog('guide-dialog'); chooseCategory(category); }));
   openDialog("guide-dialog", [head, choices, categories]);
-}
-function showAvatar() {
-  const head = dialogHeading("ТВОЙ МАЛЕНЬКИЙ ПРОФИЛЬ", "Какой ты сегодня?", "Выбор останется только в этом браузере. Начнём без регистрации.");
-  const choices = el("div", "avatar-options");
-  [["lighthouse", "Маяк", "☀"], ["boat", "Кораблик", "⛵"], ["sun", "Солнце", "☀"]].forEach(([id, label, glyph]) => { const b = button("", "avatar-option", () => { writeStorage(id); $("avatar-open").dataset.avatar = id; notify("Образ выбран"); closeDialog("detail-dialog"); }); b.append(id === "lighthouse" ? image("lighthouse.svg", "") : el("span", "avatar-glyph", glyph), el("span", "", label)); choices.append(b); });
-  const reward = el('div', 'reward-card', progress.rewards.includes('explorer-hat') ? '🎓 Шапка исследователя открыта! Награда остаётся на этом устройстве.' : '🎓 Пройди любой квест, чтобы открыть шапку исследователя.');
-  openDialog("detail-dialog", [head, choices, reward]);
 }
 async function getJSON(url) {
   const response = await fetch(url, { signal: AbortSignal.timeout(12000) });
@@ -284,7 +275,7 @@ function showWalkDetail(walk) {
   const stops = el('div', 'walk-stops');
   walk.place_ids.forEach((id, index) => {
     const place = state.places.find(p => p.id === id); if (!place) return;
-    const item = button('', 'walk-stop', () => { startWalk(walk, index); });
+    const item = el('div', 'walk-stop');
     item.append(el('span', 'step-number', String(index + 1)), image(place.image, 'walk-thumb'), el('span', '', place.title), icon('chevron')); stops.append(item);
   });
   const actions = el('div', 'dialog-actions');
@@ -293,117 +284,281 @@ function showWalkDetail(walk) {
   if (quest) actions.append(button('Пройти связанный квест', 'secondary-button', () => openQuest(quest), 'book'));
   openDialog('detail-dialog', [guideCard('directions', walk.title, walk.description), el('p', 'info-note', walk.route_note || 'Переходы ещё не проверены. Путь до остановки строит внешний навигатор.'), stops, actions, renderSources(walk.sources)]);
 }
-function startWalk(walk, index = 0) {
-  state.activeWalk = walk; state.walkStep = index;
-  $('nearby-options').open = false;
-  progress.walk = { id: walk.id, step: index }; saveProgress();
-  resetFilters(); updateWalkLine(); renderJourney();
-  closeDialog('detail-dialog');
-  const place = state.places.find(p => p.id === walk.place_ids[index]); if (place) selectPlace(place);
-}
-function stopWalk() { state.activeWalk = null; state.walkStep = 0; delete progress.walk; saveProgress(); updateWalkLine(); renderJourney(); }
-function updateWalkLine() {
-  const source = state.map?.getSource('walk-path'); if (!source) return;
-  const points = state.activeWalk?.place_ids.map(id => state.places.find(p => p.id === id)).filter(Boolean) || [];
-  source.setData({ type: 'FeatureCollection', features: points.length < 2 ? [] : [{ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: points.map(p => [p.lng, p.lat]) } }] });
-  for (const [id, marker] of state.markers) {
-    const bubble = marker.getElement().querySelector('.map-marker-bubble');
-    const index = state.activeWalk?.place_ids.indexOf(id) ?? -1;
-    marker.getElement().classList.toggle('is-route', index >= 0);
-    if (index >= 0) bubble.dataset.step = index + 1; else delete bubble.dataset.step;
-  }
-}
-function renderJourney() {
-  const panel = $('journey-panel'); if (!panel) return;
-  panel.replaceChildren(); panel.hidden = !state.activeWalk && !state.activeQuest;
-  document.querySelector('.district-badge > span:last-child').textContent = state.activeWalk ? 'Схема остановок · путь в 2ГИС' : 'Только Ленинский';
-  document.querySelector('.intro-section').hidden = !panel.hidden;
-  document.querySelector('.sheet-toggle-label').textContent = state.activeWalk ? `Прогулка · ${state.walkStep + 1} из ${state.activeWalk.place_ids.length}` : state.activeQuest ? 'Продолжить квест' : 'Исследовать район';
-  if (state.activeWalk) {
-    const walk = state.activeWalk, place = state.places.find(p => p.id === walk.place_ids[state.walkStep]);
-    const box = el('div', 'journey-card');
-    box.append(el('p', 'eyebrow', `ПРОГУЛКА · ${state.walkStep + 1} ИЗ ${walk.place_ids.length}`), el('h3', '', walk.title), el('p', '', place?.title || 'Остановка'));
-    const actions = el('div', 'journey-actions');
-    if (place) actions.append(external('Идти в 2ГИС', routeURL(place), 'primary-button'), button('На карте', 'secondary-button', () => selectPlace(place)));
-    actions.append(button('Я на месте', 'secondary-button', () => showArrival(walk)), button('Завершить прогулку', 'text-button', stopWalk));
-    box.append(actions, el('p', 'micro-copy', 'Пунктир — порядок остановок, не рассчитанный путь.')); panel.append(box);
-  }
-  if (state.activeQuest) {
-    const quest = state.activeQuest, saved = questProgress(quest);
-    const box = el('div', 'journey-card');
-    box.append(el('p', 'eyebrow', 'КВЕСТ'), el('h3', '', quest.title), el('p', '', `${Object.keys(saved.answers).length} из ${quest.stops.length} заданий`), button('Продолжить историю', 'primary-button', () => openQuest(quest)));
-    panel.append(box);
-  }
-}
-function showArrival(walk) {
-  const isLast = state.walkStep >= walk.place_ids.length - 1;
-  openDialog('detail-dialog', [guideCard('surprised', isLast ? 'Прогулка собрана!' : 'Уже здесь? Вот это темп!', 'Это твоя отметка о прибытии. GPS её не проверяет.', [{ label: isLast ? 'Закончить прогулку' : 'К следующей остановке', primary: true, run: () => { if (isLast) { stopWalk(); closeDialog('detail-dialog'); notify('Прогулка завершена на этом устройстве'); } else startWalk(walk, state.walkStep + 1); } }])]);
+const visitControls = new WeakMap();
+const ARRIVAL_RADIUS_M = 150;
+const POSITION_MAX_AGE_MS = 120000;
+function validIds(value, ids) { return [...new Set(Array.isArray(value) ? value.filter(id => ids.includes(id)) : [])]; }
+function verificationMap(value, ids) { return Object.fromEntries(ids.map(id => [id, value?.[id] === true])); }
+function walkProgress(walk) {
+  if (progress.walk?.id !== walk.id) progress.walk = { id: walk.id, done: [], verifiedByGps: {} };
+  const saved = progress.walk;
+  saved.done = validIds(saved.done, walk.place_ids);
+  saved.verifiedByGps = verificationMap(saved.verifiedByGps, saved.done);
+  return saved;
 }
 function questProgress(quest) {
   let saved = progress.quests[quest.id];
-  if (!saved || typeof saved.answers !== 'object' || !saved.answers || Array.isArray(saved.answers)) saved = { answers: {}, completed: false };
-  const allowed = {};
-  for (const stop of quest.stops) if (stop.options.some(option => option.id === saved.answers[stop.id])) allowed[stop.id] = saved.answers[stop.id];
-  saved.answers = allowed; saved.completed = saved.completed === true && Object.keys(allowed).length === quest.stops.length; progress.quests[quest.id] = saved; return saved;
+  if (!saved || typeof saved !== 'object' || Array.isArray(saved)) saved = {};
+  const visited = validIds(saved.visited, quest.stops.map(stop => stop.id));
+  const answers = {};
+  // Legacy answers alone do not establish that the new tour phase was done.
+  if (visited.length === quest.stops.length) {
+    for (const stop of quest.stops) if (stop.options.some(option => option.id === saved.answers?.[stop.id])) answers[stop.id] = saved.answers[stop.id];
+  }
+  const clean = { visited, answers, completed: saved.completed === true && Object.keys(answers).length === quest.stops.length, verifiedByGps: verificationMap(saved.verifiedByGps, visited) };
+  if (visited.length !== quest.stops.length && progress.activeQuest?.id === quest.id) progress.activeQuest.surveyStarted = false;
+  for (const key of Object.keys(saved)) if (!Object.hasOwn(clean, key)) delete saved[key];
+  Object.assign(saved, clean); progress.quests[quest.id] = saved; return saved;
+}
+function journeyFor(kind, item) {
+  return { kind, item, saved: kind === 'quest' ? questProgress(item) : walkProgress(item), stops: kind === 'quest' ? item.stops.map(stop => ({ ...stop, place: state.places.find(p => p.id === stop.place_id) })) : item.place_ids.map(id => ({ id, place: state.places.find(p => p.id === id) })) };
+}
+function currentJourney() { return state.activeQuest ? journeyFor('quest', state.activeQuest) : state.activeWalk ? journeyFor('walk', state.activeWalk) : null; }
+function visitedIds(journey) { return journey.kind === 'quest' ? journey.saved.visited : journey.saved.done; }
+function currentStopIndex(journey) { return journey.stops.findIndex(stop => !visitedIds(journey).includes(stop.id)); }
+function sameJourney(journey) {
+  return journey.kind === 'quest' ? state.activeQuest?.id === journey.item.id && progress.quests[journey.item.id] === journey.saved : state.activeWalk?.id === journey.item.id && progress.walk === journey.saved;
+}
+function surveyActive(quest) { return progress.activeQuest?.id === quest.id && progress.activeQuest.surveyStarted; }
+function startWalk(walk) {
+  state.activeQuest = null; delete progress.activeQuest;
+  state.activeWalk = walk;
+  const journey = journeyFor('walk', walk); state.walkStep = Math.max(0, currentStopIndex(journey));
+  saveProgress(); resetFilters(true); updateWalkLine(); renderJourney();
+  closeDialog('detail-dialog');
+  const stop = journey.stops[currentStopIndex(journey)]; if (stop?.place) selectPlace(stop.place, true);
+}
+function stopWalk() {
+  state.activeWalk = null; state.walkStep = 0; delete progress.walk;
+  saveProgress(); updateWalkLine(); renderJourney(); closeDialog('detail-dialog');
+  notify('Прогулка завершена. Отметки очищены.');
+}
+function updateWalkLine() {
+  const journey = currentJourney();
+  const source = state.map?.getSource('walk-path');
+  const points = journey?.stops.map(stop => stop.place).filter(Boolean) || [];
+  source?.setData({ type: 'FeatureCollection', features: points.length < 2 ? [] : [{ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: points.map(p => [p.lng, p.lat]) } }] });
+  for (const [id, marker] of state.markers) {
+    const bubble = marker.getElement().querySelector('.map-marker-bubble');
+    const index = points.findIndex(place => place.id === id);
+    marker.getElement().classList.toggle('is-route', index >= 0);
+    if (bubble) { if (index >= 0) bubble.dataset.step = index + 1; else delete bubble.dataset.step; }
+  }
+}
+function presenceFor(place) {
+  if (geo.phase === 'requesting') return { mode: 'requesting', text: 'Определяем, где вы. Координаты остаются на устройстве.' };
+  if (['denied', 'unavailable', 'timeout'].includes(geo.phase)) return { mode: 'fallback', text: 'Без проверки рядом. Геолокация недоступна; отметка будет ручной.' };
+  if (geo.origin !== 'device' || !Number.isFinite(geo.lat) || !Number.isFinite(geo.lng) || !Number.isFinite(geo.capturedAt) || Date.now() - geo.capturedAt > POSITION_MAX_AGE_MS) return { mode: 'idle', text: 'Проверьте GPS устройства перед отметкой. Выбранный вручную старт не является вашей позицией.' };
+  const distanceM = haversineM(geo.lat, geo.lng, place.lat, place.lng);
+  const near = distanceM <= ARRIVAL_RADIUS_M + 1e-6; // floating-point roundoff at exactly 150 m
+  const warning = geo.accuracyM > ARRIVAL_RADIUS_M ? ' Позиция неточная (погрешность больше 150 м). Можно обновить GPS.' : '';
+  return { mode: near ? 'near' : 'far', text: (near ? 'Вы рядом с точкой (≈' + Math.round(distanceM) + ' м)' : 'До точки ≈' + Math.round(distanceM) + ' м') + warning };
+}
+function arrivalControls(journey, stop) {
+  const box = el('div', 'journey-presence'); box.dataset.visitControls = '';
+  visitControls.set(box, { journey, stop }); updateArrivalControls(box); return box;
+}
+function updateArrivalControls(box) {
+  const context = visitControls.get(box); if (!context) return;
+  const { journey, stop } = context, presence = presenceFor(stop.place);
+  if (box.dataset.presenceKey === presence.mode + presence.text) return;
+  const hadFocus = box.contains(document.activeElement);
+  box.dataset.presenceKey = presence.mode + presence.text;
+  const status = el('p', 'journey-location', presence.text); status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
+  const actions = el('div', 'journey-actions');
+  const mark = button(presence.mode === 'fallback' ? 'Отметить без проверки' : 'Я на месте', 'primary-button', () => markArrival(journey, stop.id, presence.mode === 'fallback'), 'check');
+  mark.dataset.focusKey = 'arrival-mark';
+  mark.disabled = !['near', 'fallback'].includes(presence.mode);
+  actions.append(mark);
+  if (presence.mode !== 'near' && presence.mode !== 'requesting') actions.append(button(presence.mode === 'idle' ? 'Проверить GPS' : 'Обновить GPS', 'secondary-button', () => requestNearby(true), 'pin'));
+  if (presence.mode === 'far') actions.append(external('Идти в 2ГИС', routeURL(stop.place), 'secondary-button'));
+  if (presence.mode === 'requesting') actions.append(button('Продолжить без GPS', 'text-button', () => { clearNearby(false); setGeoPhase('unavailable'); }));
+  box.replaceChildren(status, actions);
+  if (hadFocus) (actions.querySelector('button:not(:disabled)') || mark).focus({ preventScroll: true });
+}
+function refreshPresence() { for (const box of document.querySelectorAll('[data-visit-controls]')) updateArrivalControls(box); }
+function markArrival(journey, stopId, withoutGps = false) {
+  if (!sameJourney(journey)) return;
+  const index = currentStopIndex(journey), stop = journey.stops[index];
+  if (!stop || stop.id !== stopId || journey.kind === 'quest' && surveyActive(journey.item)) return;
+  const presence = presenceFor(stop.place);
+  if (withoutGps ? presence.mode !== 'fallback' : presence.mode !== 'near') { refreshPresence(); return; }
+  visitedIds(journey).push(stop.id); journey.saved.verifiedByGps[stop.id] = !withoutGps;
+  saveProgress(); renderJourney();
+  const next = journey.stops[currentStopIndex(journey)];
+  if (next) {
+    if (next.place) selectPlace(next.place, true);
+    if ($('detail-dialog').open) showJourneyStop(journey, currentStopIndex(journey));
+    notify('Остановка отмечена' + (withoutGps ? ' без проверки рядом' : '') + '.');
+  } else if (journey.kind === 'quest') showTourComplete(journey.item);
+  else showWalkComplete(journey.item);
+}
+function renderJourney() {
+  const panel = $('journey-progress'); if (!panel) return;
+  const detailsOpen = panel.querySelector('details')?.open;
+  const focusedKey = panel.contains(document.activeElement) ? document.activeElement?.dataset.focusKey : null;
+  const journey = currentJourney();
+  panel.replaceChildren(); panel.hidden = !journey;
+  document.querySelector('.map-stage')?.classList.toggle('has-journey', !!journey);
+  document.querySelector('.district-badge > span:last-child').textContent = journey ? 'Схема остановок · путь в 2ГИС' : 'Только Ленинский';
+  document.querySelector('.intro-section').hidden = !!journey;
+  document.querySelector('.sheet-toggle-label').textContent = 'Исследовать район';
+  if (!journey) return;
+  const done = visitedIds(journey), total = journey.stops.length, index = currentStopIndex(journey);
+  const isSurvey = journey.kind === 'quest' && surveyActive(journey.item);
+  const box = el('div', 'journey-card'), heading = el('div', 'journey-heading'), title = el('div');
+  const label = journey.saved.completed ? 'Квест завершён' : index < 0 ? (isSurvey ? 'Итоговый опрос' : `Обход завершён ${total}/${total}`) : `Остановка ${index + 1} из ${total}`;
+  title.append(el('p', 'eyebrow', (journey.kind === 'quest' ? 'КВЕСТ · ' : 'ПРОГУЛКА · ') + label), el('h3', '', journey.item.title)); heading.append(title);
+  const meter = el('progress', 'journey-meter'); meter.max = total; meter.value = done.length; meter.setAttribute('aria-label', `Пройдено ${done.length} из ${total} остановок`);
+  box.append(heading, meter);
+  if (index >= 0) {
+    const stop = journey.stops[index];
+    box.append(el('p', 'journey-current', stop.place.title), arrivalControls(journey, stop));
+  } else {
+    const actions = el('div', 'journey-actions');
+    if (journey.kind === 'walk') actions.append(button('Завершить', 'primary-button', stopWalk, 'check'));
+    else actions.append(button(journey.saved.completed ? 'Посмотреть итог' : isSurvey ? 'Продолжить итоговый опрос' : 'Начать итоговый опрос', 'primary-button', () => journey.saved.completed ? showQuestFinal(journey.item) : beginSurvey(journey.item), 'arrow'));
+    actions.querySelector('button').dataset.focusKey = 'journey-next';
+    box.append(el('p', 'journey-current', `Пройдено ${done.length} из ${total}`), actions);
+  }
+  const details = el('details', 'journey-details'); details.open = !!detailsOpen;
+  details.append(el('summary', '', `Остановки и отметки · ${done.length}/${total}`));
+  const checklist = el('ol', 'journey-checklist');
+  journey.stops.forEach((stop, i) => {
+    const visited = done.includes(stop.id), item = el('li', visited ? 'is-done' : i === index ? 'is-current' : '');
+    const view = button(stop.place.title, 'journey-checkpoint', () => showJourneyStop(journey, i));
+    view.disabled = !visited && i !== index; view.setAttribute('aria-pressed', String(i === index)); view.dataset.focusKey = 'stop-' + stop.id;
+    item.append(view);
+    if (visited) item.append(el('span', 'journey-verification', journey.saved.verifiedByGps[stop.id] ? 'Вы были рядом с точкой по GPS' : 'Без проверки рядом'));
+    checklist.append(item);
+  });
+  const controls = el('div', 'journey-actions');
+  if (index >= 0) {
+    const view = button('История остановки', 'secondary-button', () => showJourneyStop(journey, index)); view.dataset.focusKey = 'story'; controls.append(view);
+    controls.append(external('Идти в 2ГИС', routeURL(journey.stops[index].place), 'secondary-button'));
+  }
+  controls.append(button('Сбросить прогресс', 'text-button', () => journey.kind === 'quest' ? resetQuest(journey.item) : resetWalk(journey.item)));
+  if (journey.kind === 'quest') controls.append(button('К другим квестам', 'text-button', leaveQuest));
+  details.append(checklist, controls); box.append(details, el('p', 'micro-copy', 'Пунктир — порядок остановок, не рассчитанный путь.')); panel.append(box);
+  if (focusedKey) {
+    const target = [...panel.querySelectorAll('[data-focus-key]')].find(node => node.dataset.focusKey === focusedKey && !node.disabled);
+    (target || panel.querySelector('.journey-actions button:not(:disabled)'))?.focus({ preventScroll: true });
+  }
+}
+function showJourneyStop(journey, index) {
+  if (!sameJourney(journey)) return;
+  const stop = journey.stops[index], done = visitedIds(journey);
+  if (!stop || !done.includes(stop.id) && index !== currentStopIndex(journey)) return;
+  const content = [el('p', 'eyebrow', `Остановка ${index + 1} из ${journey.stops.length}`), guideCard('interesting-places', stop.place.title, '')];
+  if (journey.kind === 'quest') {
+    if (stop.fiction_text) content.push(el('p', 'fiction-copy', 'Проводница · художественная история: ' + stop.fiction_text));
+    const fact = el('section', 'fact-card'); fact.append(el('p', 'eyebrow', 'ИСТОРИЧЕСКАЯ СПРАВКА'), el('p', '', stop.fact_text), renderSources(stop.sources)); content.push(fact);
+  } else content.push(el('p', 'dialog-copy', stop.place.description), renderSources(journey.item.sources));
+  content.push(external('Идти в 2ГИС', routeURL(stop.place), 'secondary-button'));
+  if (done.includes(stop.id)) content.push(el('p', 'info-note', journey.saved.verifiedByGps[stop.id] ? 'Остановка отмечена: вы были рядом с точкой по GPS.' : 'Остановка отмечена без проверки рядом.'));
+  else content.push(arrivalControls(journey, stop));
+  content.push(button('Вернуться к карте', 'secondary-button', () => { closeDialog('detail-dialog'); selectPlace(stop.place, true); }));
+  openDialog('detail-dialog', content);
+}
+function resetWalk(walk) { progress.walk = { id: walk.id, done: [], verifiedByGps: {} }; startWalk(walk); notify('Отметки прогулки сброшены'); }
+function showWalkComplete(walk) {
+  openDialog('detail-dialog', [guideCard('surprised', 'Обход завершён', walk.title), el('p', 'info-note', `Пройдено ${walk.place_ids.length} из ${walk.place_ids.length}`), button('Завершить', 'primary-button', stopWalk)]);
 }
 function openQuest(quest) {
   const saved = questProgress(quest);
-  if (saved.completed) { showQuestReward(quest); return; }
-  state.activeQuest = quest; renderJourney();
-  const next = quest.stops.findIndex(stop => !saved.answers[stop.id]);
-  if (next < 0) { finishQuest(quest); return; }
-  showQuestStep(quest, next);
+  state.activeWalk = null; state.activeQuest = quest;
+  if (progress.activeQuest?.id !== quest.id) progress.activeQuest = { id: quest.id, surveyStarted: Object.keys(saved.answers).length > 0 };
+  saveProgress(); resetFilters(true); renderJourney(); updateWalkLine();
+  if (saved.completed) { showQuestFinal(quest); return; }
+  const journey = journeyFor('quest', quest), next = currentStopIndex(journey);
+  if (next >= 0) { selectPlace(journey.stops[next].place, true); showJourneyStop(journey, next); }
+  else if (surveyActive(quest)) showSurveyQuestion(quest);
+  else showTourComplete(quest);
 }
-function showQuestStep(quest, index) {
-  const stop = quest.stops[index], place = state.places.find(p => p.id === stop.place_id);
-  const meter = el('div', 'quest-meter'); meter.setAttribute('aria-label', `Задание ${index + 1} из ${quest.stops.length}`);
-  quest.stops.forEach((_, i) => meter.append(el('span', i < index ? 'is-done' : i === index ? 'is-current' : '')));
-  const fact = el('section', 'fact-card'); fact.append(el('p', 'eyebrow', 'ИСТОРИЧЕСКАЯ СПРАВКА'), el('p', '', stop.fact_text), renderSources(stop.sources));
-  const fiction = el('p', 'fiction-copy', 'Проводница · художественная история: ' + stop.fiction_text);
-  fiction.hidden = !stop.fiction_text;
-  const options = el('div', 'quest-options');
-  const feedback = el('div', 'quest-feedback'); feedback.setAttribute('role', 'status'); feedback.hidden = true;
-  const next = button(index + 1 === quest.stops.length ? 'Получить награду' : 'Следующее задание', 'primary-button', () => index + 1 === quest.stops.length ? finishQuest(quest) : showQuestStep(quest, index + 1), 'arrow'); next.hidden = true;
+function showTourComplete(quest) {
+  const saved = questProgress(quest); if (saved.visited.length !== quest.stops.length) return;
+  renderJourney();
+  openDialog('detail-dialog', [guideCard('surprised', `Обход завершён ${saved.visited.length}/${quest.stops.length}`, quest.title), el('p', 'info-note', 'Все остановки отмечены. Теперь вспомним их истории в одном итоговом опросе.'), button('Начать итоговый опрос', 'primary-button', () => beginSurvey(quest), 'arrow'), button('Вернуться к карте', 'secondary-button', () => closeDialog('detail-dialog'))]);
+}
+function beginSurvey(quest) {
+  const saved = questProgress(quest); if (saved.visited.length !== quest.stops.length || state.activeQuest?.id !== quest.id) return;
+  progress.activeQuest = { id: quest.id, surveyStarted: true }; saveProgress(); renderJourney(); showSurveyQuestion(quest);
+}
+function showSurveyQuestion(quest) {
+  const saved = questProgress(quest);
+  if (!surveyActive(quest) || saved.visited.length !== quest.stops.length || state.activeQuest?.id !== quest.id) return;
+  const index = quest.stops.findIndex(stop => !saved.answers[stop.id]);
+  if (index < 0) { finishQuest(quest); return; }
+  const stop = quest.stops[index], meter = el('div', 'quest-meter'); meter.setAttribute('aria-label', `Верных ответов ${Object.keys(saved.answers).length} из ${quest.stops.length}`);
+  quest.stops.forEach(item => meter.append(el('span', saved.answers[item.id] ? 'is-done' : item.id === stop.id ? 'is-current' : '')));
+  const options = el('div', 'quest-options'), feedback = el('div', 'quest-feedback'); feedback.setAttribute('role', 'status'); feedback.setAttribute('aria-live', 'polite'); feedback.hidden = true;
+  const next = button(index + 1 === quest.stops.length ? 'Завершить квест' : 'Следующий вопрос', 'primary-button', () => showSurveyQuestion(quest), 'arrow'); next.hidden = true;
   for (const option of stop.options) {
     const choice = button(option.text, 'quest-option', async () => {
+      // Check phase again at the request boundary; detached old buttons cannot submit.
+      if (state.activeQuest?.id !== quest.id || progress.quests[quest.id] !== saved || !surveyActive(quest) || saved.visited.length !== quest.stops.length || saved.answers[stop.id]) return;
       const revision = dialogRevision;
-      options.querySelectorAll('button').forEach(b => { b.disabled = true; });
-      feedback.hidden = false; feedback.textContent = 'Проверяем ответ…';
+      const returnFocus = options.contains(document.activeElement);
+      const restoreChoiceFocus = () => { if (returnFocus && (document.activeElement === document.body || document.activeElement === $('detail-dialog'))) choice.focus({ preventScroll: true }); };
+      options.querySelectorAll('button').forEach(b => { b.disabled = true; }); feedback.hidden = false; feedback.textContent = 'Проверяем ответ…';
       try {
         const result = await postJSON(`/api/v1/quest/${encodeURIComponent(quest.id)}/answer`, { stop_id: stop.id, option_id: option.id });
-        if (result.correct) { questProgress(quest).answers[stop.id] = option.id; saveProgress(); renderJourney(); }
+        if (progress.quests[quest.id] !== saved || state.activeQuest?.id !== quest.id || !surveyActive(quest)) return;
         if (revision !== dialogRevision || !$('detail-dialog').open) return;
-        feedback.className = 'quest-feedback ' + (result.correct ? 'is-correct' : 'is-wrong');
-        feedback.textContent = (result.correct ? 'Верно. ' : 'Не совсем. Перечитай короткую справку — ответ есть в ней. ') + (result.explanation || '');
-        if (result.correct) { choice.classList.add('is-correct'); next.hidden = false; } else options.querySelectorAll('button').forEach(b => { b.disabled = false; });
+        if (result.correct === true) { saved.answers[stop.id] = option.id; saveProgress(); renderJourney(); }
+        feedback.className = 'quest-feedback ' + (result.correct === true ? 'is-correct' : 'is-wrong');
+        feedback.textContent = (result.correct === true ? 'Верно. ' : 'Не совсем. Попробуйте ещё раз. ') + (result.explanation || '');
+        if (result.correct === true) {
+          choice.classList.add('is-correct'); choice.setAttribute('aria-pressed', 'true');
+          if (Object.keys(saved.answers).length === quest.stops.length) finishQuest(quest);
+          else { next.hidden = false; next.focus({ preventScroll: true }); }
+        }
+        else { options.querySelectorAll('button').forEach(b => { b.disabled = false; }); restoreChoiceFocus(); }
       } catch {
-        if (revision !== dialogRevision) return;
-        feedback.textContent = 'Не удалось проверить ответ. Проверьте соединение и попробуйте снова.';
-        options.querySelectorAll('button').forEach(b => { b.disabled = false; });
+        if (revision !== dialogRevision || progress.quests[quest.id] !== saved) return;
+        feedback.textContent = 'Не удалось проверить ответ. Проверьте соединение и попробуйте снова.'; options.querySelectorAll('button').forEach(b => { b.disabled = false; }); restoreChoiceFocus();
       }
-    }); options.append(choice);
+    }); choice.setAttribute('aria-pressed', 'false'); options.append(choice);
   }
-  const navigation = el('div', 'dialog-actions');
-  if (place) navigation.append(external('К остановке в 2ГИС', routeURL(place), 'secondary-button'), button('Показать место', 'secondary-button', () => { closeDialog('detail-dialog'); selectPlace(place); }));
-  openDialog('detail-dialog', [el('p', 'eyebrow', `${quest.title} · ${index + 1}/${quest.stops.length}`), meter, guideCard('interesting-places', stop.title, ''), fiction, fact, el('h3', 'quest-question', stop.question), options, feedback, next, navigation]);
+  const reference = el('details', 'survey-reference'); reference.append(el('summary', '', 'Перечитать справку'), el('p', '', stop.fact_text), renderSources(stop.sources));
+  openDialog('detail-dialog', [el('p', 'eyebrow', `ИТОГОВЫЙ ОПРОС · ВОПРОС ${index + 1} ИЗ ${quest.stops.length}`), meter, dialogHeading(quest.title, stop.question), options, feedback, next, reference, button('Сбросить прогресс', 'text-button', () => resetQuest(quest))]);
 }
+const completing = new WeakMap();
 async function finishQuest(quest) {
-  const feedback = el('p', 'info-note', 'Проверяем все задания…');
+  const saved = questProgress(quest);
+  if (!surveyActive(quest) || saved.visited.length !== quest.stops.length || Object.keys(saved.answers).length !== quest.stops.length || state.activeQuest?.id !== quest.id) return;
+  const feedback = el('p', 'info-note', 'Проверяем итоговый опрос…'); feedback.setAttribute('role', 'status');
   const opening = openDialog('detail-dialog', [guideCard('talking', 'История почти собрана', 'Остался последний шаг.'), feedback]);
-  const revision = dialogRevision;
-  await opening;
-  if (revision !== dialogRevision || !$('detail-dialog').open) return;
+  const revision = dialogRevision; await opening;
+  if (revision !== dialogRevision || !$('detail-dialog').open || progress.quests[quest.id] !== saved) return;
+  let request = completing.get(saved);
+  if (!request) {
+    request = postJSON(`/api/v1/quest/${encodeURIComponent(quest.id)}/complete`, { answers: quest.stops.map(stop => ({ stop_id: stop.id, option_id: saved.answers[stop.id] })) });
+    completing.set(saved, request);
+  }
   try {
-    const saved = questProgress(quest);
-    const result = await postJSON(`/api/v1/quest/${encodeURIComponent(quest.id)}/complete`, { answers: Object.entries(saved.answers).map(([stop_id, option_id]) => ({ stop_id, option_id })) });
-    if (!result.completed) { saved.completed = false; feedback.textContent = 'Не все задания подтверждены. Начните квест заново или продолжите ответы.'; feedback.after(button('Начать заново', 'secondary-button', () => resetQuest(quest))); return; }
-    saved.completed = true; progress.rewards = ['explorer-hat']; saveProgress(); $('avatar-open').classList.add('has-reward'); state.activeQuest = null;
-    if (revision === dialogRevision) showQuestReward(quest); renderJourney();
-  } catch { if (revision === dialogRevision) { feedback.textContent = 'Не удалось завершить проверку. Прогресс сохранён, попробуйте ещё раз.'; feedback.after(button('Повторить', 'primary-button', () => finishQuest(quest))); } }
+    const result = await request;
+    if (progress.quests[quest.id] !== saved || state.activeQuest?.id !== quest.id || revision !== dialogRevision || !$('detail-dialog').open) return;
+    if (result.completed !== true) {
+      if (revision === dialogRevision) { feedback.textContent = 'Сервер пока не подтвердил завершение. Ответы сохранены.'; feedback.after(button('Повторить', 'primary-button', () => finishQuest(quest)), button('Сбросить прогресс', 'text-button', () => resetQuest(quest))); }
+      return;
+    }
+    // The legacy payload may contain extra fields; only this completion flag is used.
+    saved.completed = true; saveProgress(); renderJourney();
+    if (revision === dialogRevision) showQuestFinal(quest);
+  } catch {
+    if (revision === dialogRevision && progress.quests[quest.id] === saved) { feedback.textContent = 'Не удалось завершить проверку. Прогресс сохранён, попробуйте ещё раз.'; feedback.after(button('Повторить', 'primary-button', () => finishQuest(quest))); }
+  } finally { if (completing.get(saved) === request) completing.delete(saved); }
 }
-function resetQuest(quest) { progress.quests[quest.id] = { answers: {}, completed: false }; saveProgress(); showQuestStep(quest, 0); renderJourney(); }
-function showQuestReward(quest) {
-  openDialog('detail-dialog', [guideCard('surprised', 'Ты уже свой!', 'Все задания пройдены. Шапка городского исследователя открыта в твоём профиле.'), el('div', 'reward-celebration', '🎓'), el('p', 'info-note', 'Это локальная игровая награда, а не подтверждение посещения. Она сохранится на этом устройстве.'), button('Мой профиль', 'primary-button', showAvatar), button('Пройти заново', 'secondary-button', () => resetQuest(quest))]);
+function resetQuest(quest) {
+  progress.quests[quest.id] = { visited: [], answers: {}, completed: false, verifiedByGps: {} };
+  progress.activeQuest = { id: quest.id, surveyStarted: false }; openQuest(quest); notify('Прогресс квеста сброшен');
+}
+function leaveQuest() { state.activeQuest = null; delete progress.activeQuest; saveProgress(); renderJourney(); updateWalkLine(); showQuest(); }
+function showQuestFinal(quest) {
+  const saved = questProgress(quest); if (!saved.completed) return;
+  const actions = el('div', 'dialog-actions'); actions.append(button('К другим квестам', 'primary-button', leaveQuest), button('Сбросить прогресс', 'text-button', () => resetQuest(quest)));
+  openDialog('detail-dialog', [guideCard('surprised', 'Квест завершён', quest.title), el('p', 'info-note', `Пройдено ${saved.visited.length} из ${quest.stops.length}`), actions]);
 }
 async function postJSON(url, body) {
   const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(15000) });
@@ -504,6 +659,7 @@ function setGeoPhase(phase) {
   const actions = $("nearby-actions"); if (actions) actions.hidden = !geo.origin && phase !== 'requesting';
   if ($('nearby-refresh')) $('nearby-refresh').hidden = geo.origin !== 'device';
   if ($('nearby-clear')) $('nearby-clear').textContent = phase === 'requesting' ? 'Отменить запрос' : 'Очистить старт';
+  refreshPresence();
 }
 function clearYouMarker() { if (geo.youMarker) { geo.youMarker.remove(); geo.youMarker = null; } }
 function placeYouMarker() {
@@ -581,7 +737,6 @@ $("first-time").addEventListener("click",showFirstTime);
 $("guide-open").addEventListener("click",showGuide);
 $("walk-promo")?.addEventListener("click",showWalk);
 $("bookmarks-open")?.addEventListener("click",()=>{state.savedOnly=!state.savedOnly;renderPlaces();if(isMobileLayout())revealPlaces();});
-$("avatar-open")?.addEventListener("click",showAvatar);
 $("mobile-sheet-toggle")?.addEventListener("click",()=>{ const sheet=document.querySelector('.sidebar');sheet.classList.toggle('is-collapsed');$('mobile-sheet-toggle').setAttribute('aria-expanded',String(!sheet.classList.contains('is-collapsed'))); });
 document.querySelectorAll('[data-close-dialog]').forEach(b => b.addEventListener('click', () => closeDialog(b.closest('dialog'))));
 document.querySelectorAll('dialog').forEach(d => {
@@ -601,11 +756,18 @@ async function loadCity() {
     const ids = new Set(state.places.map(p => p.id));
     state.walks = (walks.items || []).filter(w => w.place_ids?.length && w.place_ids.every(id => ids.has(id)));
     state.quests = (quests.items || []).filter(q => q.stops?.length && q.stops.every(stop => ids.has(stop.place_id)));
-    const avatar = readStorage(); $('avatar-open').dataset.avatar = avatar;
-    $('avatar-open').classList.toggle('has-reward', progress.rewards.includes('explorer-hat'));
-    if (progress.walk) { state.activeWalk = state.walks.find(w => w.id === progress.walk.id) || null; state.walkStep = state.activeWalk ? Math.min(Math.max(0, Number(progress.walk.step) || 0), state.activeWalk.place_ids.length - 1) : 0; }
+    readStorage(); writeStorage();
+    progress.quests = Object.fromEntries(state.quests.map(quest => [quest.id, questProgress(quest)]));
+    if (progress.walk) {
+      state.activeWalk = state.walks.find(w => w.id === progress.walk.id) || null;
+      if (state.activeWalk) walkProgress(state.activeWalk); else delete progress.walk;
+    }
+    state.activeQuest = state.quests.find(q => q.id === progress.activeQuest?.id) || null;
+    if (state.activeQuest) state.activeWalk = null; else delete progress.activeQuest;
+    saveProgress();
     $('catalog-note').textContent = `${state.places.length} мест из районного каталога. Условия посещения уточняются; перед выходом проверьте источник.`;
     renderPlaces(); renderJourney(); initialiseMap();
+    if (state.activeQuest) openQuest(state.activeQuest);
   } catch {
     const box = el('li', 'empty-state'); box.append(el('h3', '', 'Не удалось загрузить город'), el('p', '', 'Запустите весь проект через start.cmd. Для работы нужен API, а не отдельная статическая страница.'), button('Повторить загрузку', 'secondary-button', loadCity));
     ui.list.replaceChildren(box); ui.count.textContent = '—'; mapStatus('Каталог временно недоступен');

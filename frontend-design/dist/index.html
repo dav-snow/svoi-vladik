@@ -44,7 +44,6 @@
       <button id="bookmarks-open" class="icon-button bookmark-button" type="button" aria-label="Сохранённые места" title="Сохранённые места">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4V4Z"/></svg>
       </button>
-      <button id="avatar-open" class="avatar-button" type="button" aria-label="Мой локальный аватар" title="Мой аватар"><span aria-hidden="true">:)</span></button>
     </div>
   </header>
 
@@ -104,7 +103,6 @@
           </details>
         </section>
 
-        <section id="journey-panel" class="journey-panel" aria-label="Моя прогулка и квест" hidden></section>
         <section class="places-section" aria-labelledby="places-title">
           <div class="section-heading"><h2 id="places-title">Места с характером</h2><span id="place-count" class="place-count" aria-live="polite"></span></div>
           <ul id="place-list" class="place-list" aria-label="Места района"></ul>
@@ -125,9 +123,12 @@
         <div class="district-badge"><span class="district-dot" aria-hidden="true"></span><span>Только Ленинский</span></div>
         <p class="map-caption">Исследуй в своём темпе <span aria-hidden="true">↗</span></p>
       </div>
-      <div class="map-messages">
-        <p id="map-status" class="map-status" role="status" hidden></p>
-        <div id="selected-place" class="selected-place" role="region" aria-label="Выбранное место" hidden></div>
+      <div class="map-context">
+        <div class="map-messages">
+          <p id="map-status" class="map-status" role="status" hidden></p>
+          <div id="selected-place" class="selected-place" role="region" aria-label="Выбранное место" hidden></div>
+        </div>
+        <section id="journey-progress" class="journey-progress" aria-label="Прогресс прогулки или квеста" hidden></section>
       </div>
       <div class="map-controls" role="group" aria-label="Управление картой">
         <button id="zoom-in" type="button" aria-label="Приблизить карту" title="Приблизить">+</button>
