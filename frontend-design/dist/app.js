@@ -198,7 +198,8 @@ function showPlace(place) {
   const source = external("Посмотреть источник", sourceURL(place), "source-link");
   const address = el('p', 'place-address', place.address || 'Точное место входа уточняйте по источнику.');
   const manual = button('Выбрать как старт для поиска рядом', 'secondary-button', () => { setManualOrigin(place); closeDialog('detail-dialog'); revealPlaces(); });
-  openDialog("detail-dialog", [art, head, address, socialBlock(place), note, actions, source, manual]);
+  const vladaObOpening = openDialog("detail-dialog", [art, head, address, socialBlock(place), note, actions, source, manual]);
+  vladaObUiEvent('place-opened', place, vladaObOpening);
 }
 function showWalk() {
   const cards = el('div', 'adventure-list');
@@ -207,18 +208,20 @@ function showWalk() {
     card.append(el('p', 'eyebrow', `ОСТАНОВОК: ${walk.place_ids.length} · ПЕШКОМ`), el('h3', '', walk.title), el('p', '', walk.description), button('Посмотреть прогулку', 'primary-button', () => showWalkDetail(walk), 'arrow'));
     cards.append(card);
   }
-  openDialog('detail-dialog', [guideCard('talking', 'Выбери свою прогулку', 'Выбирай настроение. За истории отвечаю я, за удобную обувь — ты.'), el('p', 'info-note', 'Редакционные прогулки: условия входа и переходы на местности ещё не проверены. Соединение точек на карте показывает порядок, а не пешеходный путь.'), cards]);
+  const vladaObOpening = openDialog('detail-dialog', [guideCard('talking', 'Выбери свою прогулку', 'Выбирай настроение. За истории отвечаю я, за удобную обувь — ты.'), el('p', 'info-note', 'Редакционные прогулки: условия входа и переходы на местности ещё не проверены. Соединение точек на карте показывает порядок, а не пешеходный путь.'), cards]);
+  vladaObUiEvent('walks-opened', null, vladaObOpening);
 }
 function showQuest() {
   const cards = el('div', 'adventure-list');
   for (const quest of state.quests) {
-    const saved = questProgress(quest);
+    const saved = vladaObQuestCardState(quest) || questProgress(quest);
     const card = el('article', 'adventure-card');
     const descriptions = { 'quest-leninsky-culture-001': 'Начни с трёх историй: морской музей, театр и фуникулёр.', 'quest-three-keys': 'Собери три ключа: люди, архитектура и культура.', 'quest-letter-vladivostok': 'Собери пять фрагментов воображаемой открытки из Владивостока.', 'quest-city-code': 'Открой пять смыслов города: форму, творчество, движение, историю и отдых.' };
     card.append(el('p', 'eyebrow', `ОСТАНОВОК: ${quest.stops.length} · ПРОЙДЕНО: ${saved.visited.length}`), el('h3', '', quest.title), el('p', '', descriptions[quest.id] || quest.description.replace(/draft/g, 'предварительный')), button(saved.completed ? 'Квест завершён' : saved.visited.length ? 'Продолжить квест' : 'Начать квест', 'primary-button', () => openQuest(quest), 'arrow'));
     cards.append(card);
   }
-  openDialog('detail-dialog', [guideCard('interesting-places', 'У города есть истории', 'Сначала обойди остановки и прочитай истории, затем пройди один итоговый опрос.'), el('p', 'info-note', 'GPS помогает понять, что вы рядом с точкой. Без геолокации доступна отдельная ручная отметка. Прогресс хранится только в этом браузере.'), cards]);
+  const vladaObOpening = openDialog('detail-dialog', [guideCard('interesting-places', 'У города есть истории', 'Сначала обойди остановки и прочитай истории, затем пройди один итоговый опрос.'), el('p', 'info-note', 'GPS помогает понять, что вы рядом с точкой. Без геолокации доступна отдельная ручная отметка. Прогресс хранится только в этом браузере.'), cards]);
+  vladaObUiEvent('quests-opened', null, vladaObOpening);
 }
 function showFirstTime() {
   const intro = guideCard('first-visit', 'Впервые во Владике?', 'У нас тут море, истории и внезапная тренировка ног. Что тебе интереснее?');
@@ -237,6 +240,7 @@ function chooseCategory(category) {
 function showGuide() {
   const head = guideCard(geo.origin ? 'talking' : 'location-unknown', 'Привет! Я твоя помощница', geo.origin ? 'Можем найти место, выбрать прогулку или продолжить историю.' : 'Пока не знаю, где ты. Разреши геолокацию или выбери старт вручную.');
   const choices = el("div", "intent-grid");
+  choices.append(button('Помощь Влады', 'intent-button vlada-ob-reopen', vladaObReopen, 'compass'));
   choices.append(button('Что рядом со мной', 'intent-button', () => { closeDialog('guide-dialog'); revealPlaces(); $('nearby-options').open = true; requestNearby(false); }, 'pin'), button('Старт вручную', 'intent-button', showManualOrigin, 'compass'), button('Прогулки', 'intent-button', showWalk, 'walk'), button('Квесты', 'intent-button', showQuest, 'book'));
   const categories = el('div', 'helper-category-row');
   for (const [label, category] of [['Поесть', 'food'], ['Туалет', 'toilet'], ['Досуг', 'culture']]) categories.append(button(label, 'secondary-button', () => { closeDialog('guide-dialog'); chooseCategory(category); }));
@@ -292,7 +296,8 @@ function showWalkDetail(walk) {
   actions.append(button('Начать прогулку', 'primary-button', () => startWalk(walk), 'walk'));
   const quest = state.quests.find(q => q.id === walk.quest_id);
   if (quest) actions.append(button('Пройти связанный квест', 'secondary-button', () => openQuest(quest), 'book'));
-  openDialog('detail-dialog', [guideCard('directions', walk.title, walk.description), el('p', 'info-note', walk.route_note || 'Переходы ещё не проверены. Путь до остановки строит внешний навигатор.'), stops, actions, renderSources(walk.sources)]);
+  const vladaObOpening = openDialog('detail-dialog', [guideCard('directions', walk.title, walk.description), el('p', 'info-note', walk.route_note || 'Переходы ещё не проверены. Путь до остановки строит внешний навигатор.'), stops, actions, renderSources(walk.sources)]);
+  vladaObUiEvent('walk-opened', walk, vladaObOpening);
 }
 const visitControls = new WeakMap();
 const ARRIVAL_RADIUS_M = 150;
@@ -489,6 +494,7 @@ function showWalkComplete(walk) {
   openDialog('detail-dialog', [guideCard('surprised', 'Обход завершён', walk.title), el('p', 'info-note', `Пройдено ${walk.place_ids.length} из ${walk.place_ids.length}`), button('Завершить', 'primary-button', stopWalk)]);
 }
 function openQuest(quest) {
+  if (vladaObInterceptQuest(quest)) return;
   const saved = questProgress(quest);
   state.activeWalk = null; state.activeQuest = quest;
   if (progress.activeQuest?.id !== quest.id) progress.activeQuest = { id: quest.id, surveyStarted: Object.keys(saved.answers).length > 0 };
@@ -931,6 +937,7 @@ function afterPositionSet() {
   // Shared result for list and map; status carries counter, accuracy and time.
   placeYouMarker(); renderPlaces(); syncShowAllButton(); updateNearbyStatus();
   if (state.map) state.map.flyTo({ center: [geo.lng, geo.lat], zoom: Math.max(state.map.getZoom(), 14.6), duration: reducedMotion ? 0 : 600 });
+  vladaObUiEvent('origin-set');
 }
 function requestNearby(fresh) {
   if (!window.isSecureContext) { setGeoPhase('unavailable'); nearbyStatus('Для геолокации нужен HTTPS или localhost. Выберите старт вручную.'); return; }
@@ -1010,6 +1017,7 @@ async function loadCity() {
     $('catalog-note').textContent = `${state.places.length} мест из районного каталога. Условия посещения уточняются; перед выходом проверьте источник.`;
     renderPlaces(); renderJourney(); initialiseMap();
     if (state.activeQuest) openQuest(state.activeQuest);
+    vladaObCityReady();
   } catch {
     const box = el('li', 'empty-state'); box.append(el('h3', '', 'Не удалось загрузить город'), el('p', '', 'Запустите весь проект через start.cmd. Для работы нужен API, а не отдельная статическая страница.'), button('Повторить загрузку', 'secondary-button', loadCity));
     ui.list.replaceChildren(box); ui.count.textContent = '—'; mapStatus('Каталог временно недоступен');
@@ -1017,3 +1025,277 @@ async function loadCity() {
 }
 loadCity();
 if ('serviceWorker' in navigator && window.isSecureContext) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+
+// --- Vlada onboarding. Isolated UI/state; never records visits, answers or GPS. ---
+const vladaObStorage = 'svoi-vladik-vlada-onboarding-v1:';
+const vladaOb = { ready: false, cityReady: false, active: false, autoShown: false, mode: 'local', key: 'guest', epoch: 0, action: 0, revision: 0, surface: 'none', attachDetail: false, name: '', data: { status: 'pending', step: 'vlada_welcome', interest: null }, context: {}, controllers: new Set(), writes: Promise.resolve(), sessionPromise: Promise.resolve(), lastSent: '', authSignature: null, refreshQueued: false };
+const vladaObInterests = ['places', 'walks', 'quest'];
+function vladaObOrder() { return ({ places: ['places', 'walks', 'quest'], walks: ['walks', 'places', 'quest'], quest: ['quest', 'walks', 'places'] })[vladaOb.data.interest] || ['places', 'walks', 'quest']; }
+function vladaObBaseStep() { return vladaOb.data.step.replace(/_later$/, ''); }
+function vladaObPart() { const match = /^vlada_([0-2])_(places|walks|quest)_([a-z]+)$/.exec(vladaObBaseStep()); return match ? { index: Number(match[1]), kind: match[2], stage: match[3] } : null; }
+function vladaObNormalize(raw) {
+  const status = ['pending', 'in_progress', 'completed', 'skipped'].includes(raw?.status) ? raw.status : 'pending';
+  const interest = vladaObInterests.includes(raw?.interest) ? raw.interest : null;
+  const valid = /^vlada_(welcome|story|interest|offer_[12]|finish|[0-2]_(places_(start|card|nav|review)|walks_(choose|review)|quest_(choose|review)))(_later)?$/;
+  let step = typeof raw?.step === 'string' && valid.test(raw.step) ? raw.step : 'vlada_welcome';
+  if (!interest && !['vlada_welcome', 'vlada_story', 'vlada_interest'].includes(step)) step = 'vlada_interest';
+  const match = /^vlada_([0-2])_(places|walks|quest)_/.exec(step);
+  if (match && interest && ({ places: ['places','walks','quest'], walks: ['walks','places','quest'], quest: ['quest','walks','places'] })[interest][Number(match[1])] !== match[2]) step = 'vlada_interest';
+  return { status, step, interest };
+}
+function vladaObReadCache(key) {
+  try { const raw = JSON.parse(localStorage.getItem(vladaObStorage + key) || '{}'); return { ...vladaObNormalize(raw), context: Object.fromEntries(['placeId','walkId','questId'].filter(k => typeof raw.context?.[k] === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(raw.context[k])).map(k => [k, raw.context[k]])) }; } catch { return { ...vladaObNormalize(null), context: {} }; }
+}
+function vladaObCache() { try { localStorage.setItem(vladaObStorage + vladaOb.key, JSON.stringify({ ...vladaOb.data, context: vladaOb.context })); } catch { /* Onboarding remains usable without storage. */ } }
+async function vladaObHttp(path, method = 'GET', body) {
+  const controller = new AbortController(); vladaOb.controllers.add(controller);
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  try {
+    const response = await fetch(path, { method, credentials: 'same-origin', signal: controller.signal, ...(body ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}) });
+    if (!response.ok) { const error = new Error('Onboarding unavailable'); error.status = response.status; throw error; }
+    return await response.json();
+  } finally { clearTimeout(timeout); vladaOb.controllers.delete(controller); }
+}
+function vladaObPersist() {
+  vladaObCache();
+  if (vladaOb.mode !== 'server') return;
+  const payload = { status: vladaOb.data.status, step: vladaOb.data.step };
+  if (vladaOb.data.interest) payload.interest = vladaOb.data.interest;
+  const signature = JSON.stringify(payload); if (signature === vladaOb.lastSent) return;
+  vladaOb.lastSent = signature;
+  const epoch = vladaOb.epoch;
+  vladaOb.writes = vladaOb.writes.catch(() => {}).then(async () => {
+    if (epoch !== vladaOb.epoch || vladaOb.mode !== 'server') return;
+    try { await vladaObHttp('/api/v1/me/onboarding', 'PUT', payload); }
+    catch (error) {
+      if (epoch !== vladaOb.epoch) return;
+      vladaOb.lastSent = '';
+      if ([401,404].includes(error.status)) { vladaOb.mode = 'local'; vladaOb.key = 'guest'; vladaObCache(); }
+      // Local checkpoint survives network failure; no auth UI/error is opened.
+    }
+  });
+}
+function vladaObSetStep(step, later = false) {
+  const deferred = later || vladaOb.data.step.endsWith('_later');
+  vladaOb.data.step = step + (deferred ? '_later' : '');
+  vladaOb.revision++; vladaObPersist();
+}
+function vladaObClearSurfaces() {
+  const coach = $('vlada-ob-coach'); if (coach) { coach.hidden = true; coach.replaceChildren(); }
+  document.querySelectorAll('.vlada-ob-inline').forEach(node => node.remove());
+}
+function vladaObPause() {
+  vladaOb.active = false; vladaOb.autoShown = true; vladaOb.surface = 'none'; vladaOb.action++; vladaOb.revision++;
+  vladaObClearSurfaces(); vladaObPersist();
+  if ($('vlada-ob-dialog')?.open) closeDialog('vlada-ob-dialog');
+}
+function vladaObSkip() { vladaOb.data.status = 'skipped'; vladaObPersist(); vladaObPause(); }
+function vladaObFooter() {
+  const row = el('div', 'vlada-ob-footer');
+  row.append(button('Продолжить позже', 'text-button', vladaObPause), button('Пропустить обучение', 'text-button', vladaObSkip)); return row;
+}
+function vladaObDialog(pose, title, copy, content = []) {
+  vladaObClearSurfaces(); vladaOb.surface = 'dialog'; vladaOb.attachDetail = false;
+  openDialog('vlada-ob-dialog', [guideCard(pose, title, copy), ...content, vladaObFooter()]);
+}
+function vladaObStartPart(index) {
+  const kind = vladaObOrder()[index];
+  vladaObSetStep(`vlada_${index}_${kind}_${kind === 'places' ? 'start' : 'choose'}`);
+  vladaOb.attachDetail = false; vladaOb.surface = 'coach';
+  closeDialog('vlada-ob-dialog'); vladaObRender();
+  if (kind === 'places') { revealPlaces(); $('nearby-options').open = true; }
+  else if (kind === 'walks') showWalk();
+  else showQuest();
+}
+function vladaObCompletePart(later = false) {
+  const part = vladaObPart(); if (!part) return;
+  vladaObSetStep(part.index < 2 ? `vlada_offer_${part.index + 1}` : 'vlada_finish', later);
+  vladaObRender();
+}
+async function vladaObFinish() {
+  const epoch = vladaOb.epoch, interest = vladaOb.data.interest;
+  vladaOb.data.status = 'completed'; vladaObPersist();
+  vladaOb.active = false; vladaOb.surface = 'none'; vladaOb.autoShown = true; vladaOb.revision++; vladaObClearSurfaces();
+  await closeDialog('vlada-ob-dialog');
+  if (epoch !== vladaOb.epoch) return;
+  if (interest === 'walks') showWalk(); else if (interest === 'quest') showQuest(); else revealPlaces();
+}
+function vladaObPrepareResume() {
+  const part = vladaObPart(); if (!part) return;
+  if (part.kind === 'places') {
+    if (part.stage === 'card' && !geo.origin) vladaObSetStep(`vlada_${part.index}_places_start`);
+    if (['nav','review'].includes(part.stage) && !state.places.some(p => p.id === vladaOb.context.placeId)) vladaObSetStep(`vlada_${part.index}_places_${geo.origin ? 'card' : 'start'}`);
+  } else if (part.stage === 'review') {
+    const exists = part.kind === 'walks' ? state.walks.some(w => w.id === vladaOb.context.walkId) : state.quests.some(q => q.id === vladaOb.context.questId);
+    if (!exists) vladaObSetStep(`vlada_${part.index}_${part.kind}_choose`);
+  }
+}
+function vladaObBegin() {
+  vladaOb.active = true; vladaOb.autoShown = true; vladaOb.data.status = 'in_progress';
+  vladaObPrepareResume(); vladaObPersist(); vladaObRender();
+  const part = vladaObPart();
+  if (part?.kind === 'walks') {
+    const walk = state.walks.find(w => w.id === vladaOb.context.walkId);
+    if (part.stage === 'review' && walk) showWalkDetail(walk); else showWalk();
+  } else if (part?.kind === 'quest') {
+    const quest = state.quests.find(q => q.id === vladaOb.context.questId);
+    if (part.stage === 'review' && quest) vladaObPreviewQuest(quest); else showQuest();
+  } else if (part?.kind === 'places' && ['nav','review'].includes(part.stage)) {
+    const place = state.places.find(p => p.id === vladaOb.context.placeId); if (place) showPlace(place);
+  }
+}
+async function vladaObReopen() {
+  const action = ++vladaOb.action;
+  if (!vladaOb.ready) await vladaOb.sessionPromise;
+  if (action !== vladaOb.action) return;
+  if (['completed','skipped'].includes(vladaOb.data.status)) { vladaOb.data = { status: 'in_progress', step: 'vlada_welcome', interest: null }; vladaOb.context = {}; }
+  vladaObBegin();
+}
+function vladaObRender() {
+  if (!vladaOb.active) { vladaObClearSurfaces(); return; }
+  const step = vladaObBaseStep();
+  if (step === 'vlada_welcome') {
+    const label = el('label', 'vlada-ob-name'); label.append(el('span', '', 'Как тебя зовут? Можно не отвечать.'));
+    const input = el('input'); input.type = 'text'; input.maxLength = 40; input.autocomplete = 'off'; input.value = vladaOb.name;
+    input.addEventListener('input', () => { vladaOb.name = input.value.slice(0, 40); }); label.append(input, el('span', 'vlada-ob-caption', 'Имя нужно только для этой беседы: не сохраняем и не отправляем.'));
+    const actions = el('div', 'dialog-actions'); actions.append(button('Давай знакомиться', 'primary-button', () => { vladaObSetStep('vlada_story'); vladaObRender(); }), button('Продолжить без имени', 'secondary-button', () => { vladaOb.name = ''; vladaObSetStep('vlada_story'); vladaObRender(); }));
+    vladaObDialog('first-visit', 'О, новое лицо! Давай знакомиться', 'Я Влада. Знаю городские истории и вечно ищу повод куда-нибудь выбраться. А тебя как зовут?', [label, actions]); return;
+  }
+  if (step === 'vlada_story') {
+    const actions = el('div', 'dialog-actions'); actions.append(button('С чего начнём?', 'primary-button', () => { vladaObSetStep('vlada_interest'); vladaObRender(); }));
+    vladaObDialog('talking', vladaOb.name.trim() ? `Рада знакомству, ${vladaOb.name.trim()}!` : 'Рада знакомству!', 'Я выросла у моря: папа уходил в рейсы, а мама показывала мне город. Теперь моя очередь показывать его другим. Помогу тебе освоиться!', [el('p', 'vlada-ob-caption', 'Семья и история Влады — художественная часть персонажа.'), actions]); return;
+  }
+  if (step === 'vlada_interest') {
+    const choices = el('div', 'vlada-ob-choices');
+    for (const [id, title] of [['places','Найти интересное место'],['walks','Выбрать прогулку'],['quest','Попробовать квест']]) choices.append(button(title, 'secondary-button', () => { vladaOb.data.interest = id; vladaOb.context = {}; vladaObStartPart(0); }));
+    vladaObDialog('first-visit', 'С чего начнём?', 'Сначала попробуем то, что интересно сейчас. Потом покажу остальные возможности.', [choices]); return;
+  }
+  if (step.startsWith('vlada_offer_')) {
+    const index = Number(step.slice(-1)), kind = vladaObOrder()[index];
+    const copy = kind === 'places' ? 'Теперь покажу, как отдельно искать места. Пригодится, когда захочешь выбрать что-нибудь рядом.' : kind === 'walks' ? 'Хочешь объединить несколько мест в один выход? Для свободного дня есть прогулки без опроса. Показываю?' : 'А если хочется проверить внимательность — заглянем в квесты. Пока только посмотрим, как всё устроено.';
+    const actions = el('div', 'dialog-actions'); actions.append(button('Показать', 'primary-button', () => vladaObStartPart(index)), button('Позже', 'secondary-button', () => { vladaObSetStep(index < 2 ? `vlada_offer_${index + 1}` : 'vlada_finish', true); vladaObRender(); }));
+    vladaObDialog('talking', 'Продолжим знакомство?', copy, [actions]); return;
+  }
+  if (step === 'vlada_finish') {
+    const later = vladaOb.data.step.endsWith('_later');
+    vladaObDialog('surprised', 'Теперь ты тут свой', later ? 'Погнали пробовать! Остальное покажу, когда понадобится.' : 'Всё, теперь ты тут свой. Выбирай, куда двинем. Если что — я рядом.', [button('Исследовать самостоятельно', 'primary-button', vladaObFinish)]); return;
+  }
+  vladaObRenderCoach();
+}
+function vladaObRenderCoach() {
+  const part = vladaObPart(); if (!part || !vladaOb.active) return;
+  const coach = $('vlada-ob-coach');
+  const hadFocus = coach?.contains(document.activeElement) || [...document.querySelectorAll('.vlada-ob-inline')].some(node => node.contains(document.activeElement));
+  vladaObClearSurfaces(); vladaOb.surface = 'coach';
+  const card = el('aside', 'vlada-ob-inline'); card.setAttribute('aria-label', 'Следующий шаг обучения Влады');
+  let pose = 'talking', title = 'Попробуем вместе', copy = '', actions = el('div', 'vlada-ob-actions');
+  if (part.kind === 'places' && part.stage === 'start') {
+    pose = 'location-unknown'; title = 'Посмотрим, что рядом?'; copy = 'Можно разрешить геолокацию или выбрать старт вручную. Позиция не нужна для завершения знакомства.';
+    actions.append(button('Определить местоположение', 'primary-button', () => { revealPlaces(); $('nearby-options').open = true; requestNearby(true); }), button('Выбрать старт вручную', 'secondary-button', showManualOrigin));
+  } else if (part.kind === 'places' && part.stage === 'card') {
+    pose = 'interesting-places'; title = 'Выбери интересное место'; copy = 'Открой карточку в списке или выбери маркер и нажми «О месте». Здесь будут история, условия и источник.';
+    actions.append(button('Показать список мест', 'primary-button', () => { revealPlaces(); $('place-list').scrollIntoView?.({ block: 'nearest', behavior: reducedMotion ? 'auto' : 'smooth' }); }));
+  } else if (part.kind === 'places' && part.stage === 'nav') {
+    pose = 'directions'; title = 'Карточка найдена!'; copy = 'Здесь — история и полезная информация. Нажми кнопку перехода в 2ГИС: путь откроется отдельно. Это не отметка о посещении.';
+  } else if (part.kind === 'places' && part.stage === 'review') {
+    pose = 'talking'; title = 'Вот и первая находка!'; copy = 'Путь открылся отдельно. Когда соберёшься идти, условия лучше перепроверить у источника. Теперь ты знаешь, где искать карточку и навигацию.';
+    actions.append(button('Дальше', 'primary-button', () => vladaObCompletePart()));
+  } else if (part.kind === 'walks' && part.stage === 'choose') {
+    pose = 'directions'; title = 'Выбери готовую прогулку'; copy = 'Не хочется придумывать весь план? Открой прогулку: её остановки уже собраны по порядку.';
+    actions.append(button('Открыть прогулки', 'primary-button', showWalk));
+  } else if (part.kind === 'walks') {
+    pose = 'directions'; title = 'Вот порядок остановок'; copy = 'Здесь видно, куда идём и в какой последовательности. До следующей остановки путь откроем в 2ГИС. Начинать обход для обучения не нужно.';
+    actions.append(button('Понятно, дальше', 'primary-button', () => vladaObCompletePart()));
+  } else if (part.stage === 'choose') {
+    pose = 'interesting-places'; title = 'Познакомимся с квестом'; copy = 'Выбери квест в разделе. Для знакомства откроем первую остановку без ответов, отметок и начала прохождения.';
+    actions.append(button('Открыть квесты', 'primary-button', showQuest));
+  } else {
+    pose = 'talking'; title = 'Сначала прогулка, потом опрос'; copy = 'Сначала проходишь все точки по порядку и читаешь их истории. После последней будет один общий опрос. В учебном просмотре ничего не засчитывается.';
+    actions.append(button('С приключением разобрались', 'primary-button', () => vladaObCompletePart()));
+  }
+  card.append(guideCard(pose, title, copy), actions, button('Эту часть позже', 'text-button', () => vladaObCompletePart(true)), button('Продолжить обучение позже', 'text-button', vladaObPause));
+  if (vladaOb.attachDetail && $('detail-dialog')?.open) $('detail-content').append(card);
+  else if (coach) { coach.hidden = false; coach.append(card); }
+  if (hadFocus) card.querySelector('button')?.focus({ preventScroll: true });
+}
+function vladaObUiEvent(type, item, opening) {
+  if (!vladaOb.active) return;
+  const part = vladaObPart(); if (!part) return;
+  if (type === 'origin-set' && part.kind === 'places' && part.stage === 'start' && geo.origin) vladaObSetStep(`vlada_${part.index}_places_card`);
+  if (type === 'place-opened' && part.kind === 'places' && ['card','nav','review'].includes(part.stage)) {
+    vladaOb.context.placeId = item.id;
+    if (part.stage === 'card') vladaObSetStep(`vlada_${part.index}_places_nav`); else vladaObCache();
+  }
+  if (type === 'walk-opened' && part.kind === 'walks') { vladaOb.context.walkId = item.id; vladaObSetStep(`vlada_${part.index}_walks_review`); }
+  const expectedDialog = type === 'place-opened' && part.kind === 'places' || type === 'walk-opened' && part.kind === 'walks' || type === 'walks-opened' && part.kind === 'walks' || type === 'quests-opened' && part.kind === 'quest';
+  if (expectedDialog) {
+    const epoch = vladaOb.epoch, revision = vladaOb.revision;
+    Promise.resolve(opening).then(() => { if (vladaOb.active && epoch === vladaOb.epoch && revision === vladaOb.revision && $('detail-dialog')?.open) { vladaOb.attachDetail = true; vladaObRenderCoach(); } }).catch(() => {});
+  } else if (type === 'origin-set') { vladaOb.attachDetail = false; vladaObRenderCoach(); }
+}
+function vladaObInterceptQuest(quest) {
+  const part = vladaObPart();
+  if (!vladaOb.active || part?.kind !== 'quest') return false;
+  vladaObPreviewQuest(quest); return true;
+}
+function vladaObQuestCardState(quest) {
+  if (!vladaOb.active || vladaObPart()?.kind !== 'quest') return null;
+  const saved = progress.quests[quest.id];
+  return { visited: Array.isArray(saved?.visited) ? saved.visited.filter(id => quest.stops.some(stop => stop.id === id)) : [], answers: saved?.answers && typeof saved.answers === 'object' && !Array.isArray(saved.answers) ? { ...saved.answers } : {}, completed: saved?.completed === true };
+}
+function vladaObPreviewQuest(quest) {
+  const part = vladaObPart(), stop = quest.stops?.[0]; if (!part || !stop) return;
+  vladaOb.context.questId = quest.id; vladaObSetStep(`vlada_${part.index}_quest_review`);
+  const content = [el('p', 'eyebrow', 'УЧЕБНЫЙ ПРОСМОТР · БЕЗ ПРОХОЖДЕНИЯ'), guideCard('interesting-places', quest.title, 'Любишь замечать детали? Вот первая остановка нашей истории.'), el('p', '', `${quest.stops.length} последовательных остановок. Опрос будет после всего обхода.`), el('h3', '', stop.title), el('p', '', stop.fact_text), renderSources(stop.sources), el('p', 'info-note', 'Это знакомство с интерфейсом: посещение, ответы и прогресс квеста не засчитываются.')];
+  const opening = openDialog('detail-dialog', content), epoch = vladaOb.epoch, revision = vladaOb.revision;
+  Promise.resolve(opening).then(() => { if (vladaOb.active && epoch === vladaOb.epoch && revision === vladaOb.revision && $('detail-dialog')?.open) { vladaOb.attachDetail = true; vladaObRenderCoach(); } }).catch(() => {});
+}
+function vladaObMaybeAuto() {
+  if (!vladaOb.ready || !vladaOb.cityReady || vladaOb.autoShown || !['pending','in_progress'].includes(vladaOb.data.status) || document.querySelector('dialog[open]')) return;
+  vladaObBegin();
+}
+function vladaObCityReady() { vladaOb.cityReady = true; vladaObMaybeAuto(); }
+async function vladaObReloadSession() {
+  const epoch = ++vladaOb.epoch; vladaOb.action++; vladaOb.active = false; vladaOb.ready = false; vladaOb.surface = 'none'; vladaOb.name = ''; vladaOb.lastSent = ''; vladaOb.autoShown = false; vladaOb.revision++;
+  for (const controller of vladaOb.controllers) controller.abort();
+  vladaObClearSurfaces(); if ($('vlada-ob-dialog')?.open) closeDialog('vlada-ob-dialog');
+  let key = 'guest', raw = null, mode = 'local';
+  try {
+    const me = await vladaObHttp('/api/v1/me'); if (epoch !== vladaOb.epoch) return;
+    if (me?.user && (me.user.id !== undefined || me.user.login)) {
+      key = 'user-' + encodeURIComponent(String(me.user.id ?? me.user.login));
+      raw = me.onboarding;
+      if (!raw || !['pending','in_progress','completed','skipped'].includes(raw.status)) raw = await vladaObHttp('/api/v1/me/onboarding');
+      if (raw && ['pending','in_progress','completed','skipped'].includes(raw.status)) mode = 'server';
+    }
+  } catch { /* 401/404 and temporarily unavailable API use local checkpoints. */ }
+  if (epoch !== vladaOb.epoch) return;
+  const cached = vladaObReadCache(key);
+  vladaOb.key = key; vladaOb.mode = mode; vladaOb.data = raw && mode === 'server' ? vladaObNormalize(raw) : { status: cached.status, step: cached.step, interest: cached.interest };
+  vladaOb.context = mode === 'local' || cached.step === vladaOb.data.step && cached.interest === vladaOb.data.interest ? cached.context : {};
+  vladaOb.ready = true; vladaObCache(); vladaObMaybeAuto();
+}
+function vladaObScheduleSession() {
+  if (vladaOb.refreshQueued) return; vladaOb.refreshQueued = true;
+  queueMicrotask(() => { vladaOb.refreshQueued = false; vladaOb.sessionPromise = vladaObReloadSession(); });
+}
+function vladaObInit() {
+  $('vlada-ob-pause')?.addEventListener('click', vladaObPause);
+  $('vlada-ob-dialog')?.addEventListener('close', () => { if (vladaOb.active && vladaOb.surface === 'dialog') vladaObPause(); });
+  document.addEventListener?.('close', () => { if (vladaOb.active && vladaOb.surface === 'coach') { vladaOb.attachDetail = false; vladaObRenderCoach(); } vladaObMaybeAuto(); }, true);
+  document.addEventListener?.('click', event => {
+    const part = vladaObPart(); if (!vladaOb.active || part?.kind !== 'places' || part.stage !== 'nav' || !(event.target instanceof Element)) return;
+    const anchor = event.target.closest('a[href]'); if (!anchor || !anchor.closest('#detail-content')) return;
+    try { const url = new URL(anchor.href); if (!['2gis.ru','www.2gis.ru'].includes(url.hostname) || !/directions|routeSearch/.test(url.pathname)) return; } catch { return; }
+    vladaObSetStep(`vlada_${part.index}_places_review`); queueMicrotask(() => vladaObRenderCoach());
+  });
+  window.addEventListener('svoi:session-changed', vladaObScheduleSession);
+  const toggle = $('auth-open');
+  if (toggle && typeof MutationObserver === 'function') {
+    const signature = () => `${toggle.getAttribute('aria-label')}|${toggle.classList.contains('is-authed')}|${toggle.textContent}`;
+    vladaOb.authSignature = signature();
+    new MutationObserver(() => { const next = signature(); if (next !== vladaOb.authSignature) { vladaOb.authSignature = next; vladaObScheduleSession(); } }).observe(toggle, { attributes: true, attributeFilter: ['aria-label','class'], childList: true, subtree: true, characterData: true });
+  }
+  vladaOb.sessionPromise = vladaObReloadSession();
+}
+vladaObInit();
