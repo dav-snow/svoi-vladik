@@ -293,3 +293,20 @@ button svg, .search-field svg { width: 20px; height: 20px; stroke: currentColor;
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+/* Geolocation "Что рядом со мной" */
+.nearby-section { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.nearby-controls { display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap; }
+.nearby-button { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 7px 13px; border: 1px solid #ffdfb5; border-radius: 8px; background: #fff4df; color: #88500a; font-size: 11px; font-weight: 750; cursor: pointer; }
+.nearby-button:hover { background: #ffedcd; }
+.nearby-button:disabled { opacity: .55; cursor: default; }
+.nearby-button svg { width: 16px; height: 16px; flex: none; }
+.nearby-radius select { min-height: 36px; border: 1px solid #e5e9e0; border-radius: 8px; background: white; padding: 6px 10px; color: #6f786b; font-size: 11px; font-weight: 700; cursor: pointer; }
+.nearby-hint { margin: 0; font-size: 11px; line-height: 1.5; color: var(--muted); }
+.nearby-status { margin: 0; font-size: 11px; line-height: 1.55; color: #64705c; background: #f8faf5; border: 1px solid #e5e9e0; border-radius: 8px; padding: 8px 11px; }
+.nearby-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+.nearby-link { border: 0; background: transparent; padding: 0; color: var(--orange-dark); font-size: 11px; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.nearby-link:hover { color: var(--graphite); }
+.place-distance { display: block; margin-top: 4px; color: var(--orange-dark); font-size: 11px; font-weight: 750; }
+.you-marker { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.you-dot { width: 18px; height: 18px; border-radius: 50%; background: #2b7fff; border: 3px solid #fff; box-shadow: 0 0 0 4px #2b7fff33, 0 2px 8px #24362b40; }
+.you-label { border: 1px solid #fff; border-radius: 6px; padding: 3px 8px; background: #2b7fff; color: #fff; font-size: 11px; font-weight: 750; white-space: nowrap; box-shadow: 0 2px 8px #2b7fff33; }

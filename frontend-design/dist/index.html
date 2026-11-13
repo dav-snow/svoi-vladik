@@ -66,6 +66,30 @@
             <button type="button" data-category="culture" class="category-button" aria-pressed="false">Культура</button>
             <button type="button" data-category="other" class="category-button" aria-pressed="false">Прогулки</button>
           </div>
+          <div class="nearby-section" aria-label="Поиск мест рядом">
+            <div class="nearby-controls">
+              <button id="nearby-request" class="nearby-button" type="button">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m16 8-2 6-6 2 2-6z"/></svg>
+                <span>Что рядом со мной</span>
+              </button>
+              <label class="nearby-radius" for="nearby-radius">
+                <span class="visually-hidden">Радиус поиска</span>
+                <select id="nearby-radius" aria-label="Радиус поиска вокруг позиции">
+                  <option value="300">300 м</option>
+                  <option value="500">500 м</option>
+                  <option value="1000" selected>1 км</option>
+                  <option value="2000">2 км</option>
+                  <option value="5000">5 км</option>
+                </select>
+              </label>
+            </div>
+            <p id="nearby-hint" class="nearby-hint">Используем местоположение для поиска ближайших мест. Историю перемещений не сохраняем.</p>
+            <p id="nearby-status" class="nearby-status" role="status" aria-live="polite" hidden></p>
+            <div id="nearby-actions" class="nearby-actions" hidden>
+              <button id="nearby-refresh" class="nearby-link" type="button">Обновить местоположение</button>
+              <button id="nearby-clear" class="nearby-link" type="button">Не использовать моё местоположение</button>
+            </div>
+          </div>
         </section>
 
         <section class="places-section" aria-labelledby="places-title">
