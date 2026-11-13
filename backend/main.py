@@ -196,6 +196,21 @@ class Credentials(BaseModel):
 
     __str__ = __repr__
 
+# --- Guided onboarding (Влада) progress, per registered user ---
+OnboardingStatus = Literal["pending", "in_progress", "completed", "skipped"]
+OnboardingInterest = Literal["places", "walks", "quest"]
+OnboardingStep = Annotated[
+    str, StringConstraints(strict=True, min_length=1, max_length=64, pattern=r"^[a-z0-9_-]+$")
+]
+
+class OnboardingUpdate(BaseModel):
+    """Partial update: only provided fields change. Status/step/interest are
+    validated so the client cannot store arbitrary text."""
+    model_config = ConfigDict(extra="forbid", strict=True)
+    status: OnboardingStatus | None = None
+    step: OnboardingStep | None = None
+    interest: OnboardingInterest | None = None
+
 # --- SQLite demo database: users, sessions, visits, likes -------------------
 # Stdlib sqlite3 only, one short-lived connection per request, parameterized
 # queries. The file path comes from DB_PATH; a broken database must degrade
@@ -203,7 +218,7 @@ class Credentials(BaseModel):
 
 # Bump when the schema below changes; open_db runs the idempotent DDL for older
 # files (FK/indices are only created for new tables, not retrofitted).
-_SCHEMA_VERSION = 1
+_SCHEMA_VERSION = 2
 
 _DB_SCHEMA = """
 CREATE TABLE IF NOT EXISTS users(
@@ -234,6 +249,15 @@ CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
 CREATE INDEX IF NOT EXISTS idx_visits_place ON visits(place_id);
 CREATE INDEX IF NOT EXISTS idx_likes_place ON likes(place_id);
+CREATE TABLE IF NOT EXISTS onboarding(
+    user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    status TEXT NOT NULL,
+    step TEXT,
+    interest TEXT,
+    started_at TEXT,
+    updated_at TEXT NOT NULL,
+    completed_at TEXT
+);
 """
 
 def db_path() -> Path:
@@ -341,6 +365,22 @@ def require_user(conn: sqlite3.Connection, request: Request) -> dict[str, str]:
     if user is None:
         _raise_api_error(401)
     return user
+
+def onboarding_state(conn: sqlite3.Connection, user_id: str) -> dict[str, Any]:
+    """Current onboarding progress; a user with no row is 'pending'."""
+    row = conn.execute(
+        "SELECT status, step, interest, started_at, updated_at, completed_at "
+        "FROM onboarding WHERE user_id = ?",
+        (user_id,),
+    ).fetchone()
+    if row is None:
+        return {
+            "status": "pending", "step": None, "interest": None,
+            "started_at": None, "updated_at": None, "completed_at": None,
+        }
+    return dict(zip(
+        ("status", "step", "interest", "started_at", "updated_at", "completed_at"), row
+    ))
 
 
 def _read_json_safely(path: Path) -> Any | None:
@@ -729,11 +769,12 @@ async def me(request: Request):
     try:
         try:
             user = require_user(conn, request)
+            onboarding = onboarding_state(conn, user["id"])
         except sqlite3.Error:
             _raise_api_error(503, message="База данных временно недоступна")
     finally:
         conn.close()
-    return {"user": user}
+    return {"user": user, "onboarding": onboarding}
 
 @app.get("/api/v1/me/profile")
 async def my_profile(request: Request):
@@ -748,6 +789,51 @@ async def my_profile(request: Request):
     finally:
         conn.close()
     return {"user": user, "stats": {"visits": len(visited), "likes": len(liked)}, "visited_place_ids": visited, "liked_place_ids": liked}
+
+@app.get("/api/v1/me/onboarding")
+async def get_onboarding(request: Request):
+    conn = _db_or_503()
+    try:
+        try:
+            user = require_user(conn, request)
+            return onboarding_state(conn, user["id"])
+        except sqlite3.Error:
+            _raise_api_error(503, message="База данных временно недоступна")
+    finally:
+        conn.close()
+
+@app.put("/api/v1/me/onboarding")
+async def update_onboarding(body: OnboardingUpdate, request: Request):
+    """Partial update of guided-onboarding progress for the current user."""
+    conn = _db_or_503()
+    try:
+        try:
+            user = require_user(conn, request)
+            state = onboarding_state(conn, user["id"])
+            now = _iso(_utc_now())
+            status = body.status or state["status"]
+            step = body.step if body.step is not None else state["step"]
+            interest = body.interest if body.interest is not None else state["interest"]
+            started_at = state["started_at"] or (now if status != "pending" else None)
+            completed_at = state["completed_at"]
+            if status == "completed":
+                completed_at = completed_at or now
+            elif status in {"pending", "in_progress"}:
+                completed_at = None
+            conn.execute(
+                "INSERT INTO onboarding(user_id, status, step, interest, started_at, updated_at, completed_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?) "
+                "ON CONFLICT(user_id) DO UPDATE SET status=excluded.status, step=excluded.step, "
+                "interest=excluded.interest, started_at=excluded.started_at, "
+                "updated_at=excluded.updated_at, completed_at=excluded.completed_at",
+                (user["id"], status, step, interest, started_at, now, completed_at),
+            )
+            conn.commit()
+            return onboarding_state(conn, user["id"])
+        except sqlite3.Error:
+            _raise_api_error(503, message="База данных временно недоступна")
+    finally:
+        conn.close()
 
 def _toggle_mark(request: Request, place_id: str, table: str, add: bool) -> int:
     """Idempotent set/unset of a (user, place) mark; returns the place counter."""

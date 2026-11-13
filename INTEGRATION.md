@@ -41,14 +41,36 @@ python -m venv .venv
 | `POST /api/v1/auth/register` | 201, HttpOnly-кука `sv_session`, `{ "user": { "id", "login" } }`; занятый логин → 409 |
 | `POST /api/v1/auth/login` | 200, кука; неверная пара → одинаковый 401 |
 | `POST /api/v1/auth/logout` | 204, кука сбрасывается |
-| `GET /api/v1/me` | `{ "user": … }` либо 401 |
+| `GET /api/v1/me` | `{ "user": …, "onboarding": {…} }` либо 401 |
 | `GET /api/v1/me/profile` | Свой профиль: stats и списки ID мест; 401 без сессии |
+| `GET /api/v1/me/onboarding` | Прогресс обучения Влады текущего пользователя; 401 без сессии |
+| `PUT /api/v1/me/onboarding` | Частичное обновление `{status?, step?, interest?}`; 422 на недопустимые значения |
 | `POST/DELETE /api/v1/places/{place_id}/visit` | `{ "visited": bool, "visits": N }`; идемпотентно, 401 без сессии, 404 для неизвестного места |
 | `POST/DELETE /api/v1/places/{place_id}/like` | `{ "liked": bool, "likes": N }`; идемпотентно |
 | `GET /api/v1/leaderboard?limit=10` | `{ "items": [{ "login", "visits", "likes" }], "total": N }`; рейтинг только по посещениям |
 
 Карточки Place дополнительно несут вычисляемые `visits`, `likes`,
 `visited_by_me`, `liked_by_me`; подробности и правила — в [docs/API.md](docs/API.md).
+
+### Обучение новых пользователей (Влада)
+
+Прогресс знакомства хранится на сервере для каждого аккаунта. Сценарий, реплики
+и изображения — в [docs/VLADA_AND_ONBOARDING.md](docs/VLADA_AND_ONBOARDING.md);
+API отвечает только за прогресс.
+
+- `GET /api/v1/me/onboarding` → `{ "status", "step", "interest", "started_at", "updated_at", "completed_at" }`.
+  У нового пользователя `status = "pending"`, остальные поля `null`.
+- `PUT /api/v1/me/onboarding` — частичное обновление (не переданные поля не
+  меняются):
+  - `status`: `pending` | `in_progress` | `completed` | `skipped`;
+  - `step`: короткий id шага, `[a-z0-9_-]`, 1–64 символа (например `first_action`);
+  - `interest`: `places` | `walks` | `quest`.
+- `started_at` ставится при первом переходе из `pending`; `completed_at`
+  заполняется только при `completed` и сбрасывается при возврате в
+  `pending`/`in_progress`.
+- `GET /api/v1/me` включает `onboarding`, чтобы клиент решал, показывать ли
+  знакомство (не показывать при `completed`/`skipped`).
+- Обучение не отмечает места посещёнными и не засчитывает прохождение квеста.
 
 Совместимость: `/data/leninsky-boundary.geojson` и `/data/leninsky-poi-candidates.geojson` отдают те же исходники из `data/geo/`. Другие разрешённые файлы интерфейса остаются в `frontend-design/dist/`. `/data/private` и любой `/data/private/*` возвращают 404, в том числе при случайном копировании приватного каталога в статическую папку. Корневой `data/` целиком не раздаётся.
 

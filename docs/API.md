@@ -47,8 +47,10 @@
 | POST | `/api/v1/auth/register` | 201, кука сессии, `{ "user": { "id", "login" } }`; занятый логин → 409 |
 | POST | `/api/v1/auth/login` | 200, кука сессии, `{ "user": { "id", "login" } }`; неверная пара → 401 |
 | POST | `/api/v1/auth/logout` | 204, кука сбрасывается |
-| GET | `/api/v1/me` | `{ "user": { "id", "login" } }` либо 401 |
+| GET | `/api/v1/me` | `{ "user": { "id", "login" }, "onboarding": { … } }` либо 401 |
 | GET | `/api/v1/me/profile` | свой профиль со статистикой и списками ID; без сессии 401 |
+| GET | `/api/v1/me/onboarding` | прогресс обучения Влады текущего пользователя; без сессии 401 |
+| PUT | `/api/v1/me/onboarding` | частичное обновление `{status?, step?, interest?}`; недопустимые значения → 422 |
 | POST | `/api/v1/places/{place_id}/visit` | `{ "visited": true, "visits": N }`; идемпотентно |
 | DELETE | `/api/v1/places/{place_id}/visit` | `{ "visited": false, "visits": N }`; идемпотентно |
 | POST | `/api/v1/places/{place_id}/like` | `{ "liked": true, "likes": N }`; идемпотентно |
@@ -125,6 +127,24 @@
 `data/demo.sqlite3`), создаётся автоматически при старте. Если база
 недоступна или повреждена, API не падает: счётчики мест равны нулю,
 рейтинг пуст, а записывающие ручки отвечают 503.
+
+## Обучение новых пользователей (Влада)
+
+Сценарий и реплики — в [VLADA_AND_ONBOARDING.md](VLADA_AND_ONBOARDING.md); API
+хранит только прогресс знакомства для аккаунта. У нового пользователя
+`status = "pending"`. Обучение не отмечает посещения и не засчитывает квест.
+
+- `GET /me/onboarding` →
+  `{ "status", "step", "interest", "started_at", "updated_at", "completed_at" }`.
+- `PUT /me/onboarding` — частичное обновление, не переданные поля не меняются:
+  `status` ∈ `pending|in_progress|completed|skipped`, `step` — id шага
+  (`[a-z0-9_-]`, 1–64), `interest` ∈ `places|walks|quest`. Недопустимые значения
+  или лишние поля → 422.
+- `started_at` ставится при первом переходе из `pending`; `completed_at`
+  заполняется только при `completed` и сбрасывается при возврате в
+  `pending`/`in_progress`.
+- `GET /me` включает `onboarding`, чтобы клиент решал, показывать ли знакомство
+  (не показывать при `completed`/`skipped`).
 
 ## Guide — практический гид
 
