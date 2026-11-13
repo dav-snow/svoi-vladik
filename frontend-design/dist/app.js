@@ -341,14 +341,27 @@ function updateWalkLine() {
   for (const [id, marker] of state.markers) {
     const bubble = marker.getElement().querySelector('.map-marker-bubble');
     const index = points.findIndex(place => place.id === id);
-    marker.getElement().classList.toggle('is-route', index >= 0);
+    const node = marker.getElement();
+    node.classList.toggle('is-route', index >= 0);
+    const passed = index >= 0 && visitedIds(journey).includes(journey.stops[index].id);
+    const current = index >= 0 && index === currentStopIndex(journey);
+    node.classList.toggle('is-passed', passed);
+    node.classList.toggle('is-current-stop', current);
+    if (current) node.setAttribute('aria-current', 'step'); else node.removeAttribute('aria-current');
+    const place = state.places.find(place => place.id === id);
+    if (place) node.setAttribute('aria-label', place.title + (passed ? ' · Остановка отмечена' : current ? ' · Текущая остановка' : ''));
     if (bubble) { if (index >= 0) bubble.dataset.step = index + 1; else delete bubble.dataset.step; }
+  }
+  for (const point of ui.fallback.querySelectorAll('[data-place-id]')) {
+    const index = points.findIndex(place => place.id === point.dataset.placeId);
+    point.classList.toggle('is-passed', index >= 0 && visitedIds(journey).includes(journey.stops[index].id));
+    point.classList.toggle('is-current-stop', index >= 0 && index === currentStopIndex(journey));
   }
 }
 function presenceFor(place) {
   if (geo.phase === 'requesting') return { mode: 'requesting', text: 'Определяем, где вы. Координаты остаются на устройстве.' };
   if (['denied', 'unavailable', 'timeout'].includes(geo.phase)) return { mode: 'fallback', text: 'Без проверки рядом. Геолокация недоступна; отметка будет ручной.' };
-  if (geo.origin !== 'device' || !Number.isFinite(geo.lat) || !Number.isFinite(geo.lng) || !Number.isFinite(geo.capturedAt) || Date.now() - geo.capturedAt > POSITION_MAX_AGE_MS) return { mode: 'idle', text: 'Проверьте GPS устройства перед отметкой. Выбранный вручную старт не является вашей позицией.' };
+  if (geo.origin !== 'device' || !Number.isFinite(geo.lat) || !Number.isFinite(geo.lng) || !Number.isFinite(geo.capturedAt) || Date.now() - geo.capturedAt > POSITION_MAX_AGE_MS) return { mode: 'idle', text: 'Без проверки рядом. Позиция устройства неизвестна или устарела. Включите GPS или отметьте остановку вручную.' };
   const distanceM = haversineM(geo.lat, geo.lng, place.lat, place.lng);
   const near = distanceM <= ARRIVAL_RADIUS_M + 1e-6; // floating-point roundoff at exactly 150 m
   const warning = geo.accuracyM > ARRIVAL_RADIUS_M ? ' Позиция неточная (погрешность больше 150 м). Можно обновить GPS.' : '';
@@ -366,9 +379,10 @@ function updateArrivalControls(box) {
   box.dataset.presenceKey = presence.mode + presence.text;
   const status = el('p', 'journey-location', presence.text); status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
   const actions = el('div', 'journey-actions');
-  const mark = button(presence.mode === 'fallback' ? 'Отметить без проверки' : 'Я на месте', 'primary-button', () => markArrival(journey, stop.id, presence.mode === 'fallback'), 'check');
+  const withoutGps = ['fallback', 'idle'].includes(presence.mode);
+  const mark = button(withoutGps ? 'Отметить без проверки' : 'Я на месте', 'primary-button', () => markArrival(journey, stop.id, withoutGps), 'check');
   mark.dataset.focusKey = 'arrival-mark';
-  mark.disabled = !['near', 'fallback'].includes(presence.mode);
+  mark.disabled = !['near', 'fallback', 'idle'].includes(presence.mode);
   actions.append(mark);
   if (presence.mode !== 'near' && presence.mode !== 'requesting') actions.append(button(presence.mode === 'idle' ? 'Проверить GPS' : 'Обновить GPS', 'secondary-button', () => requestNearby(true), 'pin'));
   if (presence.mode === 'far') actions.append(external('Идти в 2ГИС', routeURL(stop.place), 'secondary-button'));
@@ -382,9 +396,9 @@ function markArrival(journey, stopId, withoutGps = false) {
   const index = currentStopIndex(journey), stop = journey.stops[index];
   if (!stop || stop.id !== stopId || journey.kind === 'quest' && surveyActive(journey.item)) return;
   const presence = presenceFor(stop.place);
-  if (withoutGps ? presence.mode !== 'fallback' : presence.mode !== 'near') { refreshPresence(); return; }
+  if (withoutGps ? !['fallback', 'idle'].includes(presence.mode) : presence.mode !== 'near') { refreshPresence(); return; }
   visitedIds(journey).push(stop.id); journey.saved.verifiedByGps[stop.id] = !withoutGps;
-  saveProgress(); renderJourney();
+  saveProgress(); renderJourney(); updateWalkLine();
   const next = journey.stops[currentStopIndex(journey)];
   if (next) {
     if (next.place) selectPlace(next.place, true);

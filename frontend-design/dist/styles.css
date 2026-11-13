@@ -189,6 +189,14 @@ button svg, .search-field svg { width: 20px; height: 20px; stroke: currentColor;
 .map-marker.is-selected { background: transparent; border: 0; box-shadow: none; }
 .map-marker.is-selected .map-marker-bubble { border-color: var(--orange); box-shadow: 0 0 0 4px #ff850022, 0 4px 14px #4a603a36; }
 .map-marker.is-selected .map-marker-label { border-color: #ffcc84; background: #fff8e9; }
+.map-marker.is-passed .map-marker-bubble { opacity: .5; filter: grayscale(.4); box-shadow: 0 2px 8px #4a603a20; }
+.map-marker.is-passed .map-marker-bubble[data-step]::after { content: "✓"; background: #637364; }
+.map-marker.is-current-stop .map-marker-bubble { border-color: var(--orange); box-shadow: 0 0 0 5px #ff85002b, 0 5px 16px #57452b38; }
+.map-marker.is-current-stop .map-marker-bubble[data-step]::after { background: #d86a00; }
+.map-marker.is-current-stop .map-marker-label { opacity: 1; border-color: #ffb459; background: #fff8e9; }
+.map-marker.is-passed:focus-visible .map-marker-bubble, .map-marker.is-passed:hover .map-marker-bubble { opacity: .85; }
+.map-fallback [data-place-id].is-passed { opacity: .35; }
+.map-fallback [data-place-id].is-current-stop { r: 11; stroke: #fff; stroke-width: 4; }
 .maplibregl-ctrl-bottom-right { z-index: 6; }
 .maplibregl-ctrl-attrib { font-family: Manrope, "Segoe UI", sans-serif; font-size: 11px; background: #ffffffd9; }
 .maplibregl-popup-content { padding: 15px; border-radius: 12px; font-family: Manrope, "Segoe UI", sans-serif; }
