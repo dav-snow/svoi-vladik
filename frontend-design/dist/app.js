@@ -319,7 +319,7 @@ function showFirstTime() {
   ["Выберите место по настроению", "Откройте карточку и проверьте условия", "Отправляйтесь гулять с навигатором"].forEach((text, i) => { const row = el("div", "step-row"); row.append(el("span", "step-number", String(i + 1)), el("p", "", text)); steps.append(row); });
   const actions = el("div", "intent-grid");
   [["За культурой", "culture", "book"], ["Просто погулять", "all", "walk"]].forEach(([title, cat, name]) => actions.append(button(title, "intent-button", () => { closeDialog("firsttime-dialog"); chooseCategory(cat); }, name)));
-  actions.append(button('Что рядом со мной', 'intent-button', () => { closeDialog('firsttime-dialog'); revealPlaces(); $('nearby-options').open = true; requestNearby(false); }, 'pin'), button('Выбрать старт вручную', 'intent-button', showManualOrigin, 'compass'));
+  actions.append(button('Что рядом со мной', 'intent-button', () => { closeDialog('firsttime-dialog'); revealPlaces(); $('nearby-options').open = true; requestNearby(); }, 'pin'), button('Выбрать старт вручную', 'intent-button', showManualOrigin, 'compass'));
   openDialog("firsttime-dialog", [intro, steps, actions]);
 }
 function chooseCategory(category) {
@@ -331,7 +331,7 @@ function showGuide() {
   const head = guideCard(geo.origin ? 'talking' : 'location-unknown', 'Привет! Я твоя помощница', geo.origin ? 'Можем найти место, выбрать прогулку или продолжить историю.' : 'Пока не знаю, где ты. Разреши геолокацию или выбери старт вручную.');
   const choices = el("div", "intent-grid");
   choices.append(button('Помощь Влады', 'intent-button vlada-ob-reopen', vladaObReopen, 'compass'));
-  choices.append(button('Что рядом со мной', 'intent-button', () => { closeDialog('guide-dialog'); revealPlaces(); $('nearby-options').open = true; requestNearby(false); }, 'pin'), button('Старт вручную', 'intent-button', showManualOrigin, 'compass'), button('Прогулки', 'intent-button', showWalk, 'walk'), button('Квесты', 'intent-button', showQuest, 'book'));
+  choices.append(button('Что рядом со мной', 'intent-button', () => { closeDialog('guide-dialog'); revealPlaces(); $('nearby-options').open = true; requestNearby(); }, 'pin'), button('Старт вручную', 'intent-button', showManualOrigin, 'compass'), button('Прогулки', 'intent-button', showWalk, 'walk'), button('Квесты', 'intent-button', showQuest, 'book'));
   const categories = el('div', 'helper-category-row');
   for (const [label, need] of [['Поесть', 'eat'], ['Туалет', 'toilet'], ['Досуг', 'fun']]) categories.append(button(label, 'secondary-button', () => showPracticalGuides(need)));
   const session = auth.user
@@ -549,7 +549,7 @@ function updateArrivalControls(box) {
   mark.dataset.focusKey = 'arrival-mark';
   mark.disabled = !['near', 'fallback', 'idle'].includes(presence.mode);
   actions.append(mark);
-  if (presence.mode !== 'near' && presence.mode !== 'requesting') actions.append(button(presence.mode === 'idle' ? 'Проверить GPS' : 'Обновить GPS', 'secondary-button', () => requestNearby(true), 'pin'));
+  if (presence.mode !== 'near' && presence.mode !== 'requesting') actions.append(button(presence.mode === 'idle' ? 'Проверить GPS' : 'Обновить GPS', 'secondary-button', () => requestNearby(), 'pin'));
   if (presence.mode === 'far') actions.append(...routeButton('Идти в 2ГИС', stop.place, 'secondary-button'));
   if (presence.mode === 'requesting') actions.append(button('Продолжить без GPS', 'text-button', () => { clearNearby(false); setGeoPhase('unavailable'); }));
   box.replaceChildren(status, actions);
@@ -1128,8 +1128,8 @@ function toggleRadiusFilter() {
   geo.radiusFilter = !geo.radiusFilter;
   renderPlaces(); syncShowAllButton(); updateNearbyStatus();
 }
-$("nearby-request")?.addEventListener("click", () => requestNearby(false));
-$("nearby-refresh")?.addEventListener("click", () => requestNearby(true));
+$("nearby-request")?.addEventListener("click", () => requestNearby());
+$("nearby-refresh")?.addEventListener("click", () => requestNearby());
 $("nearby-clear")?.addEventListener("click", clearNearby);
 $("nearby-manual")?.addEventListener('click', showManualOrigin);
 $("nearby-show-all")?.addEventListener("click", toggleRadiusFilter);
@@ -1353,7 +1353,7 @@ function vladaObRenderCoach() {
   let pose = 'talking', title = 'Попробуем вместе', copy = '', actions = el('div', 'vlada-ob-actions');
   if (part.kind === 'places' && part.stage === 'start') {
     pose = 'location-unknown'; title = 'Посмотрим, что рядом?'; copy = 'Можно разрешить геолокацию или выбрать старт вручную. Позиция не нужна для завершения знакомства.';
-    actions.append(button('Определить местоположение', 'primary-button', () => { revealPlaces(); $('nearby-options').open = true; requestNearby(true); }), button('Выбрать старт вручную', 'secondary-button', showManualOrigin));
+    actions.append(button('Определить местоположение', 'primary-button', () => { revealPlaces(); $('nearby-options').open = true; requestNearby(); }), button('Выбрать старт вручную', 'secondary-button', showManualOrigin));
   } else if (part.kind === 'places' && part.stage === 'card') {
     pose = 'interesting-places'; title = 'Выбери интересное место'; copy = 'Открой карточку в списке или выбери маркер и нажми «О месте». Здесь будут история, условия и источник.';
     actions.append(button('Показать список мест', 'primary-button', () => { revealPlaces(); $('place-list').scrollIntoView?.({ block: 'nearest', behavior: reducedMotion ? 'auto' : 'smooth' }); }));
