@@ -38,7 +38,7 @@ function harness(seed = {}) {
   vm.runInContext(source, context, { filename: 'app.js' });
   const run = expression => vm.runInContext(expression, context);
   const snap = expression => JSON.parse(run(`JSON.stringify(${expression})`));
-  return { run, snap, store, elements };
+  return { run, snap, store, elements, context };
 }
 
 const finished = {
@@ -112,10 +112,54 @@ test('avatar grid renders six tiles and locks the three quest rewards', () => {
 });
 
 test('the header shows the selected avatar next to the login', () => {
-  const h = harness({ 'svoi-vladik-avatars-v1:user-7': JSON.stringify({ selected: 'crab', unlocked: 1 }) });
+  const h = harness({ 'svoi-vladik-avatars-v1:user-7': JSON.stringify({ selected: 'crab', unlocked: 2 }) });
   h.run('auth.user = { id: 7, login: "tester" }; renderAuthButton()');
   const opener = h.elements.get('auth-open');
   assert.equal(opener.children.length, 2);
   assert.match(opener.children[0].src, /crab\.webp$/);
   assert.equal(opener.children[1].textContent, 'tester');
+});
+
+test('server avatar state wins, unlocks survive and a locked server pick is ignored', () => {
+  const h = harness();
+  h.run('auth.user = { id: 7, login: "tester" }; avatarApplyRemote({ selected: "compass", unlocked: 2, completed_quest_ids: ["q1", "q2"] })');
+  assert.equal(h.run('avatarState.selected'), 'compass');
+  assert.equal(h.run('avatarState.unlocked'), 2);
+  assert.equal(h.run('completedQuestCount()'), 2);
+  assert.equal(JSON.parse(h.store.get('svoi-vladik-avatars-v1:user-7')).selected, 'compass');
+  h.run('avatarApplyRemote({ selected: "bridge", unlocked: 1, completed_quest_ids: ["q1"] })');
+  assert.equal(h.run('avatarState.selected'), 'compass');
+  assert.equal(h.run('avatarState.unlocked'), 2);
+});
+
+test('sync imports local completions and sends the selected avatar to the server', async () => {
+  const h = harness({ 'svoi-vladik-avatars-v1:user-7': JSON.stringify({ selected: 'sun', unlocked: 0 }) });
+  h.run(`globalThis.__calls = [];
+    apiSend = async (url, method = 'GET', body) => {
+      __calls.push({ url, method, body });
+      if (url === '/api/v1/me/avatars' && method === 'GET') return { selected: null, unlocked: 0, completed_quest_ids: [] };
+      if (url === '/api/v1/me/quests/import') return { selected: null, unlocked: 1, completed_quest_ids: ['q1'] };
+      if (url === '/api/v1/me/avatars' && method === 'PUT') return { selected: body.selected, unlocked: 1, completed_quest_ids: ['q1'] };
+      throw new Error('unexpected request');
+    };
+    auth.user = { id: 7, login: 'tester' };
+    progress.quests = { q1: { visited: [], answers: {}, completed: true } };`);
+  await h.run('avatarSyncLoad()');
+  const calls = h.snap('__calls');
+  assert.deepEqual(calls.map(call => call.method), ['GET', 'POST', 'PUT']);
+  assert.deepEqual(calls[1].body, { quest_ids: ['q1'] });
+  assert.deepEqual(calls[2].body, { selected: 'sun' });
+  assert.equal(h.run('avatarState.unlocked'), 1);
+  assert.equal(h.run('avatarState.selected'), 'sun');
+  assert.equal(h.run('avatarRemote.ready'), true);
+});
+
+test('a guest sync never calls the API and keeps the local choice', async () => {
+  const h = harness({ 'svoi-vladik-avatars-v1:guest': JSON.stringify({ selected: 'boat', unlocked: 0 }) });
+  h.run(`globalThis.__calls = 0;
+    apiSend = async () => { globalThis.__calls++; throw new Error('must not call'); };
+    auth.user = null;`);
+  await h.run('avatarSyncLoad()');
+  assert.equal(h.run('__calls'), 0);
+  assert.equal(h.run('avatarState.selected'), 'boat');
 });

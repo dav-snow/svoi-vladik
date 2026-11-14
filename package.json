@@ -7,6 +7,8 @@
   "scripts": {
     "start": "node scripts/start.mjs",
     "build": "node scripts/build.mjs",
-    "test": "node scripts/start.mjs --test"
+    "test": "node scripts/start.mjs --test",
+    "smoke:e2e": "node scripts/smoke-e2e.mjs",
+    "audit:content": "python scripts/audit_content.py"
   }
 }

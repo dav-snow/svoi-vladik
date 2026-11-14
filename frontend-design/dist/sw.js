@@ -1,5 +1,5 @@
-const CACHE = 'svoi-vladik-shell-v2';
-const SHELL = ['/', '/index.html', '/styles.css', '/polish.css', '/glass.css', '/motion.css', '/motion.js', '/mascot.css', '/mascot.js', '/app.js', '/manifest.webmanifest', '/assets/lighthouse.svg', '/assets/museum.svg', '/assets/theatre.svg', '/assets/funicular.svg'];
+const CACHE = 'svoi-vladik-shell-v3';
+const SHELL = ['/', '/index.html', '/styles.css', '/polish.css', '/glass.css', '/motion.css', '/motion.js', '/mascot.css', '/mascot.js', '/app.js', '/manifest.webmanifest', '/assets/lighthouse.svg', '/assets/icon-192.png', '/assets/icon-512.png', '/assets/museum.svg', '/assets/theatre.svg', '/assets/funicular.svg'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting())));
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('svoi-vladik-shell-') && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', event => {

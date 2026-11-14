@@ -33,7 +33,9 @@ $Ssh = @("-o", "BatchMode=yes", "-o", "ConnectTimeout=20", "-o", "StrictHostKeyC
 $Scp = @("-o", "BatchMode=yes", "-o", "ConnectTimeout=20", "-o", "StrictHostKeyChecking=accept-new")
 if ($Key) { $Ssh += @("-i", $Key, "-o", "IdentitiesOnly=yes"); $Scp += @("-i", $Key, "-o", "IdentitiesOnly=yes") }
 
-foreach ($required in @("docker-compose.prod.yml", "Caddyfile", "data/private/quest-answers.json")) {
+$localAnswers = Join-Path $Root "data/private/quest-answers.json"
+$hasLocalAnswers = Test-Path $localAnswers
+foreach ($required in @("docker-compose.prod.yml", "Caddyfile")) {
     if (-not (Test-Path (Join-Path $Root $required))) { throw "Нет обязательного файла: $required" }
 }
 
@@ -45,6 +47,7 @@ function Show-Plan {
     Write-Host "5/7 ssh: записать /opt/svoi-vladik/.env (DOMAIN=$Domain, ACME_EMAIL=$Email)"
     Write-Host "6/7 ssh: docker compose -f docker-compose.prod.yml up -d --build"
     Write-Host "7/7 ждать https://$Domain/health и прогнать смоук"
+    if (-not $hasLocalAnswers) { Write-Host "   (локального quest-answers.json нет — использую существующий на сервере)" }
 }
 
 if ($DryRun) { Show-Plan; Write-Host "DryRun: сеть не используется."; return }
@@ -57,13 +60,22 @@ function Invoke-Ssh([string]$Command) {
 Write-Host "1/7 Проверяю SSH и Docker"
 Invoke-Ssh "echo SSH_OK; hostname; docker --version; docker compose version"
 
+if (-not $hasLocalAnswers) {
+    Write-Host "Локального quest-answers.json нет; проверяю серверный"
+    & ssh @Ssh $Dest "test -s /opt/svoi-vladik/data/private/quest-answers.json"
+    if ($LASTEXITCODE -ne 0) {
+        throw "Нет data/private/quest-answers.json ни локально, ни в /opt/svoi-vladik на сервере. Положите файл и повторите."
+    }
+}
+
 Write-Host "2/7 Собираю архив"
 $tar = Join-Path ([IO.Path]::GetTempPath()) "svoi-vladik-deploy.tar.gz"
 if (Test-Path $tar) { Remove-Item $tar -Force }
 & tar -czf $tar -C $Root `
     --exclude=.git --exclude=.venv --exclude=node_modules --exclude=__pycache__ `
     --exclude=.pytest_cache --exclude=frontend-design/review --exclude=.local `
-    --exclude=.claude --exclude=.github --exclude=data/demo.sqlite3 --exclude="*.log" .
+    --exclude=.claude --exclude=.github --exclude=data/demo.sqlite3 --exclude="*.log" `
+    --exclude=.env --exclude=backups .
 if ($LASTEXITCODE -ne 0) { throw "tar завершился с кодом $LASTEXITCODE" }
 
 Write-Host "3/7 Копирую на сервер"
@@ -93,7 +105,15 @@ if ($code -ne "200") {
 
 Write-Host "Смоук:"
 & curl.exe -sS "https://$Domain/health"; Write-Host ""
-foreach ($path in @("/api/v1/places", "/api/v1/quest", "/assets/places/sukhanov-house--1.jpg")) {
+foreach ($path in @("/app.js", "/api/v1/places", "/api/v1/quest", "/assets/places/sukhanov-house--1.jpg")) {
     & curl.exe -sS -o NUL -w "$path -> %{http_code}`n" "https://$Domain$path"
 }
+$app = (& curl.exe -sS "https://$Domain/app.js") -join "`n"
+$missing = @("placeCardThumbnail", "AVATAR_STORAGE", "/me/avatars") | Where-Object { $app -notmatch [regex]::Escape($_) }
+if ($missing) { throw "На стенде старая сборка app.js; нет: $($missing -join ', ')" }
+$places = Invoke-RestMethod "https://$Domain/api/v1/places"
+if ($places.total -lt 14) { throw "API отдаёт $($places.total) мест вместо 14" }
+$license = $places.items | ForEach-Object { $_.images } | Where-Object { $_.license_url } | Select-Object -First 1
+if (-not $license) { throw "В API нет credit/license/license_url у фото" }
+Write-Host "Сборка актуальна: 14 мест, фото с лицензией, синхронизация аватаров."
 Write-Host "Готово: https://$Domain/"

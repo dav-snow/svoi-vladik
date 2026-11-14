@@ -92,7 +92,15 @@ function placeGalleryImages(images, legacyImage) {
     const key = new URL(url, location.href).href;
     if (seen.has(key)) return;
     seen.add(key);
-    result.push({ url, alt: typeof item.alt === 'string' ? item.alt.trim().slice(0, 300) : '', caption: typeof item.caption === 'string' ? item.caption.trim().slice(0, 500) : '', source_url: placeGalleryUrl(item.source_url, false) });
+    result.push({
+      url,
+      alt: typeof item.alt === 'string' ? item.alt.trim().slice(0, 300) : '',
+      caption: typeof item.caption === 'string' ? item.caption.trim().slice(0, 500) : '',
+      source_url: placeGalleryUrl(item.source_url, false),
+      credit: typeof item.credit === 'string' ? item.credit.trim().slice(0, 300) : '',
+      license: typeof item.license === 'string' ? item.license.trim().slice(0, 120) : '',
+      license_url: placeGalleryUrl(item.license_url, false)
+    });
   };
   if (Array.isArray(images)) images.forEach(add);
   if (!result.length) add({ url: legacyImage });
@@ -121,14 +129,29 @@ function placeGalleryArt(place) {
     illustration.addEventListener('error', () => illustration.remove(), { once: true });
     stage.replaceChildren(illustration, el('span', 'place-gallery-badge', 'Иллюстрация'));
     copy.textContent = message; copy.hidden = false;
+    credit.replaceChildren(); credit.hidden = true;
   };
   const render = next => {
     index = next; const ticket = ++revision;
     const photo = photos[index];
     position.textContent = `${index + 1} из ${photos.length}`;
-    copy.textContent = photo.caption; copy.hidden = !photo.caption;
-    credit.replaceChildren(); credit.hidden = !photo.source_url;
-    if (photo.source_url) credit.append(external('Источник изображения', photo.source_url, 'source-link place-gallery-source'));
+    copy.textContent = photo.credit || photo.license
+      ? `Фото: ${photo.credit || 'автор не указан'}${photo.license ? ' · ' + photo.license : ''}`
+      : photo.caption;
+    copy.hidden = !copy.textContent;
+    credit.replaceChildren();
+    const links = [];
+    if (photo.license_url && photo.license) {
+      const license = external('Лицензия: ' + photo.license, photo.license_url, 'source-link place-gallery-license');
+      license.setAttribute('aria-label', 'Условия лицензии: ' + photo.license);
+      links.push(license);
+    }
+    if (photo.source_url) links.push(external('Источник изображения', photo.source_url, 'source-link place-gallery-source'));
+    links.forEach((link, linkIndex) => {
+      if (linkIndex) credit.append(el('span', 'place-gallery-credit-sep', '·'));
+      credit.append(link);
+    });
+    credit.hidden = !links.length;
     if (failed.has(index)) { showFallback('Изображение не загрузилось.'); return; }
     const img = el('img', 'place-gallery-image');
     img.alt = photo.alt || 'Изображение места: ' + title;
@@ -804,6 +827,7 @@ async function finishQuest(quest) {
     // The legacy payload may contain extra fields; only this completion flag is used.
     saved.completed = true; saveProgress(); renderJourney();
     avatarState.pendingRewards = avatarGrantUnlocks();
+    if (auth.user) avatarSyncLoad();
     if (revision === dialogRevision) showQuestFinal(quest);
   } catch {
     if (revision === dialogRevision && progress.quests[quest.id] === saved) { feedback.textContent = 'Не удалось завершить проверку. Прогресс сохранён, попробуйте ещё раз.'; feedback.after(button('Повторить', 'primary-button', () => finishQuest(quest))); }
@@ -869,7 +893,9 @@ function renderAuthButton() {
 async function refreshMe() {
   // 401 — обычный гость, не ошибка; сетевой сбой тоже не блокирует карту.
   try { auth.user = (await apiSend('/api/v1/me'))?.user || null; } catch { auth.user = null; }
+  avatarRead();
   renderAuthButton();
+  await avatarSyncLoad();
 }
 async function refreshSocial() {
   // Единственный источник счётчиков и личных отметок — ответ API.
@@ -910,10 +936,10 @@ function showAuthDialog(mode = 'login', message = '', afterLogin = null) {
     try {
       const result = await apiSend('/api/v1/auth/' + (mode === 'login' ? 'login' : 'register'), 'POST', { login: loginValue, password: password.input.value });
       password.input.value = '';
-      auth.user = result.user; renderAuthButton();
+      auth.user = result.user; avatarRead(); renderAuthButton();
       await closeDialog('auth-dialog');
       notify(mode === 'login' ? 'Вы вошли как ' + auth.user.login : 'Аккаунт создан. Привет, ' + auth.user.login + '!');
-      await refreshSocial(); renderPlaces();
+      await Promise.all([avatarSyncLoad(), refreshSocial()]); renderPlaces();
       if (afterLogin) afterLogin();
     } catch (requestError) {
       submit.disabled = false; error.hidden = false;
@@ -934,14 +960,18 @@ async function logoutUser() {
       return;
     }
   } finally { auth.loggingOut = false; }
-  auth.user = null; renderAuthButton();
+  auth.user = null;
+  avatarRemote.completed = []; avatarRemote.ready = false; avatarRemote.requestId++;
+  avatarRead(); renderAuthButton();
   for (const place of state.places) { place.visited_by_me = false; place.liked_by_me = false; }
   await closeDialog('detail-dialog');
   await refreshSocial(); renderPlaces();
   notify('Вы вышли. Отметки остались в аккаунте.');
 }
 function sessionExpired(afterLogin) {
-  auth.user = null; renderAuthButton();
+  auth.user = null;
+  avatarRemote.completed = []; avatarRemote.ready = false; avatarRemote.requestId++;
+  avatarRead(); renderAuthButton();
   showAuthDialog('login', 'Сессия закончилась — войдите снова.', afterLogin);
 }
 function socialBlock(place) {
@@ -987,7 +1017,18 @@ const AVATARS = Object.freeze([
   { id: 'bridge', title: 'Мост', file: 'bridge.webp', need: 3, hint: 'Заверши 3 разных квеста', quote: 'Три разные истории пройдены. Держи мост — заслуженное пополнение профиля!' },
 ]);
 const avatarState = { selected: null, unlocked: 0, pendingRewards: [] };
-function completedQuestCount() { return Object.values(progress.quests || {}).filter(saved => saved?.completed === true).length; }
+// Server-side mirror for signed-in visitors. Guests keep everything local.
+const avatarRemote = { ready: false, completed: [], requestId: 0 };
+function localCompletedQuestIds() {
+  return Object.entries(progress.quests || {})
+    .filter(([, saved]) => saved?.completed === true)
+    .map(([id]) => id);
+}
+function completedQuestCount() {
+  const ids = new Set(localCompletedQuestIds());
+  for (const id of avatarRemote.completed) ids.add(id);
+  return Math.min(3, ids.size);
+}
 function avatarStorageKey() { return AVATAR_STORAGE + (auth.user ? 'user-' + encodeURIComponent(String(auth.user.id ?? auth.user.login)) : 'guest'); }
 function avatarWrite() {
   try { localStorage.setItem(avatarStorageKey(), JSON.stringify({ selected: avatarState.selected, unlocked: avatarState.unlocked })); }
@@ -1000,8 +1041,11 @@ function avatarRead() {
     if (AVATARS.some(avatar => avatar.id === raw?.selected)) avatarState.selected = raw.selected;
     if (Number.isInteger(raw?.unlocked)) avatarState.unlocked = Math.max(0, Math.min(3, raw.unlocked));
   } catch { /* A broken record must not block the profile. */ }
-  const completed = Math.min(3, completedQuestCount());
+  const completed = completedQuestCount();
   if (completed > avatarState.unlocked) { avatarState.unlocked = completed; avatarWrite(); }
+  if (avatarState.selected && !avatarAvailable(AVATARS.find(avatar => avatar.id === avatarState.selected))) {
+    avatarState.selected = null; avatarWrite();
+  }
 }
 function avatarAvailable(avatar) { return avatar.need <= avatarState.unlocked; }
 function avatarProgressLabel(avatar) {
@@ -1014,10 +1058,70 @@ function avatarGrantUnlocks() {
   if (next > avatarState.unlocked) { avatarState.unlocked = next; avatarWrite(); }
   return rewards;
 }
+function avatarApplyRemote(state) {
+  if (!state || typeof state !== 'object') return;
+  avatarRemote.completed = Array.isArray(state.completed_quest_ids)
+    ? state.completed_quest_ids.filter(id => typeof id === 'string').slice(0, 100)
+    : [];
+  const localSelected = avatarState.selected;
+  avatarRead();
+  const serverUnlocked = Number.isInteger(state.unlocked) ? Math.max(0, Math.min(3, state.unlocked)) : 0;
+  avatarState.unlocked = Math.max(avatarState.unlocked, serverUnlocked, Math.min(3, avatarRemote.completed.length));
+  const serverSelected = AVATARS.find(avatar => avatar.id === state.selected);
+  if (serverSelected && avatarAvailable(serverSelected)) avatarState.selected = serverSelected.id;
+  else if (localSelected && avatarAvailable(AVATARS.find(avatar => avatar.id === localSelected))) avatarState.selected = localSelected;
+  if (avatarState.selected && !avatarAvailable(AVATARS.find(avatar => avatar.id === avatarState.selected))) avatarState.selected = null;
+  avatarWrite(); refreshAvatarGrid(); renderAuthButton();
+}
+async function avatarPushSelection(id, previous, options = {}) {
+  if (!auth.user) return false;
+  try {
+    const state = await apiSend('/api/v1/me/avatars', 'PUT', { selected: id });
+    avatarApplyRemote(state);
+    return true;
+  } catch (error) {
+    if (avatarState.selected !== id) return false;
+    const fallback = AVATARS.find(avatar => avatar.id === previous);
+    avatarState.selected = fallback && avatarAvailable(fallback) ? fallback.id : null;
+    avatarWrite(); refreshAvatarGrid(); renderAuthButton();
+    if (!options.silent && error.status !== 401) {
+      notify(error.status === 409 ? 'Этот аватар ещё не открыт' : 'Не удалось сохранить аватар. Проверьте соединение.');
+    }
+    return false;
+  }
+}
+async function avatarSyncLoad() {
+  if (!auth.user) {
+    avatarRemote.completed = []; avatarRemote.ready = false; avatarRemote.requestId++;
+    avatarRead(); refreshAvatarGrid(); renderAuthButton();
+    return;
+  }
+  const identity = String(auth.user.id ?? auth.user.login);
+  const ticket = ++avatarRemote.requestId;
+  try {
+    let state = await apiSend('/api/v1/me/avatars');
+    if (ticket !== avatarRemote.requestId || String(auth.user?.id ?? auth.user?.login) !== identity) return;
+    const known = new Set(Array.isArray(state?.completed_quest_ids) ? state.completed_quest_ids : []);
+    const missing = localCompletedQuestIds().filter(id => !known.has(id)).slice(0, 20);
+    if (missing.length) {
+      state = await apiSend('/api/v1/me/quests/import', 'POST', { quest_ids: missing });
+      if (ticket !== avatarRemote.requestId || String(auth.user?.id ?? auth.user?.login) !== identity) return;
+    }
+    avatarApplyRemote(state);
+    avatarRemote.ready = true;
+    const selected = avatarState.selected;
+    if (!state?.selected && selected && avatarAvailable(AVATARS.find(avatar => avatar.id === selected))) {
+      await avatarPushSelection(selected, null, { silent: true });
+    }
+  } catch { /* Offline or 401: keep the local avatar. */ }
+}
 function avatarChoose(id) {
   const avatar = AVATARS.find(item => item.id === id);
   if (!avatar || !avatarAvailable(avatar)) return false;
-  avatarState.selected = id; avatarWrite(); refreshAvatarGrid(); renderAuthButton(); return true;
+  const previous = avatarState.selected;
+  avatarState.selected = id; avatarWrite(); refreshAvatarGrid(); renderAuthButton();
+  if (auth.user) avatarPushSelection(id, previous);
+  return true;
 }
 function avatarTile(avatar) {
   const unlocked = avatarAvailable(avatar), selected = avatarState.selected === avatar.id;
@@ -1053,7 +1157,7 @@ function avatarRewardCard(avatar) {
   copy.append(el('p', 'eyebrow', 'НОВЫЙ АВАТАР'), el('h3', '', avatar.title), el('p', 'avatar-quote', avatar.quote));
   const actions = el('div', 'avatar-reward-actions');
   const put = button('Поставить в профиль', 'primary-button', () => {
-    avatarState.selected = avatar.id; avatarWrite(); renderAuthButton();
+    if (!avatarChoose(avatar.id)) { notify('Аватар пока закрыт'); return; }
     put.disabled = true; put.textContent = 'Выбран';
     notify(`Аватар «${avatar.title}» выбран`);
   });
@@ -1070,6 +1174,8 @@ async function showProfile() {
   await opening;
   try {
     const profile = await apiSend('/api/v1/me/profile');
+    if (revision !== dialogRevision || !$('detail-dialog').open) return;
+    await avatarSyncLoad();
     if (revision !== dialogRevision || !$('detail-dialog').open) return;
     avatarRead();
     const stats = el('div', 'profile-stats');

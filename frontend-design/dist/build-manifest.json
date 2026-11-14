@@ -1,12 +1,12 @@
 {
   "project": "svoi-vladik",
   "version": 1,
-  "generatedAt": "2026-11-14T03:24:38.901Z",
+  "generatedAt": "2026-11-14T04:07:49.020Z",
   "files": [
     {
       "path": "app.js",
-      "bytes": 147520,
-      "sha256": "a00719335132afec2f85a717b2ab947fec8bfb2af9fa5bc2b26ff4df02bac43e"
+      "bytes": 152603,
+      "sha256": "febf17f8c4879bf41f6b4e90595a0423994e375a2c00530ff8609e766d281efb"
     },
     {
       "path": "assets/avatars/boat.webp",
@@ -47,6 +47,16 @@
       "path": "assets/guide.svg",
       "bytes": 1319,
       "sha256": "a18f102168a9e5f458ab446aac0aca0f86c2e81902836f3747150e4062dfc5eb"
+    },
+    {
+      "path": "assets/icon-192.png",
+      "bytes": 13443,
+      "sha256": "69629c348a2cc3122e0821b4fd47723b9ca1c562bade839163b44759d678804e"
+    },
+    {
+      "path": "assets/icon-512.png",
+      "bytes": 19045,
+      "sha256": "451abbb867e989870f60820acc701217173a2da0d99d94d7dd16df10eab04d6f"
     },
     {
       "path": "assets/lighthouse.svg",
@@ -120,13 +130,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 13361,
-      "sha256": "b140912d5dca2dc7a80a62d978497d60b90a5128560f8252bfc4467ea5b20d08"
+      "bytes": 13420,
+      "sha256": "f5c65cdd57abc9147a2a86e938d91ae94006635f5b9bd2c3fbe1eaa9551727e9"
     },
     {
       "path": "manifest.webmanifest",
-      "bytes": 510,
-      "sha256": "fdb8be54e59ea07c91fcf36bd8d50a872d9e6ea7d2ece0380ecd5be183b39148"
+      "bytes": 694,
+      "sha256": "f182adbcb3574c58daec57c2f1dfd4487795473389a26551b9e3f34d89fc55fc"
     },
     {
       "path": "map-style.json",
@@ -160,13 +170,13 @@
     },
     {
       "path": "styles.css",
-      "bytes": 99630,
-      "sha256": "4547eb3903a593107bf5aad6316d6deb32fc1373d6bec160185540791c55fa4e"
+      "bytes": 99765,
+      "sha256": "4a9168d01a795df55d788d0712199747cbe20772ade9b9e0303a44a458427ca7"
     },
     {
       "path": "sw.js",
-      "bytes": 1317,
-      "sha256": "82450e35d0ab5319e1693ffccf6e8a872663622051b39360ec6ce6f516bd7a8c"
+      "bytes": 1365,
+      "sha256": "a5350edb0237ea1e0060dd791c6866747efaed8e379fc68ee63bef281e05d26a"
     }
   ]
 }

@@ -74,6 +74,18 @@ def _alt(photo: dict[str, Any], place_name: str, index: int) -> str:
     return f"{place_name} — фотография {index}"
 
 
+def _license_url(value: str) -> str | None:
+    url = _one_line(value)
+    if not url:
+        return None
+    # Some older Commons files still record CC links as http://.
+    if url.startswith("http://creativecommons.org/"):
+        url = "https://" + url[len("http://"):]
+    if not url.startswith("https://"):
+        raise SystemExit(f"Ссылка лицензии должна быть HTTPS: {url}")
+    return url
+
+
 def _image(photo: dict[str, Any], place_name: str, index: int) -> dict[str, str]:
     path = str(photo.get("path") or "").replace("\\", "/")
     if not path.startswith("assets/places/"):
@@ -92,7 +104,7 @@ def _image(photo: dict[str, Any], place_name: str, index: int) -> dict[str, str]
         "source_url": source_url,
         "credit": _one_line(photo.get("author")),
         "license": _one_line(photo.get("license")),
-        "license_url": _one_line(photo.get("license_url")) or None,
+        "license_url": _license_url(photo.get("license_url")),
     }
 
 

@@ -227,6 +227,8 @@ button svg, .search-field svg { width: 20px; height: 20px; stroke: currentColor;
 .place-gallery-loading { position: absolute; padding: 7px 12px; border-radius: 20px; color: #56666d; background: #ffffffeb; font-size: 11px; }
 .place-gallery-caption { display: grid; gap: 4px; min-width: 0; padding: 10px 2px 0; color: #59676b; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
 .place-gallery .place-gallery-source { max-width: 100%; margin: 0; font-size: 11px; line-height: 1.6; }
+.place-gallery-credit { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.place-gallery-credit-sep { color: #8a8f8d; }
 .place-gallery-source svg { width: 13px; height: 13px; }
 .place-gallery-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; margin-top: 12px; }
 .place-gallery-control { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 44px; min-height: 44px; padding: 8px 10px; border: 1px solid #e1e6e5; border-radius: 12px; background: #ffffffc9; font-size: 12px; font-weight: 700; line-height: 1.4; }

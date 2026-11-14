@@ -43,8 +43,23 @@ def test_every_served_place_has_photos_with_alt_text() -> None:
             assert image["alt"].strip(), place["id"]
             # The UI is Russian; Commons descriptions can be English.
             assert re.search(r"[А-Яа-яЁё]", image["alt"]), place["id"]
-            assert image["caption"].startswith("Фото:"), place["id"]
-            assert image["source_url"].startswith("https://"), place["id"]
+
+
+def test_model_validation_does_not_drop_an_active_place() -> None:
+    places, _ = _load()
+    expected = {
+        place["id"] for place in places
+        if _served(place) and place.get("coordinates")
+    }
+    served = {place.id for place in main.load_places()}
+    assert served == expected
+
+
+def test_photo_licence_links_are_https() -> None:
+    for place in main.load_places():
+        for image in place.images:
+            if image.license_url:
+                assert image.license_url.startswith("https://"), (place.id, image.license_url)
 
 
 def test_images_point_to_existing_licensed_files() -> None:
@@ -54,6 +69,8 @@ def test_images_point_to_existing_licensed_files() -> None:
             url = image["url"]
             assert url.startswith("/assets/places/"), url
             assert (ROOT / url.lstrip("/")).is_file(), url
+            assert image["caption"].startswith("Фото:"), place["id"]
+            assert image["source_url"].startswith("https://"), place["id"]
 
 
 def test_images_keep_manifest_order_and_attribution() -> None:

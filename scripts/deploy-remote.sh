@@ -25,19 +25,30 @@ $SSH "$USER_NAME@$HOST" "docker compose version >/dev/null 2>&1" || fail "нет
 say "2/7 checking deploy files"
 [ -f "$REPO_DIR/docker-compose.prod.yml" ] || fail "нет docker-compose.prod.yml (сначала влей задачу 011)"
 [ -f "$REPO_DIR/Caddyfile" ] || fail "нет Caddyfile (сначала влей задачу 011)"
-[ -f "$REPO_DIR/data/private/quest-answers.json" ] || fail "нет data/private/quest-answers.json — без него квесты отдадут 503"
+HAS_LOCAL_ANSWERS=0
+if [ -f "$REPO_DIR/data/private/quest-answers.json" ]; then
+  HAS_LOCAL_ANSWERS=1
+else
+  $SSH "$USER_NAME@$HOST" "test -s $APP_DIR/data/private/quest-answers.json" \
+    || fail "нет data/private/quest-answers.json ни локально, ни на сервере — без него квесты отдадут 503"
+  echo "локального quest-answers.json нет; на сервере он уже есть и будет сохранён"
+fi
 
 say "3/7 copying project to $HOST:$APP_DIR"
 $SSH "$USER_NAME@$HOST" "mkdir -p $APP_DIR"
+RSYNC_EXCLUDES=(--exclude '.git' --exclude '.venv' --exclude 'node_modules'
+  --exclude '__pycache__' --exclude '.pytest_cache' --exclude '*.log'
+  --exclude 'data/demo.sqlite3' --exclude 'frontend-design/review'
+  --exclude '.env' --exclude 'backups')
+if [ "$HAS_LOCAL_ANSWERS" = "0" ]; then
+  RSYNC_EXCLUDES+=(--exclude 'data/private/quest-answers.json')
+fi
 if command -v rsync >/dev/null 2>&1; then
-  rsync -az --delete \
-    --exclude '.git' --exclude '.venv' --exclude 'node_modules' \
-    --exclude '__pycache__' --exclude '.pytest_cache' --exclude '*.log' \
-    --exclude 'data/demo.sqlite3' --exclude 'frontend-design/review' \
-    "$REPO_DIR"/ "$USER_NAME@$HOST:$APP_DIR/"
+  rsync -az --delete "${RSYNC_EXCLUDES[@]}" "$REPO_DIR"/ "$USER_NAME@$HOST:$APP_DIR/"
 else
   tar -C "$REPO_DIR" --exclude=.git --exclude=.venv --exclude=node_modules \
-    --exclude=__pycache__ --exclude=data/demo.sqlite3 -czf - . \
+    --exclude=__pycache__ --exclude=data/demo.sqlite3 --exclude=.env \
+    --exclude=frontend-design/review --exclude=backups -czf - . \
     | $SSH "$USER_NAME@$HOST" "tar -xzf - -C $APP_DIR"
 fi
 
@@ -71,6 +82,11 @@ fi
 say "7/7 smoke"
 curl -fsS "https://$DOMAIN/health"; echo
 curl -fsS "https://$DOMAIN/api/v1/places" | head -c 120; echo
+app=$(curl -fsS "https://$DOMAIN/app.js")
+for marker in placeCardThumbnail AVATAR_STORAGE /me/avatars; do
+  printf '%s' "$app" | grep -q "$marker" || fail "на стенде старая сборка app.js: нет $marker"
+done
+echo "Сборка актуальна: редизайн, аватары и синхронизация на месте."
 curl -fsS "https://$DOMAIN/api/v1/quest"  | head -c 120; echo
 
 echo
