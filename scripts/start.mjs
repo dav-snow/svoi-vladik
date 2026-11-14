@@ -104,7 +104,7 @@ async function runTests() {
     child.once("close", code => resolveCode(code ?? 1));
   });
   if (process.exitCode === 0) {
-    const frontend = spawn(process.execPath, ['--test', join(ROOT, 'frontend-design/tests/geolocation.test.mjs')], { cwd: ROOT, stdio: 'inherit', windowsHide: true });
+    const frontend = spawn(process.execPath, ['--test', join(ROOT, 'frontend-design/tests/')], { cwd: ROOT, stdio: 'inherit', windowsHide: true });
     process.exitCode = await new Promise(resolveCode => { frontend.once('error', () => resolveCode(1)); frontend.once('close', code => resolveCode(code ?? 1)); });
   }
 }
