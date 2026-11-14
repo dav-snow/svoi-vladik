@@ -54,6 +54,11 @@ test('the tour is remembered as seen on this browser', () => {
   assert.equal(h.store.get(seenKey), '1');
 });
 
+test('a saved guest tour counts as seen without the flag', () => {
+  const h = harness({ [guestKey]: JSON.stringify({ status: 'in_progress', step: 'vlada_0_walks_choose_later', interest: 'walks' }) });
+  assert.equal(h.run('vladaObHasSeen()'), true);
+});
+
 test('a new account carries the guest tour state', () => {
   const h = harness({ [guestKey]: JSON.stringify({ status: 'completed', step: 'vlada_finish', interest: 'quest' }) });
   assert.deepEqual(h.snap('vladaObCarryFromGuest()'), { status: 'completed', step: 'vlada_finish', interest: 'quest' });

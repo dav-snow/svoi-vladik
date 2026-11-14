@@ -1454,7 +1454,13 @@ const vladaObStorage = 'svoi-vladik-vlada-onboarding-v1:';
 // skipped, only the explicit "Помощь Влады" opens it again; a fresh demo account
 // inherits the guest's progress instead of starting the tour over.
 const vladaObSeenKey = 'svoi-vladik-vlada-onboarding-seen-v1';
-function vladaObHasSeen() { try { return localStorage.getItem(vladaObSeenKey) === '1'; } catch { return false; } }
+function vladaObHasSeen() {
+  try {
+    if (localStorage.getItem(vladaObSeenKey) === '1') return true;
+    // Older builds had no seen flag: any saved guest tour means it was shown.
+    return vladaObReadCache('guest').status !== 'pending';
+  } catch { return false; }
+}
 function vladaObMarkSeen() { try { localStorage.setItem(vladaObSeenKey, '1'); } catch { /* Session continues without storage. */ } }
 const vladaOb = { ready: false, cityReady: false, active: false, autoShown: false, mode: 'local', key: 'guest', sessionLogin: null, epoch: 0, action: 0, revision: 0, surface: 'none', attachDetail: false, name: '', data: { status: 'pending', step: 'vlada_welcome', interest: null }, context: {}, controllers: new Set(), writes: Promise.resolve(), sessionPromise: Promise.resolve(), lastSent: '', authSignature: null, refreshQueued: false };
 const vladaObInterests = ['places', 'walks', 'quest'];
