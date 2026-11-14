@@ -8,7 +8,15 @@
 
 Автоматизированный путь: `deploy.cmd` с Windows (через WSL) вызывает
 `scripts/server-setup.sh` и `scripts/deploy-remote.sh` и делает шаги 3–6 за
-вас. Ниже — те же шаги руками, чтобы понимать, что происходит.
+вас. Если WSL нет, используйте `scripts/deploy-windows.ps1` — тот же деплой
+по SSH без WSL:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/deploy-windows.ps1 -Key C:\Users\me\.ssh\svoi_deploy
+# без -Key подхватится ключ по умолчанию; -DryRun покажет план без сети
+```
+
+Ниже — те же шаги руками, чтобы понимать, что происходит.
 
 ## 1. Что нужно заранее
 
@@ -86,6 +94,13 @@ docker compose -f docker-compose.prod.yml up -d --build
 
 ```sh
 docker compose -f docker-compose.prod.yml cp api:/app/storage/demo.sqlite3 ./demo-backup-$(date +%F).sqlite3
+```
+
+С Windows без WSL — готовый скрипт (копирует в `/opt/svoi-vladik/backups` и
+удаляет дампы старше `Keep` дней):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/backup-db.ps1 -Key C:\Users\me\.ssh\svoi_deploy -Keep 14
 ```
 
 Откат на предыдущую версию кода:

@@ -23,7 +23,7 @@
 | Карта Ленинского района на MapLibre | работает | `frontend-design/dist/app.js`, `map-style.json` |
 | Каталог, поиск, категории, карточка места | работает | `/api/v1/places`, `places.json` |
 | Геолокация по кнопке, точность, радиус, ручной старт | работает; на телефоне не проверялась | [GEOLOCATION.md](GEOLOCATION.md) |
-| Фотогалерея мест и лицензированные фото | работает; 30 фото у 16 мест | [PLACE_PHOTOS_AND_SUMMARIES.md](PLACE_PHOTOS_AND_SUMMARIES.md) |
+| Фотогалерея мест и лицензированные фото | работает; 30 фото у 16 мест, в API есть `credit`, `license`, `license_url` | [PLACE_PHOTOS_AND_SUMMARIES.md](PLACE_PHOTOS_AND_SUMMARIES.md) |
 | Готовые прогулки | работает: 4 прогулки (3/3/5/5 точек) | `/api/v1/walks` |
 | Квесты: обход, опрос, проверка ответов | работает: 4 квеста (3/3/5/5) | `/api/v1/quest` |
 | Локальный прогресс прогулок и квестов | работает | `localStorage`, ключ `svoi-vladik-progress-v1` |
@@ -59,8 +59,9 @@
   rate-limit, security headers, статические монтирования `/assets/places`,
   `/media`, `/data`, `/`.
 - **Проверки:** `node --test frontend-design/tests/` (62 теста) и
-  `python -m pytest backend/tests` (99 тестов); GitHub Actions гоняет
-  pytest, node-тесты и `build.mjs --check-only`.
+  `python -m pytest backend/tests` (100 тестов); GitHub Actions гоняет
+  pytest, node-тесты и `build.mjs --check-only`. `--check-only` теперь и
+  сверяет `build-manifest.json` с файлами, а не только не пишет.
 - **Деплой:** `Dockerfile`, `docker-compose.prod.yml`, Caddy + HTTPS,
   named volume для SQLite; инструкция — [DEPLOY.md](DEPLOY.md).
 
@@ -80,8 +81,10 @@ SSH-ключу с этой машины — деплой выполняет вл
   устройствами**: аватары и маршрут хранятся в `localStorage`, прогресс
   квестов — локально. Серверное хранение прогресса/аватара не реализовано.
 - Нет email, восстановления пароля, 2FA, удаления аккаунта.
-- Ссылка на условия лицензии фото пока текстом в `caption`, а не отдельной
-  кликабельной ссылкой.
+- Данные лицензии фото (`credit`, `license`, `license_url`) уже в API, но UI
+  показывает подпись без отдельной кликабельной ссылки.
+- Завершение квеста возвращает только `completed`; предметных наград нет.
+- Деплой и бэкап автоматизированы скриптами, но ключ есть только у владельца.
 - PWA не обещает офлайн-карту; service worker минимальный.
 - Контентные статусы `draft`, у гида нет координат входа.
 

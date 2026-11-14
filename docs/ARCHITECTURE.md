@@ -44,6 +44,8 @@ scripts/start.mjs            локальный one-origin запуск + тес
 scripts/build.mjs            проверка контента и build-manifest
 scripts/link_place_photos.py подключение фото из манифеста к places.json
 scripts/import_data.py       валидация и импорт редакционных JSON
+scripts/deploy-windows.ps1   деплой по SSH с Windows без WSL
+scripts/backup-db.ps1        копия SQLite со стенда + ротация
 Dockerfile / docker-compose.prod.yml / Caddyfile / deploy.cmd
 ```
 
