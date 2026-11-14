@@ -57,7 +57,7 @@ npm start                  # http://127.0.0.1:8000/
 
 ```sh
 node --test frontend-design/tests/       # 62 теста
-.venv\Scripts\python.exe -m pytest backend/tests -q   # 100 тестов
+.venv\Scripts\python.exe -m pytest backend/tests -q   # 105 тестов
 node scripts/build.mjs --check-only      # контент и публичные файлы
 ```
 

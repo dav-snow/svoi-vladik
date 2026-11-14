@@ -271,6 +271,22 @@ class OnboardingUpdate(BaseModel):
     step: OnboardingStep | None = None
     interest: OnboardingInterest | None = None
 
+# Avatar catalogue is shared with the client: free images have level 0, the
+# quest rewards need 1/2/3 unique completed quests.
+AVATAR_UNLOCK_LEVELS = {
+    "lighthouse": 0, "boat": 0, "sun": 0,
+    "compass": 1, "crab": 2, "bridge": 3,
+}
+
+class AvatarUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    selected: str | None = None
+
+class QuestImport(BaseModel):
+    """One-time migration of quests completed before server sync existed."""
+    model_config = ConfigDict(extra="forbid", strict=True)
+    quest_ids: list[Id] = Field(default_factory=list, max_length=20)
+
 # --- SQLite demo database: users, sessions, visits, likes -------------------
 # Stdlib sqlite3 only, one short-lived connection per request, parameterized
 # queries. The file path comes from DB_PATH; a broken database must degrade
@@ -278,7 +294,7 @@ class OnboardingUpdate(BaseModel):
 
 # Bump when the schema below changes; open_db runs the idempotent DDL for older
 # files (FK/indices are only created for new tables, not retrofitted).
-_SCHEMA_VERSION = 2
+_SCHEMA_VERSION = 3
 
 _DB_SCHEMA = """
 CREATE TABLE IF NOT EXISTS users(
@@ -317,6 +333,18 @@ CREATE TABLE IF NOT EXISTS onboarding(
     started_at TEXT,
     updated_at TEXT NOT NULL,
     completed_at TEXT
+);
+CREATE TABLE IF NOT EXISTS quest_completions(
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    quest_id TEXT NOT NULL,
+    completed_at TEXT NOT NULL,
+    PRIMARY KEY (user_id, quest_id)
+);
+CREATE INDEX IF NOT EXISTS idx_quest_completions_user ON quest_completions(user_id);
+CREATE TABLE IF NOT EXISTS avatars(
+    user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    selected TEXT,
+    updated_at TEXT NOT NULL
 );
 """
 
@@ -441,6 +469,24 @@ def onboarding_state(conn: sqlite3.Connection, user_id: str) -> dict[str, Any]:
     return dict(zip(
         ("status", "step", "interest", "started_at", "updated_at", "completed_at"), row
     ))
+
+
+def completed_quest_ids(conn: sqlite3.Connection, user_id: str) -> list[str]:
+    return [row[0] for row in conn.execute(
+        "SELECT quest_id FROM quest_completions WHERE user_id = ? ORDER BY completed_at, quest_id",
+        (user_id,),
+    )]
+
+
+def avatar_state(conn: sqlite3.Connection, user_id: str) -> dict[str, Any]:
+    """Server-side avatar unlock level, selected image and completed quest ids."""
+    completed = completed_quest_ids(conn, user_id)
+    unlocked = min(3, len(completed))
+    row = conn.execute("SELECT selected FROM avatars WHERE user_id = ?", (user_id,)).fetchone()
+    selected = row[0] if row else None
+    if selected not in AVATAR_UNLOCK_LEVELS or AVATAR_UNLOCK_LEVELS[selected] > unlocked:
+        selected = None
+    return {"selected": selected, "unlocked": unlocked, "completed_quest_ids": completed}
 
 
 def _read_json_safely(path: Path) -> Any | None:
@@ -587,12 +633,13 @@ class DemoSafetyMiddleware:
         # DELETE is limited together with POST so flipping a mark on and off
         # does not become a free write loop.
         is_social = method in {"POST", "DELETE"} and path.startswith("/api/v1/places/") and last_segment in {"visit", "like"}
-        if is_answer or is_auth or is_social:
+        is_me_write = method in {"PUT", "POST"} and path in {"/api/v1/me/avatars", "/api/v1/me/quests/import"}
+        if is_answer or is_auth or is_social or is_me_write:
             host = (scope.get("client") or ("unknown", 0))[0]
             limiter = AUTH_IP_LIMITER if is_auth else POST_LIMITER
             if not limiter.allow(host):
                 return await _error_response(429)(scope, receive, send_safe)
-        if is_answer or is_auth:
+        if is_answer or is_auth or is_me_write:
             headers = {k.lower(): v for k, v in scope.get("headers", [])}
             if headers.get(b"content-type", b"").split(b";", 1)[0].strip().lower() != b"application/json" or headers.get(b"content-encoding", b"identity") != b"identity":
                 return await _error_response(415)(scope, receive, send_safe)
@@ -747,7 +794,7 @@ async def answer_quest(quest_id: Annotated[str, ApiPath(pattern=ID_PATTERN, max_
     return {"correct": answer.option_id == key.correct_option_id, "explanation": key.explanation}
 
 @app.post("/api/v1/quest/{quest_id}/complete")
-async def complete_quest(quest_id: Annotated[str, ApiPath(pattern=ID_PATTERN, max_length=64)], submission: CompleteInput):
+async def complete_quest(quest_id: Annotated[str, ApiPath(pattern=ID_PATTERN, max_length=64)], submission: CompleteInput, request: Request):
     quest = find_quest(quest_id)
     for answer in submission.answers:
         find_stop_option(quest, answer)
@@ -755,6 +802,22 @@ async def complete_quest(quest_id: Annotated[str, ApiPath(pattern=ID_PATTERN, ma
     completed = {a.stop_id for a in submission.answers} == {s.id for s in quest.stops} and all(a.option_id == keys[a.stop_id].correct_option_id for a in submission.answers)
     if not completed:
         return {"completed": False}
+    # Record the unique completion for signed-in visitors so avatars can sync
+    # across devices later. A broken database must not fail the quest itself.
+    try:
+        conn = open_db()
+        try:
+            user = session_user(conn, request)
+            if user:
+                conn.execute(
+                    "INSERT OR IGNORE INTO quest_completions(user_id, quest_id, completed_at) VALUES (?, ?, ?)",
+                    (user["id"], quest.id, _iso(_utc_now())),
+                )
+                conn.commit()
+        finally:
+            conn.close()
+    except sqlite3.Error:
+        logger.warning("Quest completion was not stored for %s", quest.id)
     return {"completed": True}
 
 # --- Demo auth, visits, likes, profile and leaderboard ----------------------
@@ -890,6 +953,74 @@ async def update_onboarding(body: OnboardingUpdate, request: Request):
             )
             conn.commit()
             return onboarding_state(conn, user["id"])
+        except sqlite3.Error:
+            _raise_api_error(503, message="База данных временно недоступна")
+    finally:
+        conn.close()
+
+
+@app.get("/api/v1/me/avatars")
+async def get_my_avatars(request: Request):
+    """Current avatar selection, unlock level and completed quest ids."""
+    conn = _db_or_503()
+    try:
+        try:
+            user = require_user(conn, request)
+            return avatar_state(conn, user["id"])
+        except sqlite3.Error:
+            _raise_api_error(503, message="База данных временно недоступна")
+    finally:
+        conn.close()
+
+
+@app.put("/api/v1/me/avatars")
+async def update_my_avatar(body: AvatarUpdate, request: Request):
+    conn = _db_or_503()
+    try:
+        try:
+            user = require_user(conn, request)
+            state = avatar_state(conn, user["id"])
+            if body.selected is not None:
+                if body.selected not in AVATAR_UNLOCK_LEVELS:
+                    _raise_api_error(422, message="Неизвестный аватар")
+                if AVATAR_UNLOCK_LEVELS[body.selected] > state["unlocked"]:
+                    _raise_api_error(409, "AVATAR_LOCKED", "Аватар ещё не открыт")
+            conn.execute(
+                "INSERT INTO avatars(user_id, selected, updated_at) VALUES (?, ?, ?) "
+                "ON CONFLICT(user_id) DO UPDATE SET selected=excluded.selected, updated_at=excluded.updated_at",
+                (user["id"], body.selected, _iso(_utc_now())),
+            )
+            conn.commit()
+            return avatar_state(conn, user["id"])
+        except sqlite3.Error:
+            _raise_api_error(503, message="База данных временно недоступна")
+    finally:
+        conn.close()
+
+
+@app.post("/api/v1/me/quests/import")
+async def import_completed_quests(body: QuestImport, request: Request):
+    """One-time migration of finished quests for a signed-in visitor.
+
+    The answers were already validated by /quest/{id}/complete; this endpoint
+    only records unique quest ids that the client completed before sync existed.
+    """
+    conn = _db_or_503()
+    try:
+        try:
+            user = require_user(conn, request)
+            known = {item["id"] for item in public_collection(QUESTS_FILE, Quest)["items"]}
+            requested = list(dict.fromkeys(body.quest_ids))
+            unknown = [quest_id for quest_id in requested if quest_id not in known]
+            if unknown:
+                _raise_api_error(422, message=f"Неизвестный квест: {unknown[0]}")
+            now = _iso(_utc_now())
+            conn.executemany(
+                "INSERT OR IGNORE INTO quest_completions(user_id, quest_id, completed_at) VALUES (?, ?, ?)",
+                [(user["id"], quest_id, now) for quest_id in requested],
+            )
+            conn.commit()
+            return avatar_state(conn, user["id"])
         except sqlite3.Error:
             _raise_api_error(503, message="База данных временно недоступна")
     finally:
