@@ -37,6 +37,8 @@
 
 - [../prompts/task-022-redesign-posthog.md](../prompts/task-022-redesign-posthog.md) —
   ТЗ на следующую итерацию редизайна (отдано GPT).
+- [../prompts/task-023-avatar-sync-ui.md](../prompts/task-023-avatar-sync-ui.md) —
+  ТЗ на подключение аватаров к серверной синхронизации (после редизайна).
 - [../prompts/FRONTEND_TODO.md](../prompts/FRONTEND_TODO.md) — история
   фронтенд-бэклога и закрытых пунктов.
 
