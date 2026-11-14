@@ -33,7 +33,7 @@
 | Аватары профиля | UI работает: 6 штук, 3 за квесты; серверные ручки синхронизации готовы, UI пока локальный | [PROFILE_AVATARS.md](PROFILE_AVATARS.md) |
 | Личный маршрут 2–5 точек и 2ГИС на каждом переходе | работает; хранится на устройстве | `prompts/task-018-*` |
 | PWA-манифест и service worker | есть базово, офлайн не гарантируется | `manifest.webmanifest`, `sw.js` |
-| Редизайн «карта в центре» | первый проход в `main`; второй — у GPT | [task-022](../prompts/task-022-redesign-posthog.md) |
+| Редизайн «карта в центре» | два прохода в `main`: задачи 021 и 022 | [task-022](../prompts/task-022-redesign-posthog.md) |
 
 ## Данные
 
@@ -58,7 +58,7 @@
   JSON, SQLite для демо-аккаунтов/сессий/лайков/посещений/обучения,
   rate-limit, security headers, статические монтирования `/assets/places`,
   `/media`, `/data`, `/`.
-- **Проверки:** `node --test frontend-design/tests/` (62 теста) и
+- **Проверки:** `node --test frontend-design/tests/` (67 тестов) и
   `python -m pytest backend/tests` (107 тестов); GitHub Actions гоняет
   pytest, node-тесты и `build.mjs --check-only`. `--check-only` теперь и
   сверяет `build-manifest.json` с файлами, а не только не пишет.

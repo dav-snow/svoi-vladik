@@ -36,7 +36,7 @@
 ## Промты и следующие задачи
 
 - [../prompts/task-022-redesign-posthog.md](../prompts/task-022-redesign-posthog.md) —
-  ТЗ на следующую итерацию редизайна (отдано GPT).
+  ТЗ на редизайн (задача 022 выполнена, отчёт — `frontend-design/review/task-022-report.md`).
 - [../prompts/task-023-avatar-sync-ui.md](../prompts/task-023-avatar-sync-ui.md) —
   ТЗ на подключение аватаров к серверной синхронизации (после редизайна).
 - [../prompts/FRONTEND_TODO.md](../prompts/FRONTEND_TODO.md) — история
