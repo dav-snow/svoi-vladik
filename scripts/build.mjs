@@ -156,13 +156,30 @@ async function main() {
     const bytes = await readFile(file);
     manifest.files.push({ path: normalized(relative(DIST, file)), bytes: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") });
   }
-  if (!CHECK_ONLY) {
+  if (CHECK_ONLY) {
+    let existing;
+    try { existing = JSON.parse(await readFile(join(DIST, OUTPUT), "utf8")); }
+    catch { fail(`${OUTPUT} отсутствует или повреждён. Соберите манифест: node scripts/build.mjs`); }
+    const actual = Array.isArray(existing?.files) ? existing.files : [];
+    const actualByPath = new Map(actual.map(file => [file.path, file]));
+    const changed = manifest.files
+      .filter(file => { const current = actualByPath.get(file.path); return !current || current.bytes !== file.bytes || current.sha256 !== file.sha256; })
+      .map(file => file.path);
+    const extra = actual.filter(file => !manifest.files.some(item => item.path === file.path)).map(file => file.path);
+    if (existing.project !== manifest.project || existing.version !== manifest.version || changed.length || extra.length) {
+      const detail = [
+        changed.length ? `изменились/добавлены: ${changed.join(", ")}` : "",
+        extra.length ? `лишние: ${extra.join(", ")}` : "",
+      ].filter(Boolean).join("; ");
+      fail(`${OUTPUT} устарел (${detail || "project/version"}). Пересоберите: node scripts/build.mjs`);
+    }
+  } else {
     await writeFile(join(DIST, OUTPUT + ".tmp"), JSON.stringify(manifest, null, 2) + "\n", "utf8");
     await rename(join(DIST, OUTPUT + ".tmp"), join(DIST, OUTPUT));
   }
   console.log(`Проверка готова: ${files.length} публичных файлов, JSON и синтаксис app/mascot/sw корректны.`);
   console.log("Ключей ответов в публичных JSON нет; приватные ответы остаются на сервере.");
-  console.log(CHECK_ONLY ? "Режим --check-only: файлы не изменены." : `Список размеров и SHA-256 записан: frontend-design/dist/${OUTPUT}`);
+  console.log(CHECK_ONLY ? "Режим --check-only: файлы не изменены, манифест сверен с содержимым." : `Список размеров и SHA-256 записан: frontend-design/dist/${OUTPUT}`);
   console.log("Фронтенд статический, компиляция и ZIP не требуются. Для API запускайте npm start; тесты — npm test.");
 }
 
