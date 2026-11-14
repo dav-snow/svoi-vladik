@@ -357,6 +357,45 @@ button svg, .search-field svg { width: 20px; height: 20px; stroke: currentColor;
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+/* Vlada onboarding: isolated surfaces, never header/auth/profile styling. */
+.vlada-ob-coach { min-width: 0; margin: 0 0 14px; }
+.content-dialog .intent-grid > .vlada-ob-reopen { grid-column: 1 / -1; min-height: 44px; flex-direction: row; align-items: center; justify-content: space-between; }
+.vlada-ob-inline { min-width: 0; padding: 13px; border: 1px solid #ffdbb2; border-radius: 16px; background: #fff8eefa; color: var(--graphite); }
+.vlada-ob-inline .svoi-mascot-panel { display: grid; grid-template-columns: 62px minmax(0, 1fr); align-items: start; gap: 10px; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.vlada-ob-inline .svoi-mascot-panel .svoi-mascot-figure { height: 86px; min-height: 0; margin: 0; }
+.vlada-ob-inline .svoi-mascot-panel .svoi-mascot-copy { min-width: 0; text-align: left; }
+.vlada-ob-inline .svoi-mascot-panel .svoi-mascot-eyebrow { font-size: 10px; margin: 0 0 4px; }
+.vlada-ob-inline .svoi-mascot-panel .svoi-mascot-title { font-size: 16px; line-height: 1.35; margin: 0 0 7px; }
+.vlada-ob-inline .svoi-mascot-panel .svoi-mascot-text { font-size: 13px; line-height: 1.55; margin: 0; }
+.vlada-ob-actions, .vlada-ob-footer { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.vlada-ob-actions > button { min-width: 0; max-width: 100%; font-size: 12px; white-space: normal; }
+.vlada-ob-inline > .text-button { display: block; margin-top: 8px; padding: 4px 0; font-size: 12px; }
+.content-dialog.vlada-ob-dialog .svoi-mascot-panel { grid-template-columns: 110px minmax(0, 1fr); gap: 16px; }
+.vlada-ob-dialog .svoi-mascot-panel .svoi-mascot-figure { height: 150px; min-height: 0; margin: 0; }
+.vlada-ob-name { display: grid; gap: 8px; margin: 18px 0 10px; font-size: 14px; line-height: 1.5; }
+.vlada-ob-name input { box-sizing: border-box; width: 100%; min-width: 0; padding: 11px 12px; border: 1px solid #e2e6e9; border-radius: 12px; font: inherit; font-size: 16px; background: #fff; color: var(--graphite); }
+.vlada-ob-caption { font-size: 12px !important; line-height: 1.5 !important; color: var(--muted); }
+.vlada-ob-choices { display: grid; gap: 9px; margin-top: 16px; }
+.vlada-ob-choices > button { justify-content: flex-start; text-align: left; min-width: 0; white-space: normal; }
+.vlada-ob-footer { padding-top: 8px; border-top: 1px solid #eceff1; }
+.vlada-ob-footer .text-button { min-height: 34px; font-size: 12px; }
+.vlada-ob-dialog button, .vlada-ob-dialog p, .vlada-ob-inline button { overflow-wrap: anywhere; }
+#detail-content > .vlada-ob-inline { margin-top: 0; margin-bottom: 18px; }
+@media (max-width: 760px) {
+  .vlada-ob-inline { padding: 11px; }
+  .content-dialog.vlada-ob-dialog .svoi-mascot-panel { grid-template-columns: 85px minmax(0, 1fr); gap: 12px; }
+  .vlada-ob-dialog .svoi-mascot-panel .svoi-mascot-figure { height: 118px; }
+  .vlada-ob-actions { flex-direction: column; align-items: stretch; }
+  .vlada-ob-actions > button { width: 100%; }
+}
+@media (max-width: 359px) {
+  .content-dialog.vlada-ob-dialog .svoi-mascot-panel { grid-template-columns: minmax(0, 1fr); }
+  .vlada-ob-dialog .svoi-mascot-panel .svoi-mascot-figure { height: 110px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vlada-ob-dialog *, .vlada-ob-inline * { animation: none !important; transition: none !important; }
+}
+
 /* Geolocation "Что рядом со мной" */
 .nearby-section { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
 .nearby-controls { display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap; }
