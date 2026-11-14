@@ -41,6 +41,10 @@
       </button>
     </nav>
     <div class="header-actions">
+      <button id="route-open" class="icon-button route-button" type="button" aria-label="Мой маршрут" title="Мой маршрут">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 19a2 2 0 1 0 0-.01M18 5a2 2 0 1 0 0-.01M8 19h6a4 4 0 0 0 0-8h-4a4 4 0 0 1 0-8h6"/></svg>
+        <span id="route-count" class="route-count" hidden>0</span>
+      </button>
       <button id="bookmarks-open" class="icon-button bookmark-button" type="button" aria-label="Сохранённые места" title="Сохранённые места">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4V4Z"/></svg>
       </button>
@@ -147,6 +151,7 @@
   <dialog id="guide-dialog" class="content-dialog" aria-label="Подсказки гида"><button class="dialog-close" type="button" data-close-dialog aria-label="Закрыть">×</button><div id="guide-content"></div></dialog>
   <dialog id="auth-dialog" class="content-dialog" aria-label="Вход в демо-аккаунт"><button class="dialog-close" type="button" data-close-dialog aria-label="Закрыть">×</button><div id="auth-content"></div></dialog>
   <dialog id="vlada-ob-dialog" class="content-dialog vlada-ob-dialog" aria-label="Знакомство с Владой"><button id="vlada-ob-pause" class="dialog-close" type="button" aria-label="Продолжить обучение позже">×</button><div id="vlada-ob-content"></div></dialog>
+  <dialog id="route-dialog" class="content-dialog route-dialog" aria-label="Мой маршрут"><button class="dialog-close" type="button" data-close-dialog aria-label="Закрыть">×</button><div id="route-content"></div></dialog>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>

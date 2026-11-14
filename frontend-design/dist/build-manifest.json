@@ -1,12 +1,12 @@
 {
   "project": "svoi-vladik",
   "version": 1,
-  "generatedAt": "2026-11-14T01:14:09.983Z",
+  "generatedAt": "2026-11-14T01:23:07.311Z",
   "files": [
     {
       "path": "app.js",
-      "bytes": 121100,
-      "sha256": "5771ac4c7dc485585cbf34463346f33155b515c30bec0cb18a22e2b9855bbc34"
+      "bytes": 133450,
+      "sha256": "20c05435404d77129fa4c0ca069c6b6ad82db6b595c3831101e8103aff3ff18a"
     },
     {
       "path": "assets/funicular.svg",
@@ -90,8 +90,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 12602,
-      "sha256": "2291e927d1b1fa7d1bc4668303186d645e098ba2c8b428cae9a4c4d356523dfa"
+      "bytes": 13232,
+      "sha256": "7dae216fb7b0ce853fc9508faeeb9fa2e003a90c84f23adcb25cdade58382a69"
     },
     {
       "path": "manifest.webmanifest",
@@ -130,8 +130,8 @@
     },
     {
       "path": "styles.css",
-      "bytes": 49258,
-      "sha256": "1449d57908793a05d464cc8c2767c5014118ff3eada8ddf8bbe20b3cf6316090"
+      "bytes": 52696,
+      "sha256": "09d75dde4e3212cc40ec0e223cfa2f3ebcd33ab10e67de55c34e58061667e5e6"
     },
     {
       "path": "sw.js",

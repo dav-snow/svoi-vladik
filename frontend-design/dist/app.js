@@ -7,6 +7,11 @@ const state = { places: [], walks: [], quests: [], boundary: null, map: null, ma
 // lat/lng/accuracyM/capturedAt, radiusM, phase (idle|requesting|ready|denied|unavailable|timeout),
 // reqId guards against stale async callbacks, youMarker is the "Вы здесь" map marker.
 const geo = { origin: null, lat: null, lng: null, accuracyM: null, capturedAt: null, radiusM: 1000, radiusFilter: true, phase: "idle", reqId: 0, youMarker: null };
+// Personal route: an optional start plus ordered place ids. Persisted without
+// coordinates; a manual start lives in memory only (privacy, see docs).
+const MAX_ROUTE_STOPS = 5;
+const routeKey = "svoi-vladik-route-v1";
+const route = { start: null, stops: [], manual: null };
 const storageKey = "svoi-vladik-design-v1";
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isMobileLayout = () => matchMedia("(max-width: 760px)").matches;
@@ -223,7 +228,11 @@ function placeCard(place) {
   const save = button("", "save-place" + (state.saved.has(place.id) ? " is-saved" : ""), () => setSaved(place), "bookmark");
   save.setAttribute("aria-label", state.saved.has(place.id) ? "Убрать из сохранённого" : "Сохранить место");
   save.setAttribute("aria-pressed", String(state.saved.has(place.id)));
-  row.append(main, save); return row;
+  const inRoute = route.stops.includes(place.id);
+  const addRoute = button("", "route-place" + (inRoute ? " is-in-route" : ""), () => routeToggle(place), "walk");
+  addRoute.setAttribute("aria-label", (inRoute ? "Убрать из маршрута: " : "Добавить в маршрут: ") + place.title);
+  addRoute.setAttribute("aria-pressed", String(inRoute));
+  row.append(main, addRoute, save); return row;
 }
 function renderPlaces() {
   const q = state.query.toLocaleLowerCase("ru");
@@ -284,7 +293,9 @@ function showPlace(place) {
   const head = dialogHeading(place.kind, place.title, place.description);
   const note = el("p", "info-note", "Условия посещения ещё уточняем. Перед выходом проверьте режим работы и доступность входа. Геометка может не совпадать со входом.");
   const actions = el("div", "dialog-actions");
-  actions.append(...routeButton("Пешком в 2ГИС", place, "primary-button"), button(state.saved.has(place.id) ? "Сохранено" : "Сохранить", "secondary-button", () => { setSaved(place); showPlace(place); }, "bookmark"));
+  const inRoute = route.stops.includes(place.id);
+  const isRouteStart = route.start?.kind === "place" && route.start.id === place.id;
+  actions.append(...routeButton("Пешком в 2ГИС", place, "primary-button"), button(inRoute ? "Убрать из маршрута" : "В маршрут", "secondary-button", () => { routeToggle(place); showPlace(place); }, "walk"), button(isRouteStart ? "Это старт маршрута" : "Сделать стартом", "secondary-button", () => { routeSetStartPlace(place); showPlace(place); }, "pin"), button(state.saved.has(place.id) ? "Сохранено" : "Сохранить", "secondary-button", () => { setSaved(place); showPlace(place); }, "bookmark"));
   const source = external("Посмотреть источник", sourceURL(place), "source-link");
   const address = el('p', 'place-address', place.address || 'Точное место входа уточняйте по источнику.');
   const manual = button('Выбрать как старт для поиска рядом', 'secondary-button', () => { setManualOrigin(place); closeDialog('detail-dialog'); revealPlaces(); });
@@ -1095,6 +1106,7 @@ function setGeoFailure(phase, message) {
 function afterPositionSet() {
   // Shared result for list and map; status carries counter, accuracy and time.
   placeYouMarker(); renderPlaces(); syncShowAllButton(); updateNearbyStatus();
+  refreshRouteDialog();
   if (state.map) state.map.flyTo({ center: [geo.lng, geo.lat], zoom: Math.max(state.map.getZoom(), 14.6), duration: reducedMotion ? 0 : 600 });
   vladaObUiEvent('origin-set');
 }
@@ -1121,13 +1133,169 @@ function requestNearby() {
 function clearNearby(render = true) {
   geo.reqId++; // invalidate any in-flight callback
   geo.origin = null; geo.lat = geo.lng = geo.accuracyM = geo.capturedAt = null; geo.radiusFilter = true;
-  clearYouMarker(); setGeoPhase("idle"); nearbyStatus("", false); syncShowAllButton(); if (render) renderPlaces();
+  clearYouMarker(); setGeoPhase("idle"); nearbyStatus("", false); syncShowAllButton(); refreshRouteDialog(); if (render) renderPlaces();
 }
 function toggleRadiusFilter() {
   if (!geo.origin) return;
   geo.radiusFilter = !geo.radiusFilter;
   renderPlaces(); syncShowAllButton(); updateNearbyStatus();
 }
+// --- Personal route: ordered stops with an optional start. Only place ids and
+// the start kind are persisted; coordinates never are (a manual start is
+// deliberately memory-only). See docs/GEOLOCATION.md for the privacy rules. ---
+function routePlace(id) { return state.places.find(p => p.id === id) || null; }
+function routeStartPoint() {
+  const start = route.start;
+  if (!start) return null;
+  if (start.kind === "device") return geo.origin === "device" && Number.isFinite(geo.lat) && Number.isFinite(geo.lng) ? { kind: "device", lat: geo.lat, lng: geo.lng } : null;
+  if (start.kind === "manual") return Number.isFinite(start.lat) && Number.isFinite(start.lng) ? { kind: "manual", lat: start.lat, lng: start.lng } : null;
+  if (start.kind === "place") { const place = routePlace(start.id); return place ? { kind: "place", lat: place.lat, lng: place.lng, place } : null; }
+  return null;
+}
+function routeLegUrl(from, to) {
+  if (!from || !to) return null;
+  // 2GIS treats an empty start as the user's current position; the pipe stays raw.
+  if (from.kind === "device") return to.route_url || null;
+  return `https://2gis.ru/directions/tab/pedestrian/points/${from.lng},${from.lat}|${to.lng},${to.lat}`;
+}
+function routeModel() {
+  const stops = route.stops.map(routePlace).filter(Boolean);
+  const start = routeStartPoint();
+  const legs = []; let previous = start;
+  for (const place of stops) {
+    const distanceM = previous ? haversineM(previous.lat, previous.lng, place.lat, place.lng) : null;
+    legs.push({ place, from: previous, distanceM, url: routeLegUrl(previous, place) });
+    previous = { kind: "place", lat: place.lat, lng: place.lng, place };
+  }
+  const measured = legs.filter(leg => Number.isFinite(leg.distanceM));
+  const totalM = measured.length ? measured.reduce((sum, leg) => sum + leg.distanceM, 0) : null;
+  return { start, stops, legs, totalM };
+}
+function routeStartLabel() {
+  const start = route.start;
+  if (!start) return "не выбран";
+  if (start.kind === "device") return geo.origin === "device" ? "моё местоположение" : "моё местоположение (позиция не определена)";
+  if (start.kind === "manual") return "выбранная точка";
+  const place = start.kind === "place" ? routePlace(start.id) : null;
+  return place ? place.title : "место не найдено";
+}
+function routePayload() {
+  const start = route.start?.kind === "place" ? { kind: "place", id: route.start.id } : route.start?.kind === "device" ? { kind: "device" } : null;
+  return { v: 1, start, stops: route.stops.slice(0, MAX_ROUTE_STOPS) };
+}
+function saveRoute() {
+  try { localStorage.setItem(routeKey, JSON.stringify(routePayload())); }
+  catch { notify("Не удалось сохранить маршрут на этом устройстве"); }
+}
+function readRoute() {
+  route.start = null; route.stops = []; route.manual = null;
+  try {
+    const raw = JSON.parse(localStorage.getItem(routeKey) || "null");
+    const ids = new Set(state.places.map(p => p.id));
+    if (Array.isArray(raw?.stops)) route.stops = raw.stops.filter(id => typeof id === "string" && ids.has(id));
+    if (raw?.start?.kind === "place" && typeof raw.start.id === "string" && ids.has(raw.start.id)) route.start = { kind: "place", id: raw.start.id };
+    else if (raw?.start?.kind === "device") route.start = { kind: "device" };
+    if (route.start?.kind === "place") route.stops = route.stops.filter(id => id !== route.start.id);
+    route.stops = route.stops.slice(0, MAX_ROUTE_STOPS);
+  } catch { /* A broken record must not block the catalogue. */ }
+}
+function renderRouteButton() {
+  const trigger = $("route-open"), count = $("route-count");
+  if (count) { count.textContent = String(route.stops.length); count.hidden = route.stops.length === 0; }
+  if (trigger) trigger.setAttribute("aria-label", route.stops.length ? `Мой маршрут: ${route.stops.length}` : "Мой маршрут");
+}
+function refreshRouteDialog() { const box = $("route-content"); if (box && $("route-dialog")?.open) box.replaceChildren(...routeDialogContent()); }
+function routeChanged() { saveRoute(); renderRouteButton(); renderPlaces(); refreshRouteDialog(); }
+function routeToggle(place) {
+  const index = route.stops.indexOf(place.id);
+  if (index >= 0) route.stops.splice(index, 1);
+  else {
+    if (route.stops.length >= MAX_ROUTE_STOPS) { notify(`В маршруте не больше ${MAX_ROUTE_STOPS} точек`); return; }
+    if (route.start?.kind === "place" && route.start.id === place.id) { notify("Это место уже выбрано стартом"); return; }
+    route.stops.push(place.id);
+  }
+  routeChanged();
+}
+function routeRemove(id) { const index = route.stops.indexOf(id); if (index >= 0) { route.stops.splice(index, 1); routeChanged(); } }
+function routeMove(id, delta) {
+  const index = route.stops.indexOf(id), target = index + delta;
+  if (index < 0 || target < 0 || target >= route.stops.length) return;
+  [route.stops[index], route.stops[target]] = [route.stops[target], route.stops[index]];
+  routeChanged();
+}
+function routeClear() { route.start = null; route.manual = null; route.stops = []; routeChanged(); notify("Маршрут очищен"); }
+function routeSetStartDevice() {
+  if (geo.origin !== "device") { notify("Сначала определите местоположение кнопкой «Что рядом со мной»"); return; }
+  route.start = { kind: "device" }; route.manual = null; routeChanged();
+}
+function routeSetStartPlace(place) { route.start = { kind: "place", id: place.id }; route.manual = null; route.stops = route.stops.filter(id => id !== place.id); routeChanged(); }
+function routeSetStartManual(lat, lng) { route.start = { kind: "manual", lat, lng }; route.manual = { lat, lng }; routeChanged(); }
+function routeDialogContent() {
+  const model = routeModel();
+  const nodes = [dialogHeading("СВОЙ ПУТЬ", "Мой маршрут", "Точки идут по порядку. На каждом переходе открывается 2ГИС; это не проверенный пешеходный маршрут.")];
+  const startBox = el("div", "route-start");
+  startBox.append(el("p", "route-start-label", "Старт: " + routeStartLabel()));
+  const startActions = el("div", "route-start-actions");
+  const device = button("Моё местоположение", "secondary-button", routeSetStartDevice, "pin");
+  device.disabled = geo.origin !== "device";
+  startActions.append(device);
+  if (route.start) startActions.append(button("Сбросить старт", "route-link", () => { route.start = null; route.manual = null; routeChanged(); }));
+  startBox.append(startActions);
+  const manual = el("details", "route-manual");
+  manual.append(el("summary", "", "Старт вручную"));
+  const latInput = el("input", "route-input"), lngInput = el("input", "route-input");
+  latInput.type = "number"; latInput.step = "any"; latInput.placeholder = "Широта, −90…90"; latInput.setAttribute("aria-label", "Широта старта");
+  lngInput.type = "number"; lngInput.step = "any"; lngInput.placeholder = "Долгота, −180…180"; lngInput.setAttribute("aria-label", "Долгота старта");
+  if (route.start?.kind === "manual") { latInput.value = String(route.start.lat); lngInput.value = String(route.start.lng); }
+  const applyManual = button("Поставить точку", "secondary-button", () => {
+    const lat = Number(String(latInput.value).replace(",", ".")), lng = Number(String(lngInput.value).replace(",", "."));
+    if (!latInput.value.trim() || !lngInput.value.trim() || !Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) { notify("Нужны числа: широта от −90 до 90, долгота от −180 до 180"); return; }
+    routeSetStartManual(lat, lng);
+  });
+  manual.append(latInput, lngInput, applyManual, el("p", "route-hint", "Ручная точка не сохраняется на устройстве и исчезнет после перезагрузки."));
+  startBox.append(manual, el("p", "route-hint", "Любое место можно назначить стартом из его карточки."));
+  nodes.push(startBox);
+  if (!model.stops.length) {
+    nodes.push(el("div", "route-empty", "Пока пусто. Нажмите «В маршрут» на карточке места — добавьте 2–5 точек."));
+  } else {
+    const list = el("ol", "route-stops");
+    model.stops.forEach((place, index) => {
+      const leg = model.legs[index];
+      const item = el("li", "route-stop");
+      const head = el("div", "route-stop-head");
+      head.append(el("span", "route-stop-number", String(index + 1)), el("span", "route-stop-title", place.title));
+      const actions = el("div", "route-stop-actions");
+      const up = button("↑", "route-move", () => routeMove(place.id, -1));
+      up.setAttribute("aria-label", "Выше: " + place.title); up.disabled = index === 0;
+      const down = button("↓", "route-move", () => routeMove(place.id, 1));
+      down.setAttribute("aria-label", "Ниже: " + place.title); down.disabled = index === model.stops.length - 1;
+      const remove = button("×", "route-move route-remove", () => routeToggle(place));
+      remove.setAttribute("aria-label", "Убрать из маршрута: " + place.title);
+      actions.append(up, down, remove);
+      head.append(actions);
+      item.append(head);
+      if (Number.isFinite(leg.distanceM)) item.append(el("p", "route-stop-distance", `≈${formatDistance(leg.distanceM)} по прямой · ~${walkMinutes(leg.distanceM)} мин пешком`));
+      if (leg.url) item.append(external("Пешком в 2ГИС", leg.url, "source-link route-leg-link"));
+      list.append(item);
+    });
+    nodes.push(list);
+    const summary = el("div", "route-summary");
+    if (Number.isFinite(model.totalM)) summary.append(el("p", "route-total", `≈${formatDistance(model.totalM)} по прямой · ~${walkMinutes(model.totalM)} мин пешком`));
+    if (!model.start) summary.append(el("p", "route-hint", route.stops.length > 1 ? "Без старта считаются только переходы между точками." : "Выберите старт, чтобы увидеть переход к первой точке."));
+    summary.append(el("p", "route-hint", "Оценка пешком: около 80 м/мин, по прямой, без учёта улиц и переходов."));
+    nodes.push(summary);
+  }
+  const footer = el("div", "dialog-actions");
+  if (route.stops.length) footer.append(button("Очистить маршрут", "secondary-button", routeClear));
+  footer.append(button("Закрыть", "primary-button", () => closeDialog("route-dialog")));
+  nodes.push(footer);
+  return nodes;
+}
+function showRoute() {
+  if (!state.places.length) { notify("Каталог ещё загружается"); return; }
+  openDialog("route-dialog", routeDialogContent());
+}
+$("route-open")?.addEventListener("click", showRoute);
 $("nearby-request")?.addEventListener("click", () => requestNearby());
 $("nearby-refresh")?.addEventListener("click", () => requestNearby());
 $("nearby-clear")?.addEventListener("click", clearNearby);
@@ -1163,6 +1331,7 @@ async function loadCity() {
   try {
     const [boundary, places, walks, quests] = await Promise.all([getJSON('/data/leninsky-boundary.geojson'), getJSON('/api/v1/places'), getJSON('/api/v1/walks'), getJSON('/api/v1/quest')]);
     state.boundary = boundary; state.places = prepareAPIPlaces(places.items || []);
+    readRoute(); renderRouteButton();
     const ids = new Set(state.places.map(p => p.id));
     state.walks = (walks.items || []).filter(w => w.place_ids?.length && w.place_ids.every(id => ids.has(id)));
     state.quests = (quests.items || []).filter(q => q.stops?.length && q.stops.every(stop => ids.has(stop.place_id)));
