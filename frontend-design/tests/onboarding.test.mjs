@@ -59,6 +59,17 @@ test('a saved guest tour counts as seen without the flag', () => {
   assert.equal(h.run('vladaObHasSeen()'), true);
 });
 
+test('a saved account tour also counts as seen', () => {
+  const h = harness({ 'svoi-vladik-vlada-onboarding-v1:user-7': JSON.stringify({ status: 'in_progress', step: 'vlada_interest', interest: null }) });
+  h.run("vladaOb.key = 'user-7'");
+  assert.equal(h.run('vladaObHasSeen()'), true);
+});
+
+test('carry falls back to the account cache when the guest cache is empty', () => {
+  const h = harness({ 'svoi-vladik-vlada-onboarding-v1:user-7': JSON.stringify({ status: 'in_progress', step: 'vlada_0_walks_choose_later', interest: 'walks' }) });
+  assert.deepEqual(h.snap("vladaObCarryFromGuest('user-7')"), { status: 'in_progress', step: 'vlada_0_walks_choose_later', interest: 'walks' });
+});
+
 test('a new account carries the guest tour state', () => {
   const h = harness({ [guestKey]: JSON.stringify({ status: 'completed', step: 'vlada_finish', interest: 'quest' }) });
   assert.deepEqual(h.snap('vladaObCarryFromGuest()'), { status: 'completed', step: 'vlada_finish', interest: 'quest' });

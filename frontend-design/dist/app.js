@@ -1457,8 +1457,9 @@ const vladaObSeenKey = 'svoi-vladik-vlada-onboarding-seen-v1';
 function vladaObHasSeen() {
   try {
     if (localStorage.getItem(vladaObSeenKey) === '1') return true;
-    // Older builds had no seen flag: any saved guest tour means it was shown.
-    return vladaObReadCache('guest').status !== 'pending';
+    // Older builds had no seen flag: any saved tour for the guest or the current
+    // identity means it was already shown on this browser.
+    return vladaObReadCache('guest').status !== 'pending' || Boolean(vladaOb.key && vladaOb.key !== 'guest' && vladaObReadCache(vladaOb.key).status !== 'pending');
   } catch { return false; }
 }
 function vladaObMarkSeen() { try { localStorage.setItem(vladaObSeenKey, '1'); } catch { /* Session continues without storage. */ } }
@@ -1566,6 +1567,7 @@ function vladaObPrepareResume() {
   }
 }
 function vladaObBegin() {
+  vladaObMarkSeen();
   vladaOb.active = true; vladaOb.autoShown = true; vladaOb.data.status = 'in_progress';
   vladaObPrepareResume(); vladaObPersist(); vladaObRender();
   const part = vladaObPart();
@@ -1711,11 +1713,12 @@ function vladaObMaybeAuto() {
   vladaObBegin();
 }
 function vladaObCityReady() { vladaOb.cityReady = true; vladaObMaybeAuto(); }
-function vladaObCarryFromGuest() {
+function vladaObCarryFromGuest(identityKey = 'guest') {
   const guest = vladaObReadCache('guest');
-  if (guest.status === 'pending') return { status: 'completed', step: 'vlada_finish' };
-  const payload = { status: guest.status, step: guest.step };
-  if (guest.interest) payload.interest = guest.interest;
+  const saved = guest.status !== 'pending' ? guest : (identityKey && identityKey !== 'guest' ? vladaObReadCache(identityKey) : guest);
+  if (saved.status === 'pending') return { status: 'completed', step: 'vlada_finish' };
+  const payload = { status: saved.status, step: saved.step };
+  if (saved.interest) payload.interest = saved.interest;
   return payload;
 }
 async function vladaObReloadSession() {
@@ -1734,10 +1737,11 @@ async function vladaObReloadSession() {
     }
   } catch { /* 401/404 and temporarily unavailable API use local checkpoints. */ }
   if (epoch !== vladaOb.epoch) return;
-  if (mode === 'server' && raw?.status === 'pending' && vladaObHasSeen()) {
-    // The visitor already went through the tour as a guest; a fresh demo account
-    // must not start it over after registration or a page reload.
-    const carry = vladaObCarryFromGuest();
+  if (mode === 'server' && raw?.status === 'pending' && (vladaObHasSeen() || vladaObReadCache(key).status !== 'pending')) {
+    // The visitor already went through the tour as a guest (or as this account
+    // before an update); a fresh demo account must not start it over after
+    // registration or a page reload.
+    const carry = vladaObCarryFromGuest(key);
     try { raw = await vladaObHttp('/api/v1/me/onboarding', 'PUT', carry); }
     catch { raw = { ...raw, ...carry }; }
     if (epoch !== vladaOb.epoch) return;
