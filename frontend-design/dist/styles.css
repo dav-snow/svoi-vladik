@@ -218,6 +218,24 @@ button svg, .search-field svg { width: 20px; height: 20px; stroke: currentColor;
 .content-dialog .primary-button + .secondary-button { margin-left: 5px; }
 .primary-button svg, .secondary-button svg, .source-link svg { width: 18px; height: 18px; flex-shrink: 0; }
 .detail-art { display: block; width: 100%; height: 152px; object-fit: cover; border-radius: 12px; background: #f6f4e8; margin: 4px 0 16px; }
+.place-gallery { margin: 4px 0 20px; min-width: 0; }
+.place-gallery-stage { position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 3 / 2; max-height: 300px; overflow: hidden; border: 1px solid #ffffffc9; border-radius: 18px; background: linear-gradient(135deg, #f7f5ed, #edf3f4); }
+.place-gallery-image { display: block; width: 100%; height: 100%; min-height: 0; max-height: 300px; object-fit: contain; }
+.place-gallery-fallback { display: block; width: 104px; height: 104px; object-fit: contain; }
+.place-gallery-badge { position: absolute; left: 12px; bottom: 12px; padding: 4px 9px; border-radius: 20px; background: #ffffffda; color: #69767b; font-size: 10px; line-height: 1.4; }
+.place-gallery-loading { position: absolute; padding: 7px 12px; border-radius: 20px; color: #56666d; background: #ffffffeb; font-size: 11px; }
+.place-gallery-caption { display: grid; gap: 4px; min-width: 0; padding: 10px 2px 0; color: #59676b; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.place-gallery .place-gallery-source { max-width: 100%; margin: 0; font-size: 11px; line-height: 1.6; }
+.place-gallery-source svg { width: 13px; height: 13px; }
+.place-gallery-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; margin-top: 12px; }
+.place-gallery-control { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 44px; min-height: 44px; padding: 8px 10px; border: 1px solid #e1e6e5; border-radius: 12px; background: #ffffffc9; font-size: 12px; font-weight: 700; line-height: 1.4; }
+.place-gallery-control:hover { background: #fff5e8; border-color: #ecc99d; }
+.place-gallery-control:focus-visible { outline: 3px solid #9d4a00; outline-offset: 3px; }
+.place-gallery-control svg { width: 16px; height: 16px; }
+.place-gallery-previous svg { transform: rotate(180deg); }
+.place-gallery-position { min-width: 48px; text-align: center; color: #647176; font-size: 11px; font-variant-numeric: tabular-nums; }
+@media (max-width: 380px) { .place-gallery-controls { gap: 7px; } .place-gallery-control { padding-inline: 7px; } }
+@media (prefers-reduced-motion: reduce) { .place-gallery *, .place-gallery *::before, .place-gallery *::after { animation: none !important; transition: none !important; } }
 .guide-art { display: block; width: 72px; height: 72px; object-fit: contain; margin: 0 auto 12px; }
 .info-note { padding: 12px 14px; background: #f6f8f1; border: 1px solid #e9edde; border-radius: 10px; font-size: 12px !important; line-height: 1.75 !important; }
 .dialog-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-top: 20px; }
