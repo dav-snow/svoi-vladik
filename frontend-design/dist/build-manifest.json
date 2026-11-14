@@ -1,7 +1,7 @@
 {
   "project": "svoi-vladik",
   "version": 1,
-  "generatedAt": "2026-11-14T02:16:20.886Z",
+  "generatedAt": "2026-11-14T02:17:29.113Z",
   "files": [
     {
       "path": "app.js",
@@ -160,8 +160,8 @@
     },
     {
       "path": "styles.css",
-      "bytes": 59877,
-      "sha256": "f0571219957ffbaead95ce59ce56f0f9d2072ae0e6b425347bf71efc30ada7af"
+      "bytes": 59874,
+      "sha256": "9e67b37ed48ed8f6e024995656e99f51b8d36b696a7ad92424dd50fbeb7a4a03"
     },
     {
       "path": "sw.js",
