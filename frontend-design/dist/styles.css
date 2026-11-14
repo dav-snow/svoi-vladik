@@ -541,3 +541,47 @@ button svg, .search-field svg { width: 20px; height: 20px; stroke: currentColor;
   .route-start { padding: 12px; }
 }
 
+/* Readability and section rhythm (task 019). */
+.sidebar-scroll > section + section,
+.sidebar-scroll > section + details,
+.sidebar-scroll > details + section { margin-top: 18px; padding-top: 18px; border-top: 1px solid #edf0e7; }
+.intro-copy { color: #5a6255; font-size: 13.5px; line-height: 1.6; }
+.catalog-note { color: #646c5e; line-height: 1.55; }
+.content-dialog p, .detail-heading .dialog-copy { color: #555d50; }
+.adventure-card p { color: #5b6356; line-height: 1.62; }
+.place-distance { color: #6b7364; font-size: 12.5px; }
+.vlada-ob-inline { padding: 15px; border-color: #f2c48c; background: linear-gradient(160deg, #fffaf2, #fff5e6); box-shadow: 0 12px 30px #b8863a14; }
+.vlada-ob-inline .svoi-mascot-title { font-size: 17px; letter-spacing: -.25px; }
+.vlada-ob-inline .svoi-mascot-text { color: #4d5549; font-size: 13.5px; line-height: 1.62; }
+.vlada-ob-inline .svoi-mascot-eyebrow { color: #a4681f; letter-spacing: .08em; }
+.vlada-ob-actions > button { font-size: 12.5px; }
+
+/* Profile avatars: six static images, three unlocked by quests. */
+.profile-avatars { margin: 0 0 16px; }
+.profile-avatars h3 { margin: 0 0 4px; font-size: 14px; }
+.profile-avatar-hint { margin: 0 0 10px; font-size: 12.5px; line-height: 1.5; color: #6c7565; }
+.avatar-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.avatar-tile { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 8px 9px; border: 1px solid #e6eae0; border-radius: 14px; background: #fff; color: var(--graphite); cursor: pointer; font: inherit; }
+.avatar-tile:hover:not(:disabled) { border-color: #ffcf96; background: #fffaf2; }
+.avatar-tile:focus-visible { outline: 2px solid #ffb35c; outline-offset: 2px; }
+.avatar-tile img { width: 68px; height: 68px; object-fit: contain; }
+.avatar-tile.is-selected { border-color: #ffb35c; background: #fff8ee; box-shadow: inset 0 0 0 1px #ffd7a8; }
+.avatar-tile.is-locked { opacity: .6; filter: grayscale(.45); cursor: default; }
+.avatar-name { font-size: 12.5px; font-weight: 700; }
+.avatar-state { font-size: 10.5px; line-height: 1.3; color: #7c8573; text-align: center; }
+.avatar-tile.is-locked .avatar-state { color: #8b877b; }
+.avatar-reward { display: flex; gap: 12px; align-items: flex-start; margin-top: 12px; padding: 12px; border: 1px solid #ffd9ae; border-radius: 14px; background: #fff8ee; }
+.avatar-reward img { width: 76px; height: 76px; object-fit: contain; flex: none; }
+.avatar-reward-copy { min-width: 0; }
+.avatar-reward-copy h3 { margin: 0 0 4px; font-size: 16px; }
+.avatar-quote { margin: 0 0 8px; font-size: 13px; line-height: 1.5; color: #5b6355; }
+.avatar-reward-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.avatar-reward-actions .primary-button { margin-top: 0; }
+@media (max-width: 760px) {
+  .avatar-tile img { width: 54px; height: 54px; }
+  .avatar-tile { padding: 8px 6px; }
+  .avatar-name { font-size: 11.5px; }
+  .avatar-state { font-size: 10px; }
+}
+
+

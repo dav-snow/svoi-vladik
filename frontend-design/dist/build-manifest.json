@@ -1,12 +1,42 @@
 {
   "project": "svoi-vladik",
   "version": 1,
-  "generatedAt": "2026-11-14T01:23:07.311Z",
+  "generatedAt": "2026-11-14T01:53:06.268Z",
   "files": [
     {
       "path": "app.js",
-      "bytes": 133450,
-      "sha256": "20c05435404d77129fa4c0ca069c6b6ad82db6b595c3831101e8103aff3ff18a"
+      "bytes": 140136,
+      "sha256": "3f642cfee283bad86cb25630c2650c4ff1e9f53da332d7cf3e20aa48e01f80f6"
+    },
+    {
+      "path": "assets/avatars/boat.webp",
+      "bytes": 13016,
+      "sha256": "f577cdbc3c710cb292686658bd4ee1f1c39b8c17e52d086d2dea5105ad030281"
+    },
+    {
+      "path": "assets/avatars/bridge.webp",
+      "bytes": 19360,
+      "sha256": "936ac8dda14a77eb05e729dc61fbc0e0bdc0458269161fe5032431e61cc57129"
+    },
+    {
+      "path": "assets/avatars/compass.webp",
+      "bytes": 15562,
+      "sha256": "7c97e254a2bafea224b50c5031efb815470cfd899a67d910902284059eec2ea2"
+    },
+    {
+      "path": "assets/avatars/crab.webp",
+      "bytes": 12888,
+      "sha256": "0757150170d4ba77df4b29d4621d97be8b528d98b0e474bd27e1b3e2fc9b693c"
+    },
+    {
+      "path": "assets/avatars/lighthouse.webp",
+      "bytes": 9746,
+      "sha256": "51523b9a9cd31be1db3d8bb2776d0d7b71c10a2bb92149214b707b6bd15edd77"
+    },
+    {
+      "path": "assets/avatars/sun.webp",
+      "bytes": 9654,
+      "sha256": "2fa87fc4e0dca5178ee8dc8bc16addb2ad2453891f10677a0fd4731cdfcd9c25"
     },
     {
       "path": "assets/funicular.svg",
@@ -130,8 +160,8 @@
     },
     {
       "path": "styles.css",
-      "bytes": 52696,
-      "sha256": "09d75dde4e3212cc40ec0e223cfa2f3ebcd33ab10e67de55c34e58061667e5e6"
+      "bytes": 55695,
+      "sha256": "506035a248c281c113f146e1e378049805e29691e689f79b3bc3b8d2cc2a095d"
     },
     {
       "path": "sw.js",

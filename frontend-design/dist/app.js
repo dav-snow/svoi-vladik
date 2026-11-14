@@ -736,6 +736,7 @@ async function finishQuest(quest) {
     }
     // The legacy payload may contain extra fields; only this completion flag is used.
     saved.completed = true; saveProgress(); renderJourney();
+    avatarState.pendingRewards = avatarGrantUnlocks();
     if (revision === dialogRevision) showQuestFinal(quest);
   } catch {
     if (revision === dialogRevision && progress.quests[quest.id] === saved) { feedback.textContent = 'Не удалось завершить проверку. Прогресс сохранён, попробуйте ещё раз.'; feedback.after(button('Повторить', 'primary-button', () => finishQuest(quest))); }
@@ -748,8 +749,9 @@ function resetQuest(quest) {
 function leaveQuest() { state.activeQuest = null; delete progress.activeQuest; saveProgress(); renderJourney(); updateWalkLine(); showQuest(); }
 function showQuestFinal(quest) {
   const saved = questProgress(quest); if (!saved.completed) return;
+  const rewards = avatarState.pendingRewards || []; avatarState.pendingRewards = [];
   const actions = el('div', 'dialog-actions'); actions.append(button('К другим квестам', 'primary-button', leaveQuest), button('Сбросить прогресс', 'text-button', () => resetQuest(quest)));
-  openDialog('detail-dialog', [guideCard('surprised', 'Квест завершён', quest.title), el('p', 'info-note', `Пройдено ${saved.visited.length} из ${quest.stops.length}`), actions]);
+  openDialog('detail-dialog', [guideCard('surprised', 'Квест завершён', quest.title), el('p', 'info-note', `Пройдено ${saved.visited.length} из ${quest.stops.length}`), ...rewards.map(avatarRewardCard), actions]);
 }
 async function postJSON(url, body) {
   const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(15000) });
@@ -891,6 +893,94 @@ function socialBlock(place) {
   box.append(counters, actions, el('p', 'micro-copy', '«Посетили» — отметки пользователей демо, не подтверждённые визиты.'));
   sync(); return box;
 }
+// --- Avatars: six static images, three unlocked by unique completed quests.
+// Selection and the monotonic unlock level are stored per demo identity; the
+// progress itself stays in the existing local quest progress. ---
+const AVATAR_STORAGE = 'svoi-vladik-avatars-v1:';
+const AVATARS = Object.freeze([
+  { id: 'lighthouse', title: 'Маяк', file: 'lighthouse.webp', need: 0, hint: 'Доступен сразу' },
+  { id: 'boat', title: 'Кораблик', file: 'boat.webp', need: 0, hint: 'Доступен сразу' },
+  { id: 'sun', title: 'Солнце', file: 'sun.webp', need: 0, hint: 'Доступен сразу' },
+  { id: 'compass', title: 'Компас', file: 'compass.webp', need: 1, hint: 'Заверши 1 квест', quote: 'Первое приключение за плечами! Держи компас — дальше ещё много интересного.' },
+  { id: 'crab', title: 'Краб', file: 'crab.webp', need: 2, hint: 'Заверши 2 разных квеста', quote: 'Два квеста! Ты уже освоился. Этот краб теперь в твоей коллекции.' },
+  { id: 'bridge', title: 'Мост', file: 'bridge.webp', need: 3, hint: 'Заверши 3 разных квеста', quote: 'Три разные истории пройдены. Держи мост — заслуженное пополнение профиля!' },
+]);
+const avatarState = { selected: null, unlocked: 0, pendingRewards: [] };
+function completedQuestCount() { return Object.values(progress.quests || {}).filter(saved => saved?.completed === true).length; }
+function avatarStorageKey() { return AVATAR_STORAGE + (auth.user ? 'user-' + encodeURIComponent(String(auth.user.id ?? auth.user.login)) : 'guest'); }
+function avatarWrite() {
+  try { localStorage.setItem(avatarStorageKey(), JSON.stringify({ selected: avatarState.selected, unlocked: avatarState.unlocked })); }
+  catch { /* The profile stays usable without storage. */ }
+}
+function avatarRead() {
+  avatarState.selected = null; avatarState.unlocked = 0;
+  try {
+    const raw = JSON.parse(localStorage.getItem(avatarStorageKey()) || 'null');
+    if (AVATARS.some(avatar => avatar.id === raw?.selected)) avatarState.selected = raw.selected;
+    if (Number.isInteger(raw?.unlocked)) avatarState.unlocked = Math.max(0, Math.min(3, raw.unlocked));
+  } catch { /* A broken record must not block the profile. */ }
+  const completed = Math.min(3, completedQuestCount());
+  if (completed > avatarState.unlocked) { avatarState.unlocked = completed; avatarWrite(); }
+}
+function avatarAvailable(avatar) { return avatar.need <= avatarState.unlocked; }
+function avatarProgressLabel(avatar) {
+  if (avatar.need <= 1) return 'Заверши 1 квест';
+  return `${avatar.hint} · ${Math.min(completedQuestCount(), avatar.need)} из ${avatar.need}`;
+}
+function avatarGrantUnlocks() {
+  const next = Math.min(3, completedQuestCount());
+  const rewards = AVATARS.filter(avatar => avatar.need > 0 && avatar.need > avatarState.unlocked && avatar.need <= next);
+  if (next > avatarState.unlocked) { avatarState.unlocked = next; avatarWrite(); }
+  return rewards;
+}
+function avatarChoose(id) {
+  const avatar = AVATARS.find(item => item.id === id);
+  if (!avatar || !avatarAvailable(avatar)) return false;
+  avatarState.selected = id; avatarWrite(); refreshAvatarGrid(); return true;
+}
+function avatarTile(avatar) {
+  const unlocked = avatarAvailable(avatar), selected = avatarState.selected === avatar.id;
+  const tile = el('button', 'avatar-tile' + (unlocked ? '' : ' is-locked') + (selected ? ' is-selected' : ''));
+  tile.type = 'button';
+  tile.disabled = !unlocked;
+  tile.setAttribute('aria-pressed', String(selected));
+  tile.setAttribute('aria-label', unlocked ? `${avatar.title}${selected ? ' — выбран' : ''}` : `${avatar.title}: закрыт. ${avatarProgressLabel(avatar)}`);
+  const picture = document.createElement('img');
+  picture.src = 'assets/avatars/' + avatar.file; picture.alt = ''; picture.width = 96; picture.height = 96;
+  picture.loading = 'lazy'; picture.decoding = 'async'; picture.draggable = false;
+  tile.append(picture, el('span', 'avatar-name', avatar.title), el('span', 'avatar-state', selected ? 'Выбран' : unlocked ? 'Доступен' : avatarProgressLabel(avatar)));
+  tile.addEventListener('click', () => { if (avatarChoose(avatar.id)) notify(`Аватар «${avatar.title}» выбран`); });
+  return tile;
+}
+function avatarSection() {
+  const section = el('section', 'profile-avatars');
+  section.append(el('h3', '', 'Аватар профиля'), el('p', 'profile-avatar-hint', 'Выбери образ. Компас, краб и мост открываются за завершённые квесты.'));
+  const grid = el('div', 'avatar-grid'); grid.id = 'profile-avatar-grid';
+  grid.append(...AVATARS.map(avatarTile));
+  section.append(grid);
+  return section;
+}
+function refreshAvatarGrid() {
+  const grid = $('profile-avatar-grid');
+  if (grid) grid.replaceChildren(...AVATARS.map(avatarTile));
+}
+function avatarRewardCard(avatar) {
+  const card = el('section', 'avatar-reward');
+  const picture = document.createElement('img');
+  picture.src = 'assets/avatars/' + avatar.file; picture.alt = ''; picture.width = 96; picture.height = 96;
+  const copy = el('div', 'avatar-reward-copy');
+  copy.append(el('p', 'eyebrow', 'НОВЫЙ АВАТАР'), el('h3', '', avatar.title), el('p', 'avatar-quote', avatar.quote));
+  const actions = el('div', 'avatar-reward-actions');
+  const put = button('Поставить в профиль', 'primary-button', () => {
+    avatarState.selected = avatar.id; avatarWrite();
+    put.disabled = true; put.textContent = 'Выбран';
+    notify(`Аватар «${avatar.title}» выбран`);
+  });
+  actions.append(put, button('Позже', 'text-button', () => card.remove()));
+  copy.append(actions);
+  card.append(picture, copy);
+  return card;
+}
 async function showProfile() {
   if (!auth.user) { showAuthDialog('login'); return; }
   const body = el('div', 'profile-body'); body.append(el('p', 'info-note', 'Загружаем профиль…'));
@@ -900,6 +990,7 @@ async function showProfile() {
   try {
     const profile = await apiSend('/api/v1/me/profile');
     if (revision !== dialogRevision || !$('detail-dialog').open) return;
+    avatarRead();
     const stats = el('div', 'profile-stats');
     for (const [value, caption] of [[profile.stats.visits, 'посетил'], [profile.stats.likes, 'понравилось']]) {
       const cell = el('div', 'profile-stat'); cell.append(el('strong', '', String(value)), el('span', '', caption)); stats.append(cell);
@@ -914,7 +1005,7 @@ async function showProfile() {
     }
     const actions = el('div', 'dialog-actions');
     actions.append(button('Мой топ', 'primary-button', showLeaderboard, 'arrow'), button('Выйти', 'secondary-button', logoutUser));
-    body.replaceChildren(stats, lists, el('p', 'micro-copy', '«Посетил» — это ваши отметки, а не подтверждённые визиты.'), actions);
+    body.replaceChildren(avatarSection(), stats, lists, el('p', 'micro-copy', '«Посетил» — это ваши отметки, а не подтверждённые визиты.'), actions);
   } catch (requestError) {
     if (revision !== dialogRevision || !$('detail-dialog').open) return;
     if (requestError.status === 401) { sessionExpired(); return; }
@@ -1539,14 +1630,18 @@ function vladaObRenderCoach() {
     pose = 'talking'; title = 'Вот и первая находка!'; copy = 'Путь открылся отдельно. Когда соберёшься идти, условия лучше перепроверить у источника. Теперь ты знаешь, где искать карточку и навигацию.';
     actions.append(button('Дальше', 'primary-button', () => vladaObCompletePart()));
   } else if (part.kind === 'walks' && part.stage === 'choose') {
-    pose = 'directions'; title = 'Выбери готовую прогулку'; copy = 'Не хочется придумывать весь план? Открой прогулку: её остановки уже собраны по порядку.';
-    actions.append(button('Открыть прогулки', 'primary-button', showWalk));
+    pose = 'directions'; title = 'Выбери готовую прогулку';
+    const listOpen = vladaOb.attachDetail && $('detail-dialog')?.open;
+    copy = listOpen ? 'Список прогулок уже открыт ниже. Выбери любую — покажу порядок остановок.' : 'Не хочется придумывать весь план? Открой прогулку: её остановки уже собраны по порядку.';
+    if (!listOpen) actions.append(button('Открыть прогулки', 'primary-button', showWalk));
   } else if (part.kind === 'walks') {
     pose = 'directions'; title = 'Вот порядок остановок'; copy = 'Здесь видно, куда идём и в какой последовательности. До следующей остановки путь откроем в 2ГИС. Начинать обход для обучения не нужно.';
     actions.append(button('Понятно, дальше', 'primary-button', () => vladaObCompletePart()));
   } else if (part.stage === 'choose') {
-    pose = 'interesting-places'; title = 'Познакомимся с квестом'; copy = 'Выбери квест в разделе. Для знакомства откроем первую остановку без ответов, отметок и начала прохождения.';
-    actions.append(button('Открыть квесты', 'primary-button', showQuest));
+    pose = 'interesting-places'; title = 'Познакомимся с квестом';
+    const listOpen = vladaOb.attachDetail && $('detail-dialog')?.open;
+    copy = listOpen ? 'Список квестов уже открыт ниже. Выбери любой — покажу первую остановку без ответов и прохождения.' : 'Выбери квест в разделе. Для знакомства откроем первую остановку без ответов, отметок и начала прохождения.';
+    if (!listOpen) actions.append(button('Открыть квесты', 'primary-button', showQuest));
   } else {
     pose = 'talking'; title = 'Сначала прогулка, потом опрос'; copy = 'Сначала проходишь все точки по порядку и читаешь их истории. После последней будет один общий опрос. В учебном просмотре ничего не засчитывается.';
     actions.append(button('С приключением разобрались', 'primary-button', () => vladaObCompletePart()));
