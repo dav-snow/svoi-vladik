@@ -54,7 +54,26 @@ Login = Annotated[str, StringConstraints(strict=True, min_length=3, max_length=3
 Status = Literal["draft", "verified", "needs_review", "expired", "archived", "demo"]
 Category = Literal["culture", "viewpoint", "park", "food", "toilet", "other"]
 Need = Literal["eat", "toilet", "fun", "lodging"]
-SECURITY_HEADERS = {"X-Content-Type-Options": "nosniff", "Referrer-Policy": "strict-origin-when-cross-origin", "Permissions-Policy": "geolocation=(self)"}
+SECURITY_HEADERS = {
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "geolocation=(self)",
+    "X-Frame-Options": "DENY",
+    "Cross-Origin-Opener-Policy": "same-origin",
+    "X-Permitted-Cross-Domain-Policies": "none",
+    # Report-only until the MapLibre/Google Fonts allowlist is verified on a
+    # real device; it never blocks the app, but surfaces accidental origins.
+    "Content-Security-Policy-Report-Only": (
+        "default-src 'self'; "
+        "script-src 'self' https://cdn.jsdelivr.net; "
+        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "img-src 'self' data: blob: https://tiles.openfreemap.org; "
+        "connect-src 'self' https://tiles.openfreemap.org; "
+        "worker-src 'self' blob:; child-src blob:; "
+        "frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    ),
+}
 
 class Coordinates(BaseModel):
     lat: float = Field(ge=-90, le=90, allow_inf_nan=False, strict=True)
@@ -618,6 +637,8 @@ class DemoSafetyMiddleware:
                 headers = list(message.get("headers", []))
                 existing = {k.lower() for k, _ in headers}
                 headers.extend((k.lower().encode(), v.encode()) for k, v in SECURITY_HEADERS.items() if k.lower().encode() not in existing)
+                if path.startswith("/api/") and b"cache-control" not in existing:
+                    headers.append((b"cache-control", b"no-store"))
                 message["headers"] = headers
             await send(message)
         # Block even if a private file is accidentally copied into the web root.
@@ -1112,9 +1133,8 @@ async def data_boundary():
 async def data_pois():
     return await map_data("leninsky-poi-candidates.geojson")
 
-if DATA_DIR.is_dir():
-    app.mount("/data", StaticFiles(directory=DATA_DIR), name="data")
-# Place photos live in the repo (not gitignored); served read-only at /media.
+# The data directory is never mounted: only the two allowlisted GeoJSON
+# routes above are public. Place photos live at repo-root assets/places.
 if MEDIA_DIR.is_dir():
     app.mount("/media", StaticFiles(directory=MEDIA_DIR), name="media")
 # Licensed place photo pack lives at repo-root assets/places (manifest + jpgs);

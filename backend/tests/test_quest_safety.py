@@ -143,6 +143,13 @@ def test_same_origin_headers_and_rate_limit(editorial_client):
     assert "access-control-allow-origin" not in response.headers
     assert response.headers["x-content-type-options"] == "nosniff"
     assert response.headers["permissions-policy"] == "geolocation=(self)"
+    assert response.headers["x-frame-options"] == "DENY"
+    assert response.headers["cross-origin-opener-policy"] == "same-origin"
+    assert "content-security-policy-report-only" in response.headers
+    assert response.headers["cache-control"] == "no-store"
+    # Raw data files are not a public mount; only the two GeoJSON routes are.
+    assert client.get("/data/places.json").status_code == 404
+    assert client.get("/data/leninsky-boundary.geojson").status_code == 200
     main.POST_LIMITER.limit = 2
     try:
         for _ in range(2):

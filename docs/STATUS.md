@@ -66,6 +66,16 @@
 - **Деплой:** `Dockerfile`, `docker-compose.prod.yml`, Caddy + HTTPS,
   named volume для SQLite; инструкция — [DEPLOY.md](DEPLOY.md).
 
+## Безопасность
+
+Демо прошло внутреннюю проверку, не пентест. Реализованы scrypt, серверные
+сессии в HttpOnly/Secure/SameSite=Lax cookie, rate-limit, валидация, параметризованный
+SQL, `no-store` для API, `X-Frame-Options`, COOP, CSP в Report-Only и HSTS в
+Caddy; широкий `/data` не раздаётся. Остаточные риски и чек-лист — в
+[SECURITY.md](SECURITY.md): CSP пока не блокирует, лимиты в памяти одного
+процесса, контейнер root, зависимости не зафиксированы lockfile, импорт квестов
+доверяет клиенту.
+
 ## Публичный стенд
 
 `https://176-53-253-60.sslip.io/` отвечает, но на момент проверки отдаёт

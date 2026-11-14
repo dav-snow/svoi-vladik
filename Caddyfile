@@ -17,7 +17,12 @@
 {$DOMAIN} {
 	encode zstd gzip
 
-	# Заголовки безопасности (X-Content-Type-Options, Referrer-Policy,
-	# Permissions-Policy) уже отдаёт приложение — здесь их не дублируем.
+	# Остальные заголовки безопасности отдаёт приложение. HSTS возможен только
+	# на HTTPS-сайте; Server убираем, чтобы не подсказывать версию upstream.
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+
 	reverse_proxy api:8000
 }
