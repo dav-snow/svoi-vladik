@@ -61,6 +61,8 @@ chmod 600 $APP_DIR/.env"
 
 say "5/7 building and starting"
 $SSH "$USER_NAME@$HOST" "cd $APP_DIR && docker compose -f docker-compose.prod.yml up -d --build"
+# Caddy does not reload a changed bind-mounted Caddyfile by itself.
+$SSH "$USER_NAME@$HOST" "cd $APP_DIR && docker compose -f docker-compose.prod.yml restart caddy"
 
 say "6/7 waiting for HTTPS"
 ok=0
@@ -86,7 +88,12 @@ app=$(curl -fsS "https://$DOMAIN/app.js")
 for marker in placeCardThumbnail AVATAR_STORAGE /me/avatars; do
   printf '%s' "$app" | grep -q "$marker" || fail "на стенде старая сборка app.js: нет $marker"
 done
+headers=$(curl -fsSI "https://$DOMAIN/")
+for marker in "Strict-Transport-Security" "X-Frame-Options: DENY" "Content-Security-Policy-Report-Only"; do
+  printf '%s' "$headers" | grep -qi "$marker" || fail "на стенде нет заголовка $marker"
+done
 echo "Сборка актуальна: редизайн, аватары и синхронизация на месте."
+echo "Заголовки безопасности: HSTS, X-Frame-Options, CSP Report-Only."
 curl -fsS "https://$DOMAIN/api/v1/quest"  | head -c 120; echo
 
 echo

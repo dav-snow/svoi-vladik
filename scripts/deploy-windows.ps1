@@ -45,8 +45,8 @@ function Show-Plan {
     Write-Host "3/7 scp архив -> ${Dest}:/tmp/"
     Write-Host "4/7 ssh: mkdir -p /opt/svoi-vladik && tar -xzf ..."
     Write-Host "5/7 ssh: записать /opt/svoi-vladik/.env (DOMAIN=$Domain, ACME_EMAIL=$Email)"
-    Write-Host "6/7 ssh: docker compose -f docker-compose.prod.yml up -d --build"
-    Write-Host "7/7 ждать https://$Domain/health и прогнать смоук"
+    Write-Host "6/7 ssh: docker compose -f docker-compose.prod.yml up -d --build && restart caddy"
+    Write-Host "7/7 ждать https://$Domain/health, проверить сборку и заголовки безопасности"
     if (-not $hasLocalAnswers) { Write-Host "   (локального quest-answers.json нет — использую существующий на сервере)" }
 }
 
@@ -90,6 +90,8 @@ Invoke-Ssh "printf 'DOMAIN=%s\nACME_EMAIL=%s\n' '$Domain' '$Email' > /opt/svoi-v
 
 Write-Host "6/7 Собираю и запускаю контейнеры"
 Invoke-Ssh "cd /opt/svoi-vladik && docker compose -f docker-compose.prod.yml up -d --build"
+# Bind-mounted Caddyfile changes do not reload Caddy by themselves.
+Invoke-Ssh "cd /opt/svoi-vladik && docker compose -f docker-compose.prod.yml restart caddy"
 
 Write-Host "7/7 Жду HTTPS (до 5 минут)"
 $deadline = (Get-Date).AddMinutes(5)
@@ -115,5 +117,10 @@ $places = Invoke-RestMethod "https://$Domain/api/v1/places"
 if ($places.total -lt 14) { throw "API отдаёт $($places.total) мест вместо 14" }
 $license = $places.items | ForEach-Object { $_.images } | Where-Object { $_.license_url } | Select-Object -First 1
 if (-not $license) { throw "В API нет credit/license/license_url у фото" }
+$headers = (& curl.exe -sSI "https://$Domain/") -join "`n"
+foreach ($marker in @("Strict-Transport-Security", "X-Frame-Options: DENY", "Content-Security-Policy-Report-Only")) {
+    if ($headers -notmatch [regex]::Escape($marker)) { throw "На стенде нет заголовка $marker" }
+}
 Write-Host "Сборка актуальна: 14 мест, фото с лицензией, синхронизация аватаров."
+Write-Host "Заголовки безопасности: HSTS, X-Frame-Options, CSP Report-Only."
 Write-Host "Готово: https://$Domain/"
