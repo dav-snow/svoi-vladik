@@ -1,0 +1,99 @@
+#requires -Version 5.1
+<#
+.SYNOPSIS
+  Deploy the demo to the public stand over SSH from Windows, without WSL.
+
+.DESCRIPTION
+  Copies the repository (without .git/.venv/node_modules), writes /opt/svoi-vladik/.env,
+  rebuilds the prod compose stack and waits for HTTPS. Requires an SSH key that the
+  server already accepts and Docker on the server.
+
+.EXAMPLE
+  powershell -ExecutionPolicy Bypass -File scripts/deploy-windows.ps1
+
+.EXAMPLE
+  powershell -ExecutionPolicy Bypass -File scripts/deploy-windows.ps1 -Key C:\Users\me\.ssh\svoi_deploy -DryRun
+#>
+[CmdletBinding()]
+param(
+    [string]$User = "tech",
+    [string]$TargetHost = "176.53.253.60",
+    [string]$Domain = "176-53-253-60.sslip.io",
+    [string]$Email = "",
+    [string]$Key = "",
+    [switch]$DryRun
+)
+
+$ErrorActionPreference = "Stop"
+$Root = Split-Path -Parent $PSScriptRoot
+if (-not (Test-Path (Join-Path $Root "docker-compose.prod.yml"))) { throw "Запускайте из корня репозитория: $Root" }
+if (-not $Email) { $Email = "tech@$Domain" }
+$Dest = "$User@$TargetHost"
+$Ssh = @("-o", "BatchMode=yes", "-o", "ConnectTimeout=20", "-o", "StrictHostKeyChecking=accept-new")
+$Scp = @("-o", "BatchMode=yes", "-o", "ConnectTimeout=20", "-o", "StrictHostKeyChecking=accept-new")
+if ($Key) { $Ssh += @("-i", $Key, "-o", "IdentitiesOnly=yes"); $Scp += @("-i", $Key, "-o", "IdentitiesOnly=yes") }
+
+foreach ($required in @("docker-compose.prod.yml", "Caddyfile", "data/private/quest-answers.json")) {
+    if (-not (Test-Path (Join-Path $Root $required))) { throw "Нет обязательного файла: $required" }
+}
+
+function Show-Plan {
+    Write-Host "1/7 ssh $Dest 'echo SSH_OK; docker --version; docker compose version'"
+    Write-Host "2/7 tar --exclude=.git --exclude=.venv --exclude=node_modules ... -> svoi-vladik-deploy.tar.gz"
+    Write-Host "3/7 scp архив -> ${Dest}:/tmp/"
+    Write-Host "4/7 ssh: mkdir -p /opt/svoi-vladik && tar -xzf ..."
+    Write-Host "5/7 ssh: записать /opt/svoi-vladik/.env (DOMAIN=$Domain, ACME_EMAIL=$Email)"
+    Write-Host "6/7 ssh: docker compose -f docker-compose.prod.yml up -d --build"
+    Write-Host "7/7 ждать https://$Domain/health и прогнать смоук"
+}
+
+if ($DryRun) { Show-Plan; Write-Host "DryRun: сеть не используется."; return }
+
+function Invoke-Ssh([string]$Command) {
+    & ssh @Ssh $Dest $Command
+    if ($LASTEXITCODE -ne 0) { throw "ssh завершился с кодом ${LASTEXITCODE}: $Command" }
+}
+
+Write-Host "1/7 Проверяю SSH и Docker"
+Invoke-Ssh "echo SSH_OK; hostname; docker --version; docker compose version"
+
+Write-Host "2/7 Собираю архив"
+$tar = Join-Path ([IO.Path]::GetTempPath()) "svoi-vladik-deploy.tar.gz"
+if (Test-Path $tar) { Remove-Item $tar -Force }
+& tar -czf $tar -C $Root `
+    --exclude=.git --exclude=.venv --exclude=node_modules --exclude=__pycache__ `
+    --exclude=.pytest_cache --exclude=frontend-design/review --exclude=.local `
+    --exclude=.claude --exclude=.github --exclude=data/demo.sqlite3 --exclude="*.log" .
+if ($LASTEXITCODE -ne 0) { throw "tar завершился с кодом $LASTEXITCODE" }
+
+Write-Host "3/7 Копирую на сервер"
+& scp @Scp $tar "${Dest}:/tmp/svoi-vladik-deploy.tar.gz"
+if ($LASTEXITCODE -ne 0) { throw "scp завершился с кодом $LASTEXITCODE" }
+
+Write-Host "4/7 Распаковываю"
+Invoke-Ssh "mkdir -p /opt/svoi-vladik && tar -xzf /tmp/svoi-vladik-deploy.tar.gz -C /opt/svoi-vladik && rm -f /tmp/svoi-vladik-deploy.tar.gz"
+
+Write-Host "5/7 Пишу .env"
+Invoke-Ssh "printf 'DOMAIN=%s\nACME_EMAIL=%s\n' '$Domain' '$Email' > /opt/svoi-vladik/.env && chmod 600 /opt/svoi-vladik/.env"
+
+Write-Host "6/7 Собираю и запускаю контейнеры"
+Invoke-Ssh "cd /opt/svoi-vladik && docker compose -f docker-compose.prod.yml up -d --build"
+
+Write-Host "7/7 Жду HTTPS (до 5 минут)"
+$deadline = (Get-Date).AddMinutes(5)
+$code = ""
+do {
+    Start-Sleep -Seconds 5
+    try { $code = (& curl.exe -sS -m 10 -o NUL -w "%{http_code}" "https://$Domain/health" 2>$null) } catch { $code = "" }
+    Write-Host "  health: $code"
+} while ($code -ne "200" -and (Get-Date) -lt $deadline)
+if ($code -ne "200") {
+    throw "HTTPS не поднялся. Логи: ssh $Dest 'cd /opt/svoi-vladik && docker compose -f docker-compose.prod.yml logs --tail=80'"
+}
+
+Write-Host "Смоук:"
+& curl.exe -sS "https://$Domain/health"; Write-Host ""
+foreach ($path in @("/api/v1/places", "/api/v1/quest", "/assets/places/sukhanov-house--1.jpg")) {
+    & curl.exe -sS -o NUL -w "$path -> %{http_code}`n" "https://$Domain$path"
+}
+Write-Host "Готово: https://$Domain/"
