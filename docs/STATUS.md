@@ -59,7 +59,7 @@
   rate-limit, security headers, статические монтирования `/assets/places`,
   `/media`, `/data`, `/`.
 - **Проверки:** `node --test frontend-design/tests/` (62 теста) и
-  `python -m pytest backend/tests` (105 тестов); GitHub Actions гоняет
+  `python -m pytest backend/tests` (106 тестов); GitHub Actions гоняет
   pytest, node-тесты и `build.mjs --check-only`. `--check-only` теперь и
   сверяет `build-manifest.json` с файлами, а не только не пишет.
 - **Деплой:** `Dockerfile`, `docker-compose.prod.yml`, Caddy + HTTPS,

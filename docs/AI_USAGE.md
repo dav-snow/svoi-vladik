@@ -45,7 +45,7 @@ Codex и ИИ-ассистент DSH по задачам владельца за
   GPT отдельным ТЗ.
 
 Проверки после каждого шага: `node --test frontend-design/tests/` (62 теста),
-`pytest backend/tests` (105), `node scripts/build.mjs --check-only`,
+`pytest backend/tests` (106), `node scripts/build.mjs --check-only`,
 `git diff --check`. Реальный GPS, телефон и живые переходы 2ГИС не проверялись;
 контент остаётся `draft`, полевая приёмка — за человеком. Детали — в
 [worklog/2026-11-14.md](../worklog/2026-11-14.md) и [STATUS.md](STATUS.md).

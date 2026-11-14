@@ -88,6 +88,17 @@ def test_completion_requires_every_distinct_correct_answer(editorial_client):
     assert client.post(url, json={"answers": [{"stop_id": "missing", "option_id": "a-1"}]}).status_code == 404
 
 
+def test_signed_in_completion_unlocks_an_avatar_once(editorial_client):
+    client = editorial_client[0]
+    assert client.post("/api/v1/auth/register", json={"login": "sync-user", "password": "password123"}).status_code == 201
+    answers = [{"stop_id": f"stop-{n}", "option_id": f"a-{n}"} for n in range(1, 6)]
+    for _ in range(2):
+        assert client.post("/api/v1/quest/quest-one/complete", json={"answers": answers}).json() == {"completed": True}
+    state = client.get("/api/v1/me/avatars").json()
+    assert state["unlocked"] == 1
+    assert state["completed_quest_ids"] == ["quest-one"]
+
+
 def test_three_stop_quest_is_supported(editorial_client):
     client, paths, quest, _ = editorial_client
     quest["stops"] = quest["stops"][:3]
