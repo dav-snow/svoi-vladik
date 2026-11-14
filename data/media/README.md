@@ -12,6 +12,10 @@ data/media/places/<place_id>/2.webp
 
 `<place_id>` — это `id` места из `data/places.json` (например `sukhanov-house`).
 
+Лицензированный пакет готовых фото лежит в `assets/places/` и раздаётся по
+`/assets/places/...`; он подключается к местам скриптом
+`scripts/link_place_photos.py` (см. `assets/places/README.md`).
+
 ## Как сослаться из данных
 
 В `data/places.json` у места добавьте массив `images` (порядок = порядок показа,
