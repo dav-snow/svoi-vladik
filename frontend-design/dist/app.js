@@ -780,10 +780,24 @@ async function apiSend(url, method = 'GET', body) {
 }
 function renderAuthButton() {
   const toggle = $('auth-open'); if (!toggle) return;
-  toggle.textContent = auth.user ? auth.user.login : 'Войти';
-  toggle.classList.toggle('is-authed', Boolean(auth.user));
-  toggle.setAttribute('aria-label', auth.user ? 'Мой профиль: ' + auth.user.login : 'Войти в демо-аккаунт');
-  toggle.title = auth.user ? 'Мой профиль' : 'Войти';
+  toggle.replaceChildren();
+  if (auth.user) {
+    avatarRead();
+    const avatar = AVATARS.find(item => item.id === avatarState.selected) || AVATARS[0];
+    const picture = document.createElement('img');
+    picture.className = 'auth-avatar';
+    picture.src = 'assets/avatars/' + avatar.file;
+    picture.alt = ''; picture.width = 24; picture.height = 24; picture.decoding = 'async';
+    toggle.append(picture, el('span', 'auth-login', auth.user.login));
+    toggle.classList.add('is-authed');
+    toggle.setAttribute('aria-label', 'Мой профиль: ' + auth.user.login);
+    toggle.title = 'Мой профиль';
+  } else {
+    toggle.textContent = 'Войти';
+    toggle.classList.remove('is-authed');
+    toggle.setAttribute('aria-label', 'Войти в демо-аккаунт');
+    toggle.title = 'Войти';
+  }
 }
 async function refreshMe() {
   // 401 — обычный гость, не ошибка; сетевой сбой тоже не блокирует карту.
@@ -936,7 +950,7 @@ function avatarGrantUnlocks() {
 function avatarChoose(id) {
   const avatar = AVATARS.find(item => item.id === id);
   if (!avatar || !avatarAvailable(avatar)) return false;
-  avatarState.selected = id; avatarWrite(); refreshAvatarGrid(); return true;
+  avatarState.selected = id; avatarWrite(); refreshAvatarGrid(); renderAuthButton(); return true;
 }
 function avatarTile(avatar) {
   const unlocked = avatarAvailable(avatar), selected = avatarState.selected === avatar.id;
@@ -972,7 +986,7 @@ function avatarRewardCard(avatar) {
   copy.append(el('p', 'eyebrow', 'НОВЫЙ АВАТАР'), el('h3', '', avatar.title), el('p', 'avatar-quote', avatar.quote));
   const actions = el('div', 'avatar-reward-actions');
   const put = button('Поставить в профиль', 'primary-button', () => {
-    avatarState.selected = avatar.id; avatarWrite();
+    avatarState.selected = avatar.id; avatarWrite(); renderAuthButton();
     put.disabled = true; put.textContent = 'Выбран';
     notify(`Аватар «${avatar.title}» выбран`);
   });
@@ -1670,9 +1684,17 @@ function vladaObUiEvent(type, item, opening) {
   if (!vladaOb.active) return;
   const part = vladaObPart(); if (!part) return;
   if (type === 'origin-set' && part.kind === 'places' && part.stage === 'start' && geo.origin) vladaObSetStep(`vlada_${part.index}_places_card`);
-  if (type === 'place-opened' && part.kind === 'places' && ['card','nav','review'].includes(part.stage)) {
+  if (type === 'place-opened' && part.kind === 'places') {
     vladaOb.context.placeId = item.id;
-    if (part.stage === 'card') vladaObSetStep(`vlada_${part.index}_places_nav`); else vladaObCache();
+    if (part.stage === 'card' || part.stage === 'nav') vladaObSetStep(`vlada_${part.index}_places_review`);
+    // The place dialog already explains the card and its 2GIS button; do not
+    // insert a separate "Карточка найдена" coach into it, and clear the sidebar
+    // coach that was rendered before the dialog opened. A short review card
+    // appears in the sidebar after the dialog closes.
+    vladaOb.attachDetail = false;
+    vladaObClearSurfaces();
+    vladaObCache();
+    return;
   }
   if (type === 'walk-opened' && part.kind === 'walks') { vladaOb.context.walkId = item.id; vladaObSetStep(`vlada_${part.index}_walks_review`); }
   const expectedDialog = type === 'place-opened' && part.kind === 'places' || type === 'walk-opened' && part.kind === 'walks' || type === 'walks-opened' && part.kind === 'walks' || type === 'quests-opened' && part.kind === 'quest';

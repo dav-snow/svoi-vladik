@@ -110,3 +110,12 @@ test('avatar grid renders six tiles and locks the three quest rewards', () => {
   assert.equal(h.run('avatarSection().children[2].children.length'), 6);
   assert.equal(h.run('avatarSection().children[2].children.filter(tile => tile.disabled).length'), 3);
 });
+
+test('the header shows the selected avatar next to the login', () => {
+  const h = harness({ 'svoi-vladik-avatars-v1:user-7': JSON.stringify({ selected: 'crab', unlocked: 1 }) });
+  h.run('auth.user = { id: 7, login: "tester" }; renderAuthButton()');
+  const opener = h.elements.get('auth-open');
+  assert.equal(opener.children.length, 2);
+  assert.match(opener.children[0].src, /crab\.webp$/);
+  assert.equal(opener.children[1].textContent, 'tester');
+});

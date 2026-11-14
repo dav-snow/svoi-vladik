@@ -584,4 +584,92 @@ button svg, .search-field svg { width: 20px; height: 20px; stroke: currentColor;
   .avatar-state { font-size: 10px; }
 }
 
+/* Task 021: modern "dashboard around the map" shell. The map stays the centre;
+   navigation and tools sit in floating cream panels above and beside it. */
+:root {
+  --paper: #f6f2e7;
+  --cream: #fdf2df;
+  --line: #e9e1d1;
+  --graphite: #1c2a21;
+  --forest: #1e4636;
+  --shadow: 0 18px 45px #24362b16, 0 2px 6px #24362b0d;
+  --sidebar-width: 380px;
+}
+body {
+  background:
+    radial-gradient(1100px 680px at 82% -12%, #e4efdb 0%, transparent 58%),
+    radial-gradient(900px 620px at -8% 112%, #ffe8c6 0%, transparent 55%),
+    var(--paper);
+}
+.brand-copy strong { color: var(--forest); }
+.intro-section h1 { color: var(--forest); }
+.section-heading h2, .profile-avatars h3 { color: var(--forest); }
+.auth-button { gap: 8px; padding: 4px 12px 4px 4px; }
+.auth-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; background: #fff; border: 1px solid #f0ddba; flex: none; }
+.auth-login { min-width: 0; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.primary-button { border-radius: 999px; box-shadow: 0 8px 20px #ff850024; }
+.secondary-button { border-radius: 999px; }
+.place-list { display: grid; gap: 6px; }
+.place-card { border: 1px solid #efe8da; border-radius: 14px; background: #fff; overflow: hidden; }
+.place-card:hover { border-color: #e6d9c2; background: #fffdf8; }
+.place-list { list-style: none; margin: 0; padding: 0; }
+.adventure-card { border: 1px solid #eee6d7; border-radius: 18px; background: #fffdf8; box-shadow: 0 4px 16px #24362b0a; }
+.search-field { border-radius: 14px; }
+.category-controls { gap: 6px; }
+.category-button { border-radius: 999px; }
+.selected-place { border-radius: 18px; box-shadow: 0 14px 38px #24362b1c; border: 1px solid #eee6d7; }
+.guide-button { border-radius: 999px; box-shadow: 0 10px 30px #24362b1a; }
+.map-controls { border-radius: 16px; padding: 6px; border-color: #eadfcd; box-shadow: 0 14px 34px #24362b1a; }
+.map-controls button { border-radius: 10px; width: 36px; height: 36px; }
+.map-topline { border-radius: 999px; box-shadow: 0 8px 22px #24362b12; }
 
+@media (min-width: 761px) {
+  .site-header {
+    margin: 12px 12px 0;
+    min-height: 64px;
+    padding: 0 14px;
+    gap: 18px;
+    border: 1px solid #e8e2d4;
+    border-radius: 20px;
+    background: #fffdf8ed;
+    backdrop-filter: blur(16px) saturate(1.1);
+    box-shadow: 0 12px 32px #24362b12;
+  }
+  .brand { width: auto; padding-left: 4px; }
+  .main-nav { align-self: center; gap: 2px; padding: 4px; border-radius: 14px; background: #f2eee3; }
+  .nav-button { border: 0; border-radius: 11px; padding: 8px 13px; font-size: 12.5px; color: #6f7569; }
+  .nav-button:hover { background: #fffdf8; }
+  .nav-button.is-active, .nav-button[aria-pressed="true"] { background: #fff; color: var(--forest); box-shadow: 0 2px 7px #24362b14; }
+  .header-actions { gap: 8px; }
+  .icon-button { width: 38px; height: 38px; border: 1px solid transparent; border-radius: 12px; }
+  .icon-button:hover { background: #fff; border-color: #e8e2d4; }
+  .app-shell { padding: 12px; gap: 12px; grid-template-columns: minmax(320px, var(--sidebar-width)) minmax(0, 1fr); }
+  .sidebar { border: 1px solid #e8e2d4; border-radius: 26px; background: #fffdf8f2; box-shadow: var(--shadow); }
+  .sidebar-scroll { padding: 20px 20px 24px; }
+  .map-stage { border: 1px solid #e8e2d4; border-radius: 26px; box-shadow: var(--shadow); }
+  .map-controls { right: 18px; }
+  .map-topline { top: 16px; left: 16px; }
+}
+
+@media (max-width: 760px) {
+  .site-header {
+    margin: 8px 8px 0;
+    min-height: 58px;
+    padding: var(--safe-top) 10px 0;
+    gap: 8px;
+    border: 1px solid #e8e2d4;
+    border-radius: 16px;
+    background: #fffdf8f2;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 8px 24px #24362b12;
+  }
+  .brand-symbol { width: 30px; height: 34px; }
+  .brand-copy strong { font-size: 17px; }
+  .brand-copy > span { font-size: 10.5px; }
+  .app-shell { padding: 0; }
+  .sidebar { border: 0; border-top: 1px solid #e7eadd; border-radius: 22px 22px 0 0; }
+  .map-stage { border: 0; border-radius: 0; box-shadow: none; }
+  .auth-button { padding: 3px 9px 3px 3px; }
+  .auth-avatar { width: 26px; height: 26px; }
+  .auth-login { max-width: 64px; }
+}
