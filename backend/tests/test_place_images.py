@@ -25,7 +25,7 @@ def _place(**overrides):
 
 def test_place_accepts_relative_and_https_images() -> None:
     place = _place(images=[
-        {"url": "/media/places/p1/1.jpg", "alt": "Фасад"},
+        {"url": "/media/places/p1/1.jpg", "alt": "Фасад", "credit": "Автор", "license": "CC BY-SA 4.0", "license_url": "https://creativecommons.org/licenses/by-sa/4.0"},
         {"url": "/assets/mascot/talking.webp"},
         {"url": "https://example.com/a.jpg", "source_url": "https://example.com/src"},
     ])
@@ -36,6 +36,15 @@ def test_place_accepts_relative_and_https_images() -> None:
         "https://example.com/a.jpg",
     ]
     assert dumped["images"][0]["alt"] == "Фасад"
+    assert dumped["images"][0]["credit"] == "Автор"
+    assert dumped["images"][0]["license"] == "CC BY-SA 4.0"
+    assert dumped["images"][0]["license_url"] == "https://creativecommons.org/licenses/by-sa/4.0"
+    assert dumped["images"][1]["credit"] == ""
+
+
+def test_place_rejects_non_https_license_url() -> None:
+    with pytest.raises(ValidationError):
+        _place(images=[{"url": "/media/places/p1/1.jpg", "license_url": "http://creativecommons.org/licenses/by-sa/4.0"}])
 
 
 def test_place_images_default_to_empty_list() -> None:

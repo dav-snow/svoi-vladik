@@ -79,11 +79,11 @@ def test_completion_requires_every_distinct_correct_answer(editorial_client):
     client = editorial_client[0]
     url = "/api/v1/quest/quest-one/complete"
     answers = [{"stop_id": f"stop-{n}", "option_id": f"a-{n}"} for n in range(1, 6)]
-    assert client.post(url, json={"answers": answers[:-1]}).json() == {"completed": False, "reward": None}
+    assert client.post(url, json={"answers": answers[:-1]}).json() == {"completed": False}
     wrong = [*answers[:-1], {"stop_id": "stop-5", "option_id": "b-5"}]
     assert client.post(url, json={"answers": wrong}).json()["completed"] is False
     result = client.post(url, json={"answers": answers})
-    assert result.json() == {"completed": True, "reward": {"id": "explorer-hat", "name": "Шапка исследователя"}}
+    assert result.json() == {"completed": True}
     assert client.post(url, json={"answers": [answers[0], answers[0]]}).status_code == 422
     assert client.post(url, json={"answers": [{"stop_id": "missing", "option_id": "a-1"}]}).status_code == 404
 

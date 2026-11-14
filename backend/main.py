@@ -89,6 +89,10 @@ class PlaceImage(BaseModel):
     alt: str = Field(default="", max_length=300)
     caption: str = Field(default="", max_length=500)
     source_url: str | None = None
+    # Attribution surfaced separately so the gallery can render a licence link.
+    credit: str = Field(default="", max_length=300)
+    license: str = Field(default="", max_length=120)
+    license_url: str | None = None
 
     @field_validator("url")
     @classmethod
@@ -98,6 +102,11 @@ class PlaceImage(BaseModel):
     @field_validator("source_url")
     @classmethod
     def https_source(cls, value):
+        return SourceRef.https_url(value) if value else value
+
+    @field_validator("license_url")
+    @classmethod
+    def https_license(cls, value):
         return SourceRef.https_url(value) if value else value
 
 class Editorial(BaseModel):
@@ -745,8 +754,8 @@ async def complete_quest(quest_id: Annotated[str, ApiPath(pattern=ID_PATTERN, ma
     keys = private_answers(quest)
     completed = {a.stop_id for a in submission.answers} == {s.id for s in quest.stops} and all(a.option_id == keys[a.stop_id].correct_option_id for a in submission.answers)
     if not completed:
-        return {"completed": False, "reward": None}
-    return {"completed": True, "reward": {"id": "explorer-hat", "name": "Шапка исследователя"}}
+        return {"completed": False}
+    return {"completed": True}
 
 # --- Demo auth, visits, likes, profile and leaderboard ----------------------
 

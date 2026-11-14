@@ -90,6 +90,9 @@ def _image(photo: dict[str, Any], place_name: str, index: int) -> dict[str, str]
         "alt": _alt(photo, place_name, index),
         "caption": _caption(photo),
         "source_url": source_url,
+        "credit": _one_line(photo.get("author")),
+        "license": _one_line(photo.get("license")),
+        "license_url": _one_line(photo.get("license_url")) or None,
     }
 
 

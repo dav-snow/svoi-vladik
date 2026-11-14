@@ -66,8 +66,13 @@ def test_images_keep_manifest_order_and_attribution() -> None:
         for image, photo in zip(place["images"], photos):
             assert " ".join(photo["author"].split()) in image["caption"]
             assert photo["license"] in image["caption"]
+            assert image["credit"] == " ".join(photo["author"].split())
+            assert image["license"] == photo["license"]
             if photo.get("license_url"):
+                assert image["license_url"] == photo["license_url"]
                 assert photo["license_url"] in image["caption"]
+            else:
+                assert image.get("license_url") is None
 
 
 def test_api_returns_wired_images_with_sources() -> None:
@@ -75,5 +80,5 @@ def test_api_returns_wired_images_with_sources() -> None:
     with_images = [item for item in items if item.get("images")]
     assert with_images
     image = with_images[0]["images"][0]
-    assert set(image) >= {"url", "alt", "caption", "source_url"}
+    assert set(image) >= {"url", "alt", "caption", "source_url", "credit", "license", "license_url"}
     assert image["url"].startswith("/assets/places/")
