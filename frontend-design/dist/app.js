@@ -1450,6 +1450,12 @@ if ('serviceWorker' in navigator && window.isSecureContext) window.addEventListe
 
 // --- Vlada onboarding. Isolated UI/state; never records visits, answers or GPS. ---
 const vladaObStorage = 'svoi-vladik-vlada-onboarding-v1:';
+// The tour auto-opens once per browser. After the dialog is closed, finished or
+// skipped, only the explicit "Помощь Влады" opens it again; a fresh demo account
+// inherits the guest's progress instead of starting the tour over.
+const vladaObSeenKey = 'svoi-vladik-vlada-onboarding-seen-v1';
+function vladaObHasSeen() { try { return localStorage.getItem(vladaObSeenKey) === '1'; } catch { return false; } }
+function vladaObMarkSeen() { try { localStorage.setItem(vladaObSeenKey, '1'); } catch { /* Session continues without storage. */ } }
 const vladaOb = { ready: false, cityReady: false, active: false, autoShown: false, mode: 'local', key: 'guest', sessionLogin: null, epoch: 0, action: 0, revision: 0, surface: 'none', attachDetail: false, name: '', data: { status: 'pending', step: 'vlada_welcome', interest: null }, context: {}, controllers: new Set(), writes: Promise.resolve(), sessionPromise: Promise.resolve(), lastSent: '', authSignature: null, refreshQueued: false };
 const vladaObInterests = ['places', 'walks', 'quest'];
 function vladaObOrder() { return ({ places: ['places', 'walks', 'quest'], walks: ['walks', 'places', 'quest'], quest: ['quest', 'walks', 'places'] })[vladaOb.data.interest] || ['places', 'walks', 'quest']; }
@@ -1507,6 +1513,7 @@ function vladaObClearSurfaces() {
   document.querySelectorAll('.vlada-ob-inline').forEach(node => node.remove());
 }
 function vladaObPause() {
+  vladaObMarkSeen();
   vladaOb.active = false; vladaOb.autoShown = true; vladaOb.surface = 'none'; vladaOb.action++; vladaOb.revision++;
   vladaObClearSurfaces(); vladaObPersist();
   if ($('vlada-ob-dialog')?.open) closeDialog('vlada-ob-dialog');
@@ -1536,7 +1543,7 @@ function vladaObCompletePart(later = false) {
 }
 async function vladaObFinish() {
   const epoch = vladaOb.epoch, interest = vladaOb.data.interest;
-  vladaOb.data.status = 'completed'; vladaObPersist();
+  vladaOb.data.status = 'completed'; vladaObMarkSeen(); vladaObPersist();
   vladaOb.active = false; vladaOb.surface = 'none'; vladaOb.autoShown = true; vladaOb.revision++; vladaObClearSurfaces();
   await closeDialog('vlada-ob-dialog');
   if (epoch !== vladaOb.epoch) return;
@@ -1694,10 +1701,17 @@ function vladaObPreviewQuest(quest) {
   Promise.resolve(opening).then(() => { if (vladaOb.active && epoch === vladaOb.epoch && revision === vladaOb.revision && $('detail-dialog')?.open) { vladaOb.attachDetail = true; vladaObRenderCoach(); } }).catch(() => {});
 }
 function vladaObMaybeAuto() {
-  if (!vladaOb.ready || !vladaOb.cityReady || vladaOb.autoShown || !['pending','in_progress'].includes(vladaOb.data.status) || document.querySelector('dialog[open]')) return;
+  if (!vladaOb.ready || !vladaOb.cityReady || vladaOb.autoShown || vladaObHasSeen() || !['pending','in_progress'].includes(vladaOb.data.status) || document.querySelector('dialog[open]')) return;
   vladaObBegin();
 }
 function vladaObCityReady() { vladaOb.cityReady = true; vladaObMaybeAuto(); }
+function vladaObCarryFromGuest() {
+  const guest = vladaObReadCache('guest');
+  if (guest.status === 'pending') return { status: 'completed', step: 'vlada_finish' };
+  const payload = { status: guest.status, step: guest.step };
+  if (guest.interest) payload.interest = guest.interest;
+  return payload;
+}
 async function vladaObReloadSession() {
   const epoch = ++vladaOb.epoch; vladaOb.action++; vladaOb.active = false; vladaOb.ready = false; vladaOb.surface = 'none'; vladaOb.name = ''; vladaOb.lastSent = ''; vladaOb.autoShown = false; vladaOb.revision++;
   for (const controller of vladaOb.controllers) controller.abort();
@@ -1714,6 +1728,14 @@ async function vladaObReloadSession() {
     }
   } catch { /* 401/404 and temporarily unavailable API use local checkpoints. */ }
   if (epoch !== vladaOb.epoch) return;
+  if (mode === 'server' && raw?.status === 'pending' && vladaObHasSeen()) {
+    // The visitor already went through the tour as a guest; a fresh demo account
+    // must not start it over after registration or a page reload.
+    const carry = vladaObCarryFromGuest();
+    try { raw = await vladaObHttp('/api/v1/me/onboarding', 'PUT', carry); }
+    catch { raw = { ...raw, ...carry }; }
+    if (epoch !== vladaOb.epoch) return;
+  }
   const cached = vladaObReadCache(key);
   vladaOb.key = key; vladaOb.sessionLogin = sessionLogin; vladaOb.mode = mode; vladaOb.data = raw && mode === 'server' ? vladaObNormalize(raw) : { status: cached.status, step: cached.step, interest: cached.interest };
   vladaOb.context = mode === 'local' || cached.step === vladaOb.data.step && cached.interest === vladaOb.data.interest ? cached.context : {};
