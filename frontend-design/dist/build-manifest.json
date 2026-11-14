@@ -1,12 +1,12 @@
 {
   "project": "svoi-vladik",
   "version": 1,
-  "generatedAt": "2026-11-14T02:17:29.113Z",
+  "generatedAt": "2026-11-14T03:24:38.901Z",
   "files": [
     {
       "path": "app.js",
-      "bytes": 142981,
-      "sha256": "7c029137a058cce9b737c84da8b1bab028783162acc93c10a261b381aad8a353"
+      "bytes": 147520,
+      "sha256": "a00719335132afec2f85a717b2ab947fec8bfb2af9fa5bc2b26ff4df02bac43e"
     },
     {
       "path": "assets/avatars/boat.webp",
@@ -120,8 +120,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 13232,
-      "sha256": "7dae216fb7b0ce853fc9508faeeb9fa2e003a90c84f23adcb25cdade58382a69"
+      "bytes": 13361,
+      "sha256": "b140912d5dca2dc7a80a62d978497d60b90a5128560f8252bfc4467ea5b20d08"
     },
     {
       "path": "manifest.webmanifest",
@@ -160,8 +160,8 @@
     },
     {
       "path": "styles.css",
-      "bytes": 59874,
-      "sha256": "9e67b37ed48ed8f6e024995656e99f51b8d36b696a7ad92424dd50fbeb7a4a03"
+      "bytes": 99630,
+      "sha256": "4547eb3903a593107bf5aad6316d6deb32fc1373d6bec160185540791c55fa4e"
     },
     {
       "path": "sw.js",

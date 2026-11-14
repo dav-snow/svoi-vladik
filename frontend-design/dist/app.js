@@ -216,23 +216,42 @@ function dialogHeading(eyebrow, title, copy) {
   if (copy) box.append(el("p", "dialog-copy", copy));
   return box;
 }
+function placeCardThumbnail(place, cls) {
+  const photo = placeGalleryImages(place.images, place.placeGalleryLegacyImage)[0];
+  const art = image(place.image, cls + (photo ? ' is-photo' : ' is-illustration'));
+  art.width = 144; art.height = 144; art.loading = 'lazy'; art.decoding = 'async';
+  if (photo) {
+    art.referrerPolicy = 'no-referrer';
+    art.addEventListener('error', () => {
+      art.classList.remove('is-photo'); art.classList.add('is-illustration');
+      art.src = 'assets/' + place.image;
+    }, { once: true });
+    art.src = photo.url;
+  }
+  return art;
+}
 function placeCard(place) {
   const row = el("li", "place-card" + (state.selected?.id === place.id ? " is-selected" : ""));
   const main = button("", "place-open", () => selectPlace(place));
   main.setAttribute("aria-label", "Показать на карте: " + place.title);
-  main.append(image(place.image, "place-thumb"));
+  main.setAttribute("aria-pressed", String(state.selected?.id === place.id));
+  const visual = el('span', 'place-card-visual'); visual.append(placeCardThumbnail(place, 'place-thumb'));
+  main.append(visual);
   const body = el("span", "place-body");
   body.append(el("span", "place-kind", place.kind), el("span", "place-title", place.title));
   if (Number.isFinite(place.distanceM)) body.append(el("span", "place-distance", "≈" + formatDistance(place.distanceM) + " по прямой · ~" + walkMinutes(place.distanceM) + " мин пешком"));
   main.append(body);
   const save = button("", "save-place" + (state.saved.has(place.id) ? " is-saved" : ""), () => setSaved(place), "bookmark");
-  save.setAttribute("aria-label", state.saved.has(place.id) ? "Убрать из сохранённого" : "Сохранить место");
+  save.setAttribute("aria-label", (state.saved.has(place.id) ? "Убрать из сохранённого: " : "Сохранить место: ") + place.title);
+  save.title = state.saved.has(place.id) ? "Убрать из сохранённого" : "Сохранить место";
   save.setAttribute("aria-pressed", String(state.saved.has(place.id)));
   const inRoute = route.stops.includes(place.id);
   const addRoute = button("", "route-place" + (inRoute ? " is-in-route" : ""), () => routeToggle(place), "walk");
   addRoute.setAttribute("aria-label", (inRoute ? "Убрать из маршрута: " : "Добавить в маршрут: ") + place.title);
   addRoute.setAttribute("aria-pressed", String(inRoute));
-  row.append(main, addRoute, save); return row;
+  addRoute.append(el('span', 'place-action-label', inRoute ? 'В маршруте' : 'В маршрут'));
+  const actions = el('div', 'place-card-actions'); actions.append(addRoute, save);
+  row.append(main, actions); return row;
 }
 function renderPlaces() {
   const q = state.query.toLocaleLowerCase("ru");
@@ -277,16 +296,64 @@ function renderSelected(place) {
   const info = el("div", "selected-copy");
   info.append(el("span", "place-kind", place.kind), el("h2", "", place.title), el("p", "", "Узнайте больше перед прогулкой"));
   const details = button("О месте", "primary-button", () => showPlace(place), "arrow");
+  details.setAttribute("aria-label", "О месте: " + place.title);
   const close = button("", "selected-close", () => { ui.selected.hidden = true; state.selected = null; updateSelectedMarkers(); renderPlaces(); }, "close"); close.setAttribute("aria-label", "Закрыть карточку");
-  ui.selected.append(image(place.image, "selected-thumb"), info, details, close);
+  ui.selected.append(placeCardThumbnail(place, "selected-thumb"), info, details, close);
 }
 function updateSelectedMarkers() {
   for (const [id, marker] of state.markers) marker.getElement().classList.toggle("is-selected", state.selected?.id === id);
 }
+function selectedMapAnchor(width, height, obstacles, margin = 30) {
+  if (![width, height, margin].every(Number.isFinite) || margin < 0 || width <= margin * 2 || height <= margin * 2) return null;
+  const bounds = { left: margin, top: margin, right: width - margin, bottom: height - margin };
+  const blocked = obstacles.filter(r => r && [r.left, r.top, r.right, r.bottom].every(Number.isFinite) && r.right > r.left && r.bottom > r.top && r.right > 0 && r.bottom > 0 && r.left < width && r.top < height).map(r => ({
+    left: Math.max(bounds.left, r.left - margin), top: Math.max(bounds.top, r.top - margin),
+    right: Math.min(bounds.right, r.right + margin), bottom: Math.min(bounds.bottom, r.bottom + margin)
+  })).filter(r => r.right >= r.left && r.bottom >= r.top);
+  const free = (x, y) => !blocked.some(r => x >= r.left && x <= r.right && y >= r.top && y <= r.bottom);
+  const center = { x: width / 2, y: height / 2 };
+  if (free(center.x, center.y)) return center;
+  const xs = [...new Set([bounds.left, bounds.right, ...blocked.flatMap(r => [r.left, r.right])])].sort((a, b) => a - b);
+  const ys = [...new Set([bounds.top, bounds.bottom, ...blocked.flatMap(r => [r.top, r.bottom])])].sort((a, b) => a - b);
+  let best = null;
+  for (let xi = 1; xi < xs.length; xi++) for (let yi = 1; yi < ys.length; yi++) {
+    const x = (xs[xi - 1] + xs[xi]) / 2, y = (ys[yi - 1] + ys[yi]) / 2;
+    if (!free(x, y)) continue;
+    const distance = (x - center.x) ** 2 + (y - center.y) ** 2;
+    if (!best || distance < best.distance) best = { x, y, distance };
+  }
+  return best ? { x: best.x, y: best.y } : null;
+}
+function selectedMapCamera(place) {
+  const container = ui.map;
+  if (typeof container?.getBoundingClientRect !== 'function') return null;
+  const frame = container.getBoundingClientRect();
+  const obstacles = [];
+  for (const node of document.querySelectorAll('.map-context, .map-controls, .guide-button, .map-topline, .sidebar, .site-header, .main-nav, .maplibregl-ctrl-attrib')) {
+    if (node.hidden || !node.getClientRects().length) continue;
+    const style = getComputedStyle(node);
+    if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0) continue;
+    const rect = node.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) continue;
+    obstacles.push({ left: rect.left - frame.left, top: rect.top - frame.top, right: rect.right - frame.left, bottom: rect.bottom - frame.top });
+  }
+  const anchor = selectedMapAnchor(frame.width, frame.height, obstacles);
+  if (!anchor) return null;
+  // Existing markers use a bottom anchor; target the visible 46px bubble,
+  // rather than letting a long label lift it back underneath an overlay.
+  const pin = state.markers.get(place.id)?.getElement();
+  const bubble = pin?.querySelector('.map-marker-bubble');
+  if (!pin || !bubble || !pin.getClientRects().length) return null;
+  const pinRect = pin.getBoundingClientRect(), bubbleRect = bubble.getBoundingClientRect();
+  if (bubbleRect.width <= 0 || bubbleRect.height <= 0) return null;
+  const dx = pinRect.left + pinRect.width / 2 - (bubbleRect.left + bubbleRect.width / 2);
+  const dy = pinRect.bottom - (bubbleRect.top + bubbleRect.height / 2);
+  return { offset: [anchor.x + dx - frame.width / 2, anchor.y + dy - frame.height / 2], padding: { top: 0, bottom: 0, left: 0, right: 0 } };
+}
 function selectPlace(place, keepSidebar = false) {
   state.selected = place; renderPlaces(); renderSelected(place); updateSelectedMarkers();
-  if (state.map) state.map.flyTo({ center: [place.lng, place.lat], zoom: Math.max(state.map.getZoom(), 15.7), duration: reducedMotion ? 0 : 650, padding: { bottom: isMobileLayout() ? Math.min(innerHeight * .26, 180) : 100, top: 60, left: 40, right: 40 } });
   if (isMobileLayout() && !keepSidebar) {document.querySelector(".sidebar")?.classList.add("is-collapsed");$('mobile-sheet-toggle')?.setAttribute('aria-expanded','false');}
+  if (state.map) state.map.flyTo({ center: [place.lng, place.lat], zoom: Math.max(state.map.getZoom(), 15.7), duration: reducedMotion ? 0 : 650, ...(selectedMapCamera(place) || { padding: { bottom: isMobileLayout() ? Math.min(innerHeight * .26, 180) : 100, top: 60, left: 40, right: 40 } }) });
 }
 function showPlace(place) {
   const art = placeGalleryArt(place);
