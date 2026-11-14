@@ -1028,7 +1028,7 @@ if ('serviceWorker' in navigator && window.isSecureContext) window.addEventListe
 
 // --- Vlada onboarding. Isolated UI/state; never records visits, answers or GPS. ---
 const vladaObStorage = 'svoi-vladik-vlada-onboarding-v1:';
-const vladaOb = { ready: false, cityReady: false, active: false, autoShown: false, mode: 'local', key: 'guest', epoch: 0, action: 0, revision: 0, surface: 'none', attachDetail: false, name: '', data: { status: 'pending', step: 'vlada_welcome', interest: null }, context: {}, controllers: new Set(), writes: Promise.resolve(), sessionPromise: Promise.resolve(), lastSent: '', authSignature: null, refreshQueued: false };
+const vladaOb = { ready: false, cityReady: false, active: false, autoShown: false, mode: 'local', key: 'guest', sessionLogin: null, epoch: 0, action: 0, revision: 0, surface: 'none', attachDetail: false, name: '', data: { status: 'pending', step: 'vlada_welcome', interest: null }, context: {}, controllers: new Set(), writes: Promise.resolve(), sessionPromise: Promise.resolve(), lastSent: '', authSignature: null, refreshQueued: false };
 const vladaObInterests = ['places', 'walks', 'quest'];
 function vladaObOrder() { return ({ places: ['places', 'walks', 'quest'], walks: ['walks', 'places', 'quest'], quest: ['quest', 'walks', 'places'] })[vladaOb.data.interest] || ['places', 'walks', 'quest']; }
 function vladaObBaseStep() { return vladaOb.data.step.replace(/_later$/, ''); }
@@ -1196,7 +1196,14 @@ function vladaObRenderCoach() {
     pose = 'interesting-places'; title = 'Выбери интересное место'; copy = 'Открой карточку в списке или выбери маркер и нажми «О месте». Здесь будут история, условия и источник.';
     actions.append(button('Показать список мест', 'primary-button', () => { revealPlaces(); $('place-list').scrollIntoView?.({ block: 'nearest', behavior: reducedMotion ? 'auto' : 'smooth' }); }));
   } else if (part.kind === 'places' && part.stage === 'nav') {
-    pose = 'directions'; title = 'Карточка найдена!'; copy = 'Здесь — история и полезная информация. Нажми кнопку перехода в 2ГИС: путь откроется отдельно. Это не отметка о посещении.';
+    pose = 'directions';
+    const place = state.places.find(item => item.id === vladaOb.context.placeId);
+    if (vladaObIs2gisRoute(place?.route_url)) {
+      title = 'Карточка найдена!'; copy = 'Здесь — история и полезная информация. Нажми кнопку перехода в 2ГИС: путь откроется отдельно. Это не отметка о посещении.';
+    } else {
+      title = 'Навигация пока недоступна'; copy = 'У этого места нет готовой ссылки на путь в 2ГИС. Можно выбрать другое место или продолжить знакомство без навигатора. Посещение не отмечается.';
+      actions.append(button('Выбрать другое место', 'primary-button', vladaObChooseAnotherPlace), button('Продолжить без навигатора', 'secondary-button', () => vladaObCompletePart(true)));
+    }
   } else if (part.kind === 'places' && part.stage === 'review') {
     pose = 'talking'; title = 'Вот и первая находка!'; copy = 'Путь открылся отдельно. Когда соберёшься идти, условия лучше перепроверить у источника. Теперь ты знаешь, где искать карточку и навигацию.';
     actions.append(button('Дальше', 'primary-button', () => vladaObCompletePart()));
@@ -1238,6 +1245,16 @@ function vladaObInterceptQuest(quest) {
   if (!vladaOb.active || part?.kind !== 'quest') return false;
   vladaObPreviewQuest(quest); return true;
 }
+function vladaObIs2gisRoute(value) {
+  if (typeof value !== 'string') return false;
+  try { const url = new URL(value); return url.protocol === 'https:' && !url.username && !url.password && ['2gis.ru','www.2gis.ru'].includes(url.hostname) && /\/(?:directions|routeSearch)(?:\/|$)/.test(url.pathname); } catch { return false; }
+}
+function vladaObChooseAnotherPlace() {
+  const part = vladaObPart(); if (!vladaOb.active || part?.kind !== 'places') return;
+  delete vladaOb.context.placeId;
+  vladaObSetStep(`vlada_${part.index}_places_${geo.origin ? 'card' : 'start'}`);
+  vladaOb.attachDetail = false; closeDialog('detail-dialog'); revealPlaces(); vladaObRenderCoach();
+}
 function vladaObQuestCardState(quest) {
   if (!vladaOb.active || vladaObPart()?.kind !== 'quest') return null;
   const saved = progress.quests[quest.id];
@@ -1259,11 +1276,12 @@ async function vladaObReloadSession() {
   const epoch = ++vladaOb.epoch; vladaOb.action++; vladaOb.active = false; vladaOb.ready = false; vladaOb.surface = 'none'; vladaOb.name = ''; vladaOb.lastSent = ''; vladaOb.autoShown = false; vladaOb.revision++;
   for (const controller of vladaOb.controllers) controller.abort();
   vladaObClearSurfaces(); if ($('vlada-ob-dialog')?.open) closeDialog('vlada-ob-dialog');
-  let key = 'guest', raw = null, mode = 'local';
+  let key = 'guest', raw = null, mode = 'local', sessionLogin = null;
   try {
     const me = await vladaObHttp('/api/v1/me'); if (epoch !== vladaOb.epoch) return;
     if (me?.user && (me.user.id !== undefined || me.user.login)) {
       key = 'user-' + encodeURIComponent(String(me.user.id ?? me.user.login));
+      sessionLogin = typeof me.user.login === 'string' ? me.user.login : null;
       raw = me.onboarding;
       if (!raw || !['pending','in_progress','completed','skipped'].includes(raw.status)) raw = await vladaObHttp('/api/v1/me/onboarding');
       if (raw && ['pending','in_progress','completed','skipped'].includes(raw.status)) mode = 'server';
@@ -1271,13 +1289,21 @@ async function vladaObReloadSession() {
   } catch { /* 401/404 and temporarily unavailable API use local checkpoints. */ }
   if (epoch !== vladaOb.epoch) return;
   const cached = vladaObReadCache(key);
-  vladaOb.key = key; vladaOb.mode = mode; vladaOb.data = raw && mode === 'server' ? vladaObNormalize(raw) : { status: cached.status, step: cached.step, interest: cached.interest };
+  vladaOb.key = key; vladaOb.sessionLogin = sessionLogin; vladaOb.mode = mode; vladaOb.data = raw && mode === 'server' ? vladaObNormalize(raw) : { status: cached.status, step: cached.step, interest: cached.interest };
   vladaOb.context = mode === 'local' || cached.step === vladaOb.data.step && cached.interest === vladaOb.data.interest ? cached.context : {};
   vladaOb.ready = true; vladaObCache(); vladaObMaybeAuto();
 }
 function vladaObScheduleSession() {
   if (vladaOb.refreshQueued) return; vladaOb.refreshQueued = true;
   queueMicrotask(() => { vladaOb.refreshQueued = false; vladaOb.sessionPromise = vladaObReloadSession(); });
+}
+function vladaObHeaderMatchesSession(toggle) {
+  if (!vladaOb.ready) return false;
+  // The independent auth startup read may paint the user we already received.
+  // Keep the open conversation and its memory-only name for that same identity.
+  return toggle.classList.contains('is-authed')
+    ? vladaOb.key !== 'guest' && vladaOb.sessionLogin !== null && toggle.textContent === vladaOb.sessionLogin
+    : vladaOb.key === 'guest';
 }
 function vladaObInit() {
   $('vlada-ob-pause')?.addEventListener('click', vladaObPause);
@@ -1286,7 +1312,7 @@ function vladaObInit() {
   document.addEventListener?.('click', event => {
     const part = vladaObPart(); if (!vladaOb.active || part?.kind !== 'places' || part.stage !== 'nav' || !(event.target instanceof Element)) return;
     const anchor = event.target.closest('a[href]'); if (!anchor || !anchor.closest('#detail-content')) return;
-    try { const url = new URL(anchor.href); if (!['2gis.ru','www.2gis.ru'].includes(url.hostname) || !/directions|routeSearch/.test(url.pathname)) return; } catch { return; }
+    if (!vladaObIs2gisRoute(anchor.href)) return;
     vladaObSetStep(`vlada_${part.index}_places_review`); queueMicrotask(() => vladaObRenderCoach());
   });
   window.addEventListener('svoi:session-changed', vladaObScheduleSession);
@@ -1294,7 +1320,7 @@ function vladaObInit() {
   if (toggle && typeof MutationObserver === 'function') {
     const signature = () => `${toggle.getAttribute('aria-label')}|${toggle.classList.contains('is-authed')}|${toggle.textContent}`;
     vladaOb.authSignature = signature();
-    new MutationObserver(() => { const next = signature(); if (next !== vladaOb.authSignature) { vladaOb.authSignature = next; vladaObScheduleSession(); } }).observe(toggle, { attributes: true, attributeFilter: ['aria-label','class'], childList: true, subtree: true, characterData: true });
+    new MutationObserver(() => { const next = signature(); if (next !== vladaOb.authSignature) { vladaOb.authSignature = next; if (!vladaObHeaderMatchesSession(toggle)) vladaObScheduleSession(); } }).observe(toggle, { attributes: true, attributeFilter: ['aria-label','class'], childList: true, subtree: true, characterData: true });
   }
   vladaOb.sessionPromise = vladaObReloadSession();
 }
