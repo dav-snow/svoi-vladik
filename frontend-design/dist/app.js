@@ -1200,14 +1200,14 @@ async function showProfile() {
   }
 }
 async function showLeaderboard() {
-  const body = el('div', 'board-body'); body.append(el('p', 'info-note', 'Загружаем топ…'));
-  const opening = openDialog('detail-dialog', [dialogHeading('ТОП ИССЛЕДОВАТЕЛЕЙ', 'Кто отметил больше мест', 'По отметкам посещений. Демо-данные: визит не подтверждается, лайки на место в топе не влияют.'), body]);
+  const body = el('div', 'board-body'); body.append(el('p', 'info-note', 'Загружаем рейтинг…'));
+  const opening = openDialog('detail-dialog', [dialogHeading('РЕЙТИНГ', 'Зарегистрированные исследователи', 'Все аккаунты, даже без отметок. Сортировка по посещениям; лайки показаны, но на место не влияют.'), body]);
   const revision = dialogRevision;
   await opening;
   try {
     const board = await apiSend('/api/v1/leaderboard?limit=10');
     if (revision !== dialogRevision || !$('detail-dialog').open) return;
-    if (!board.items.length) { body.replaceChildren(el('p', 'info-note', 'Пока никто не отметил ни одного места. Станьте первым!')); return; }
+    if (!board.items.length) { body.replaceChildren(el('p', 'info-note', 'Пока нет зарегистрированных аккаунтов.')); return; }
     const list = el('ol', 'board-list');
     board.items.forEach((row, index) => {
       const item = el('li', 'board-row' + (auth.user && row.login === auth.user.login ? ' is-me' : ''));
@@ -1215,7 +1215,7 @@ async function showLeaderboard() {
       list.append(item);
     });
     body.replaceChildren(list);
-    if (board.total > board.items.length) body.append(el('p', 'micro-copy', `Показаны первые ${board.items.length} из ${board.total}.`));
+    if (board.total > board.items.length) body.append(el('p', 'micro-copy', `Показаны первые ${board.items.length} из ${board.total} зарегистрированных.`));
   } catch {
     if (revision !== dialogRevision || !$('detail-dialog').open) return;
     body.replaceChildren(el('p', 'info-note', 'Не удалось загрузить топ. Проверьте соединение.'), button('Повторить', 'primary-button', showLeaderboard));
@@ -1302,7 +1302,7 @@ function initialiseMap() {
     state.map = map;
     map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
     let loaded = false;
-    const timer = setTimeout(() => { if (!loaded) mapStatus("Карта загружается дольше обычного. Места доступны в списке."); }, 12000);
+    const timer = setTimeout(() => { if (!loaded) mapStatus("Карта не загрузилась. Проверьте интернет или отключите VPN/прокси и обновите страницу."); }, 12000);
     map.once("style.load", () => {
       loaded = true; clearTimeout(timer); ui.status.hidden = true;
       map.addSource("leninsky", { type: "geojson", data: state.boundary });
@@ -1321,7 +1321,7 @@ function initialiseMap() {
       renderPlaces(); updateSelectedMarkers(); updateWalkLine(); placeYouMarker();
       frameMobilePlaces();
     });
-    map.on("error", () => { if (!loaded) mapStatus("Подложка временно недоступна. Выберите место в списке."); });
+    map.on("error", () => { if (!loaded) mapStatus("Подложка недоступна. Проверьте интернет или отключите VPN/прокси; места доступны в списке."); });
     map.on("webglcontextlost", showFallback);
   } catch { showFallback(); }
 }
@@ -1574,6 +1574,7 @@ function showRoute() {
   openDialog("route-dialog", routeDialogContent());
 }
 $("route-open")?.addEventListener("click", showRoute);
+$("leaderboard-open")?.addEventListener("click", showLeaderboard);
 $("nearby-request")?.addEventListener("click", () => requestNearby());
 $("nearby-refresh")?.addEventListener("click", () => requestNearby());
 $("nearby-clear")?.addEventListener("click", clearNearby);

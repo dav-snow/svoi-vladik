@@ -65,13 +65,15 @@ def test_leaderboard_equal_visits_sorted_by_login() -> None:
     assert [item["login"] for item in items] == ["alpha", "zeta"]
 
 
-def test_user_without_visits_is_not_listed() -> None:
+def test_registered_user_without_visits_is_listed_with_zero() -> None:
     place = _place_ids(1)[0]
     only_likes = _user("onlylikes")
     only_likes.post(f"/api/v1/places/{place}/like")
     _user("walker").post(f"/api/v1/places/{place}/visit")
     items = TestClient(main.app).get("/api/v1/leaderboard").json()["items"]
-    assert [item["login"] for item in items] == ["walker"]
+    assert [item["login"] for item in items] == ["walker", "onlylikes"]
+    assert items[0]["visits"] == 1
+    assert items[1] == {"login": "onlylikes", "visits": 0, "likes": 1}
 
 
 def test_leaderboard_limit_validation() -> None:

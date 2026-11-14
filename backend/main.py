@@ -1097,7 +1097,7 @@ async def leaderboard(request: Request, limit: Annotated[int | None, Query(ge=1,
                        COUNT(v.place_id) AS visit_count,
                        (SELECT COUNT(*) FROM likes l WHERE l.user_id = u.id) AS like_count
                 FROM users u
-                JOIN visits v ON v.user_id = u.id
+                LEFT JOIN visits v ON v.user_id = u.id
                 GROUP BY u.id, u.login
                 ORDER BY visit_count DESC, u.login ASC
                 """
