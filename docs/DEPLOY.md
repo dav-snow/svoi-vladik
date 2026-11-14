@@ -6,14 +6,41 @@
 обязателен: без него браузер не даёт геолокацию, а кука входа с флагом Secure
 не установится — на телефоне не проверить ни вход, ни «что рядом со мной».
 
-Автоматизированный путь: `deploy.cmd` с Windows (через WSL) вызывает
-`scripts/server-setup.sh` и `scripts/deploy-remote.sh` и делает шаги 3–6 за
-вас. Если WSL нет, используйте `scripts/deploy-windows.ps1` — тот же деплой
-по SSH без WSL:
+## Одна команда для владельца
+
+На машине, где лежит SSH-ключ сервера, из копии репозитория:
 
 ```powershell
+git pull --ff-only
 powershell -ExecutionPolicy Bypass -File scripts/deploy-windows.ps1 -Key C:\Users\me\.ssh\svoi_deploy
-# без -Key подхватится ключ по умолчанию; -DryRun покажет план без сети
+```
+
+Если ключ лежит по умолчанию, `-Key` можно не указывать. `-DryRun` покажет
+план без сети. Скрипт собирает архив, копирует его в `/opt/svoi-vladik`,
+пишет `.env`, пересобирает compose, ждёт HTTPS и сам проверяет, что на стенде
+новая сборка (редизайн, 14 мест, фото с лицензией, `/me/avatars`).
+
+Если локального `data/private/quest-answers.json` нет, скрипт **не удаляет**
+серверный файл: он проверяет его наличие и использует существующий. Секреты
+в Git не попадают.
+
+Linux/macOS-вариант:
+
+```bash
+git pull --ff-only
+bash scripts/deploy-remote.sh tech 176.53.253.60 176-53-253-60.sslip.io
+```
+
+`deploy.cmd` — тот же `deploy-remote.sh` через WSL. Если Docker на сервере ещё
+не установлен, один раз выполните `scripts/server-setup.sh` (шаг 2 ниже).
+
+Перед деплоем можно прогнать локально:
+
+```text
+node --test frontend-design/tests/
+.venv\Scripts\python.exe -m pytest backend/tests -q
+node scripts/build.mjs --check-only
+.venv\Scripts\python.exe scripts/audit_content.py
 ```
 
 Ниже — те же шаги руками, чтобы понимать, что происходит.
@@ -24,7 +51,8 @@ powershell -ExecutionPolicy Bypass -File scripts/deploy-windows.ps1 -Key C:\User
 - Домен и A-запись, указывающая на IP сервера. Проверка: `nslookup ВАШ_ДОМЕН`
   должен вернуть IP сервера. Без своего домена подойдёт `<IP>.sslip.io`.
 - Открытые порты 80 и 443 (Caddy получает сертификат через порт 80).
-- Файл `data/private/quest-answers.json` с машины разработчика (см. шаг 4).
+- Файл `data/private/quest-answers.json` (нужен, если его ещё нет на сервере;
+  иначе деплой сохранит существующий — см. шаг 4).
 
 ## 2. Установить Docker на сервере
 

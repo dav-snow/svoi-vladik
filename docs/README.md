@@ -20,6 +20,7 @@
 | [DATA_POLICY.md](DATA_POLICY.md) | правила данных и достоверности |
 | [SECURITY.md](SECURITY.md) | минимальные меры защиты |
 | [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) | что проверить перед показом |
+| [CONTENT_AUDIT.md](CONTENT_AUDIT.md) | структурный аудит контента и полевая приёмка |
 | [CONTENT_IMPORT.md](CONTENT_IMPORT.md) | импорт и проверка контента |
 | [MAP_LENINSKY.md](MAP_LENINSKY.md) | предпросмотр карты и геоданные |
 | [AI_USAGE.md](AI_USAGE.md) | журнал использования ИИ |
@@ -38,7 +39,7 @@
 - [../prompts/task-022-redesign-posthog.md](../prompts/task-022-redesign-posthog.md) —
   ТЗ на редизайн (задача 022 выполнена, отчёт — `frontend-design/review/task-022-report.md`).
 - [../prompts/task-023-avatar-sync-ui.md](../prompts/task-023-avatar-sync-ui.md) —
-  ТЗ на подключение аватаров к серверной синхронизации (после редизайна).
+  ТЗ на синхронизацию аватаров (задача 023 выполнена, UI подключён).
 - [../prompts/FRONTEND_TODO.md](../prompts/FRONTEND_TODO.md) — история
   фронтенд-бэклога и закрытых пунктов.
 
