@@ -1039,6 +1039,7 @@ function initialiseMap() {
 // --- Geolocation: "Что рядом со мной". Position is kept only in memory (geo
 // object), never written to storage/URL/network/logs. ---
 const RAD = Math.PI / 180;
+const GEO_POSITION_OPTIONS = { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 };
 function haversineM(lat1, lng1, lat2, lng2) {
   const dLat = (lat2 - lat1) * RAD, dLng = (lng2 - lng1) * RAD;
   const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * RAD) * Math.cos(lat2 * RAD) * Math.sin(dLng / 2) ** 2;
@@ -1054,7 +1055,7 @@ function setGeoPhase(phase) {
   const btn = $("nearby-request"); if (btn) btn.disabled = phase === "requesting";
   const actions = $("nearby-actions"); if (actions) actions.hidden = !geo.origin && phase !== 'requesting';
   if ($('nearby-refresh')) $('nearby-refresh').hidden = geo.origin !== 'device';
-  if ($('nearby-clear')) $('nearby-clear').textContent = phase === 'requesting' ? 'Отменить запрос' : 'Очистить старт';
+  if ($('nearby-clear')) $('nearby-clear').textContent = phase === 'requesting' ? 'Отменить запрос' : 'Не использовать моё местоположение';
   refreshPresence();
 }
 function clearYouMarker() { if (geo.youMarker) { geo.youMarker.remove(); geo.youMarker = null; } }
@@ -1074,14 +1075,22 @@ function syncShowAllButton() {
   const b = $("nearby-show-all"); if (b) b.textContent = geo.radiusFilter ? "Показать все места" : "Только рядом";
 }
 function radiusLabel() { return geo.radiusM < 1000 ? geo.radiusM + " м" : (geo.radiusM / 1000) + " км"; }
-function updateNearbyStatus() {
+function updateNearbyStatus(prefix = '') {
   if (!geo.origin) return;
   const total = state.places.length, within = nearbyWithinRadius();
   const shown = geo.radiusFilter ? within : total;
   let text = (geo.origin === 'device' ? 'Рядом со мной' : 'Выбранная точка') + ' · ' + radiusLabel() + ' · ' + shown + ' из ' + total + ' мест';
-  if (geo.origin === 'device') text += " · точность около " + Math.round(geo.accuracyM) + " м · определено в " + formatTime(geo.capturedAt);
-  if (geo.radiusFilter && Number.isFinite(geo.accuracyM) && geo.accuracyM > geo.radiusM) text += ". Точность ниже радиуса — результат приблизительный, обновите позицию или выберите точку вручную.";
-  nearbyStatus(text);
+  if (geo.origin === 'device') {
+    text += " · точность примерно ±" + Math.round(geo.accuracyM) + " м · определено в " + formatTime(geo.capturedAt);
+    if (Number.isFinite(geo.accuracyM) && (geo.accuracyM > 100 || geo.accuracyM > geo.radiusM)) text += ". Результат приблизительный; расстояние считается по прямой. Можно «Обновить местоположение» или «Выбрать вручную».";
+  }
+  if (!prefix && geo.origin === 'device' && geo.phase !== 'ready') prefix = 'Показана предыдущая позиция. ';
+  nearbyStatus(prefix + text);
+}
+function setGeoFailure(phase, message) {
+  setGeoPhase(phase);
+  if (geo.origin === 'device') updateNearbyStatus(message + ' Показана предыдущая позиция. ');
+  else nearbyStatus(message);
 }
 function afterPositionSet() {
   // Shared result for list and map; status carries counter, accuracy and time.
@@ -1089,22 +1098,25 @@ function afterPositionSet() {
   if (state.map) state.map.flyTo({ center: [geo.lng, geo.lat], zoom: Math.max(state.map.getZoom(), 14.6), duration: reducedMotion ? 0 : 600 });
   vladaObUiEvent('origin-set');
 }
-function requestNearby(fresh) {
-  if (!window.isSecureContext) { setGeoPhase('unavailable'); nearbyStatus('Для геолокации нужен HTTPS или localhost. Выберите старт вручную.'); return; }
-  if (!("geolocation" in navigator)) { setGeoPhase("unavailable"); nearbyStatus("Браузер не поддерживает геолокацию. Выберите место в списке или на карте вручную."); return; }
-  const reqId = ++geo.reqId; setGeoPhase("requesting"); nearbyStatus("Ищу твою точку. Пока далеко не убегай.");
+function requestNearby() {
+  if (!window.isSecureContext) { setGeoFailure('unavailable', 'Для геолокации нужен HTTPS или localhost. Выберите старт вручную.'); return; }
+  if (!("geolocation" in navigator)) { setGeoFailure("unavailable", "Браузер не поддерживает геолокацию. Выберите место в списке или на карте вручную."); return; }
+  const reqId = ++geo.reqId; setGeoPhase("requesting");
+  const waiting = "Ищу твою точку. Это может занять до 15 секунд. Пока можно выбрать старт вручную.";
+  if (geo.origin === 'device') updateNearbyStatus(waiting + ' Показана предыдущая позиция. ');
+  else nearbyStatus(waiting);
   navigator.geolocation.getCurrentPosition(pos => {
     if (reqId !== geo.reqId) return; // stale callback: a newer request or a clear happened
     const { latitude, longitude, accuracy } = pos.coords;
-    if (!Number.isFinite(latitude) || !Number.isFinite(longitude) || Math.abs(latitude) > 90 || Math.abs(longitude) > 180 || !Number.isFinite(accuracy) || accuracy < 0) { setGeoPhase("unavailable"); nearbyStatus("Не удалось определить координаты. Попробуйте обновить позицию или выбрать точку вручную."); return; }
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude) || Math.abs(latitude) > 90 || Math.abs(longitude) > 180 || !Number.isFinite(accuracy) || accuracy < 0) { setGeoFailure("unavailable", "Не удалось определить координаты. Попробуйте обновить позицию или выбрать точку вручную."); return; }
     geo.origin = "device"; geo.lat = latitude; geo.lng = longitude; geo.accuracyM = accuracy; geo.capturedAt = Date.now();
     setGeoPhase("ready"); afterPositionSet();
   }, err => {
     if (reqId !== geo.reqId) return;
-    if (err.code === err.PERMISSION_DENIED) { setGeoPhase("denied"); nearbyStatus("Хорошо, без геолокации. Выбери старт вручную — этого достаточно."); }
-    else if (err.code === err.TIMEOUT) { setGeoPhase("timeout"); nearbyStatus("Поймать твоё положение не получилось. Попробуем ещё раз или выберем старт вручную?"); }
-    else { setGeoPhase("unavailable"); nearbyStatus("Не удалось определить местоположение. Обновите позицию или выберите точку вручную."); }
-  }, { enableHighAccuracy: false, timeout: 10000, maximumAge: fresh ? 0 : 60000 });
+    if (err.code === err.PERMISSION_DENIED) setGeoFailure("denied", "Хорошо, без геолокации. Выбери старт вручную — этого достаточно.");
+    else if (err.code === err.TIMEOUT) setGeoFailure("timeout", "Поймать твоё положение не получилось. Попробуем ещё раз или выберем старт вручную?");
+    else setGeoFailure("unavailable", "Не удалось определить местоположение. Обновите позицию или выберите точку вручную.");
+  }, GEO_POSITION_OPTIONS);
 }
 function clearNearby(render = true) {
   geo.reqId++; // invalidate any in-flight callback
